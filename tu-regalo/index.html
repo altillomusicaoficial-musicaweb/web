@@ -59,13 +59,23 @@ h1,h2,p{margin:0}
 .portada .flecha svg{width:18px;height:24px;animation:baja 1.6s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.portada .flecha svg{animation:none}}
 @keyframes baja{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+.portada-mono{position:absolute;top:14px;right:14px;width:clamp(64px,9vw,112px);z-index:2;transform:rotate(9deg);filter:drop-shadow(3px 4px 0 rgba(0,0,0,.22))}
+.portada-ariana{position:absolute;left:-24px;bottom:-18px;width:clamp(210px,32vw,380px);z-index:1;transform:rotate(-3deg);filter:drop-shadow(4px 6px 0 rgba(0,0,0,.18))}
+
+/* --- divisor de flores ------------------------------------------ */
+.divisor-flores{text-align:center;padding-top:clamp(20px,4vw,32px);background:var(--crema)}
+.divisor-flores img{width:clamp(150px,20vw,240px);transform:rotate(-4deg)}
 
 /* --- sobremesa / tracklist ---------------------------------------- */
 .sobremesa{padding-block:clamp(48px,9vw,96px)}
-.sobremesa-cab{border-bottom:1.5px solid var(--tinta);padding-bottom:clamp(20px,4vw,28px);margin-bottom:clamp(28px,5vw,44px)}
+.sobremesa-cab{position:relative}
+.sobremesa-cab::before{content:"";position:absolute;inset:-4px -4px calc(-1 * clamp(20px,4vw,28px)) -4px;z-index:-1;background-image:url(assets/collage/flores-tejido.webp);background-repeat:repeat;background-size:200px auto;opacity:.09;pointer-events:none}
+.sobremesa-cab{display:flex;flex-wrap:wrap;align-items:flex-end;gap:clamp(18px,4vw,32px);border-bottom:1.5px solid var(--tinta);padding-bottom:clamp(20px,4vw,28px);margin-bottom:clamp(28px,5vw,44px)}
+.sobremesa-cab-texto{flex:1 1 280px}
 .sobremesa-cab .eyebrow{color:var(--tomate);margin-bottom:.5rem}
 .sobremesa-cab h2{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(2.1rem,5vw,3.2rem);line-height:1}
 .sobremesa-cab p{margin-top:.9rem;max-width:52ch;color:var(--tinta);opacity:.85}
+.sobremesa-cab-foto{flex:0 0 auto;margin-left:auto;width:clamp(150px,26vw,230px);height:auto;transform:rotate(2deg);filter:drop-shadow(4px 6px 0 rgba(23,20,15,.15))}
 
 .trago{display:grid;grid-template-columns:auto 1fr auto;align-items:center;column-gap:clamp(14px,3vw,22px);row-gap:10px;padding-block:clamp(20px,4vw,26px);border-bottom:1px solid var(--linea)}
 .trago:first-of-type{border-top:1px solid var(--linea)}
@@ -91,11 +101,17 @@ h1,h2,p{margin:0}
   .trago-dur{grid-column:2;justify-self:start;margin-top:2px}
 }
 
-.nota-audios{margin-top:clamp(28px,5vw,40px);padding:16px 18px;border:1px dashed var(--linea);background:var(--crema-2);font-size:.82rem;line-height:1.6;color:var(--tinta)}
+.nota-audios{position:relative;margin-top:clamp(28px,5vw,40px);padding:16px 18px;border:1px dashed var(--linea);background:var(--crema-2);font-size:.82rem;line-height:1.6;color:var(--tinta)}
 .nota-audios strong{color:var(--tomate)}
+.nota-audios-sticker{position:absolute;top:-24px;right:-10px;width:clamp(52px,8vw,80px);transform:rotate(9deg);filter:drop-shadow(3px 4px 0 rgba(23,20,15,.15))}
 
 /* --- pie ------------------------------------------------------- */
 .pie{padding-block:clamp(32px,6vw,48px);border-top:1.5px solid var(--tinta);text-align:center}
+.pie-figuritas{display:flex;justify-content:center;align-items:flex-end;gap:clamp(6px,2.4vw,20px);margin-bottom:clamp(14px,3vw,24px)}
+.pie-figuritas img{height:clamp(58px,8.5vw,104px);width:auto;filter:drop-shadow(3px 4px 0 rgba(23,20,15,.15))}
+.pie-figuritas img:nth-child(1){transform:rotate(-4deg)}
+.pie-figuritas img:nth-child(2){transform:rotate(3deg)}
+.pie-figuritas img:nth-child(3){transform:rotate(-3deg)}
 .pie .script{display:block;font-size:clamp(1.3rem,2.6vw,1.7rem);color:var(--tinta)}
 .pie nav{margin-top:1.1rem;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
 .pie nav a{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--tinta);border-bottom:1px solid var(--tinta)}
@@ -105,6 +121,8 @@ h1,h2,p{margin:0}
 <body>
 
 <section class="portada">
+  <img class="portada-mono" src="assets/collage/mono.webp" alt="" aria-hidden="true" loading="lazy">
+  <img class="portada-ariana" src="assets/collage/ariana-v2.webp" alt="Ariana, de Altillo, descansando" loading="lazy">
   <div class="wrap portada-en">
     <p class="label eyebrow">esto no está en la carta</p>
     <h1>La<br>sobremesa</h1>
@@ -116,11 +134,18 @@ h1,h2,p{margin:0}
   </div>
 </section>
 
+<div class="divisor-flores">
+  <img src="assets/collage/flores-rama.webp" alt="" aria-hidden="true" loading="lazy">
+</div>
+
 <section class="sobremesa wrap" aria-labelledby="sobremesa-titulo">
   <header class="sobremesa-cab">
-    <p class="label eyebrow">tres tragos, para llevar</p>
-    <h2 id="sobremesa-titulo">Lo que te has ganado</h2>
-    <p>Esto es lo que suena cuando le das la vuelta al cassette. Sin prisa, en el orden que te apetezca.</p>
+    <div class="sobremesa-cab-texto">
+      <p class="label eyebrow">tres tragos, para llevar</p>
+      <h2 id="sobremesa-titulo">Lo que te has ganado</h2>
+      <p>Esto es lo que suena cuando le das la vuelta al cassette. Sin prisa, en el orden que te apetezca.</p>
+    </div>
+    <img class="sobremesa-cab-foto" src="assets/collage/gazpacho-cassette-v2.webp" alt="Cassette de Altillo flotando en un plato de gazpacho" loading="lazy">
   </header>
 
   <div class="tragos" role="list">
@@ -176,6 +201,7 @@ h1,h2,p{margin:0}
   </div>
 
   <p class="nota-audios">
+    <img class="nota-audios-sticker" src="assets/collage/gazpacho.webp" alt="" aria-hidden="true" loading="lazy">
     <strong>Nota de montaje —</strong> esto es la maqueta con reproductores de ejemplo.
     Para que suene de verdad: sube tus mp3 a <code>tu-regalo/audio/</code> con los nombres
     <code>trago-1.mp3</code>, <code>trago-2.mp3</code>, <code>trago-3.mp3</code> (o cambia
@@ -186,6 +212,11 @@ h1,h2,p{margin:0}
 </section>
 
 <footer class="pie wrap">
+  <div class="pie-figuritas" aria-hidden="true">
+    <img src="assets/collage/sillon-loro.webp" alt="" loading="lazy">
+    <img src="assets/collage/burro.webp" alt="" loading="lazy">
+    <img src="assets/collage/cerdita.webp" alt="" loading="lazy">
+  </div>
   <span class="script">gracias por venir a la mesa</span>
   <nav>
     <a href="../index.html">Volver a la carta</a>
