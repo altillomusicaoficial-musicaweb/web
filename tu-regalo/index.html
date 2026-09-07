@@ -226,7 +226,7 @@ h1,h2,p{margin:0}
 
 <script>
 (function(){
-  var tragos = document.querySelectorAll(".trago");
+  var tragos = Array.prototype.slice.call(document.querySelectorAll(".trago"));
 
   function formatea(seg){
     if(!isFinite(seg)) return "–:–";
@@ -234,7 +234,23 @@ h1,h2,p{margin:0}
     return m + ":" + (s<10?"0":"") + s;
   }
 
-  tragos.forEach(function(trago){
+  function pausaTodos(){
+    tragos.forEach(function(t){
+      t.classList.remove("reproduciendo");
+      t.querySelector("[data-audio]").pause();
+    });
+  }
+
+  function reproducir(indice){
+    if(indice < 0 || indice >= tragos.length) return;
+    var trago = tragos[indice];
+    var audio = trago.querySelector("[data-audio]");
+    pausaTodos();
+    audio.play().catch(function(){ /* sin archivo de audio todavía */ });
+    trago.classList.add("reproduciendo");
+  }
+
+  tragos.forEach(function(trago, indice){
     var audio = trago.querySelector("[data-audio]");
     var boton = trago.querySelector("[data-toggle]");
     var barra = trago.querySelector("[data-barra]");
@@ -242,20 +258,9 @@ h1,h2,p{margin:0}
     var tiempo = trago.querySelector("[data-tiempo]");
     var duracion = trago.querySelector("[data-duracion]");
 
-    function pausaOtros(){
-      tragos.forEach(function(otro){
-        if(otro !== trago){
-          otro.classList.remove("reproduciendo");
-          otro.querySelector("[data-audio]").pause();
-        }
-      });
-    }
-
     boton.addEventListener("click", function(){
       if(audio.paused){
-        pausaOtros();
-        audio.play().catch(function(){ /* sin archivo de audio todavía */ });
-        trago.classList.add("reproduciendo");
+        reproducir(indice);
       } else {
         audio.pause();
         trago.classList.remove("reproduciendo");
@@ -275,6 +280,9 @@ h1,h2,p{margin:0}
       trago.classList.remove("reproduciendo");
       relleno.style.width = "0%";
       tiempo.textContent = "0:00";
+      if(indice < tragos.length - 1){
+        reproducir(indice + 1);
+      }
     });
 
     function busca(clientX){
