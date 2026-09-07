@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hacer un pedido — ALTILLO</title>
+<meta name="description" content="Encarga el Marco NFC o el Cassette de ALTILLO. Os contestamos por correo con el importe final y cómo pagar (Bizum o transferencia).">
+<meta name="theme-color" content="#d4261a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ede5d0'/%3E%3Crect x='4' y='4' width='12' height='12' fill='%23d4261a'/%3E%3Crect x='16' y='16' width='12' height='12' fill='%23d4261a'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+@font-face{font-family:"Altillo Display";src:url(assets/fonts/NimbusSansNarrow-Bold.otf) format("opentype");font-weight:700;font-display:swap}
+@font-face{font-family:"Altillo Serif";src:url(assets/fonts/NimbusRoman-Italic.otf) format("opentype");font-style:italic;font-display:swap}
+
+:root{
+  --crema:#ede5d0; --crema-2:#e4dbc3; --tomate:#d4261a; --tinta:#17140f; --linea:#b6aa92;
+  --display:"Anton","Altillo Display",Impact,"Arial Narrow",sans-serif;
+  --serif:"Instrument Serif","Altillo Serif",Georgia,"Times New Roman",serif;
+  --mono:"Courier Prime","Courier New",Courier,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--crema);color:var(--tinta);font-family:var(--mono);font-size:1rem;line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.16;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%;height:auto}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3,p{margin:0}
+:where(a,button,input,textarea):focus-visible{outline:3px solid var(--tomate);outline-offset:4px}
+.display{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.9;letter-spacing:-.01em}
+.script{font-family:var(--serif);font-style:italic;font-weight:400;line-height:1.05;letter-spacing:-.015em}
+.label{font-family:var(--mono);font-size:.8125rem;letter-spacing:.06em;text-transform:uppercase;line-height:1.35}
+.rojo{color:var(--tomate)}
+.wrap{width:min(760px,100%);margin-inline:auto;padding-inline:clamp(18px,4vw,32px)}
+
+.nav{position:sticky;top:0;z-index:20;background:var(--crema);border-bottom:1.5px solid var(--tinta)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;min-height:64px;width:min(760px,100%);margin:auto;padding-inline:clamp(18px,4vw,32px)}
+.nav-logo{font-size:2rem;color:var(--tomate)}
+.volver{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--tinta)}
+.volver:hover{color:var(--tomate);border-color:var(--tomate)}
+
+.cabecera{padding-block:clamp(32px,6vw,56px) clamp(16px,3vw,28px)}
+.cabecera .eyebrow{font-size:.8125rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tomate);font-weight:700;margin-bottom:.6rem}
+.cabecera h1{font-size:clamp(2.6rem,7vw,4.2rem);color:var(--tomate)}
+.cabecera p{margin-top:1rem;max-width:52ch}
+
+.productos{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-block:28px 8px}
+.prod{border:1.5px solid var(--tinta);padding:16px;display:flex;flex-direction:column;gap:10px;cursor:pointer;background:var(--crema-2);transition:background .15s,box-shadow .15s}
+.prod:has(input:checked){background:var(--crema);box-shadow:5px 5px 0 var(--tomate)}
+.prod img{width:100%;aspect-ratio:4/3;object-fit:cover;border:1px solid var(--tinta)}
+.prod .fila{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.prod h3{font-family:var(--serif);font-style:italic;font-size:1.4rem;line-height:1}
+.prod .precio{font-family:var(--display);font-size:1.3rem;color:var(--tomate)}
+.prod .marca{display:flex;align-items:center;gap:8px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
+.prod input[type=checkbox]{width:18px;height:18px;accent-color:var(--tomate)}
+.cantidad{display:flex;align-items:center;gap:10px;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+.cantidad input{width:56px;padding:6px 8px;border:1.5px solid var(--tinta);background:var(--crema);font-family:var(--mono);text-align:center}
+.cantidad input:disabled{opacity:.4}
+
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px dotted var(--linea);border-bottom:1.5px dotted var(--linea);padding:14px 2px;margin-bottom:28px;font-family:var(--display);font-size:1.4rem}
+.total span:last-child{color:var(--tomate)}
+
+.formulario{display:grid;gap:16px;margin-bottom:12px}
+.formulario label{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;display:block;margin-bottom:6px}
+.formulario input,.formulario textarea{width:100%;background:var(--crema-2);border:1.5px solid var(--tinta);padding:12px 14px;font-family:var(--mono)}
+.formulario textarea{min-height:90px;resize:vertical}
+.formulario .fila2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6em;min-height:48px;padding:.85em 1.6em;border:1.5px solid var(--tomate);background:var(--tomate);color:#fff4e4;font-family:var(--mono);font-weight:700;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;transition:background .15s,color .15s}
+.btn:hover{background:var(--tinta);border-color:var(--tinta)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn svg{width:.9em;height:.9em}
+
+.pasos{background:var(--crema-2);border:1.5px solid var(--tinta);padding:20px clamp(18px,3vw,28px);margin:28px 0 40px;display:grid;gap:10px}
+.pasos p{font-size:.92rem}
+.pasos strong{color:var(--tomate)}
+
+.pie{border-top:1.5px solid var(--tinta);padding:24px 0 48px;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;text-align:center;color:var(--tinta)}
+
+.confirmacion{display:none;border:1.5px solid var(--tinta);background:var(--crema-2);padding:24px clamp(18px,3vw,28px);margin-top:20px}
+.confirmacion.visible{display:block}
+.confirmacion h2{font-family:var(--serif);font-style:italic;color:var(--tomate);font-size:1.6rem;margin-bottom:.6rem}
+
+@media (max-width:600px){
+  .productos{grid-template-columns:1fr}
+  .formulario .fila2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-in">
+    <a class="nav-logo display" href="index.html">ALTILLO</a>
+    <a class="volver" href="index.html#mercadillo">← Volver a la carta</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="cabecera">
+    <p class="eyebrow">Mercadillo · para llevar</p>
+    <h1 class="display">Hacemos el pedido a mano</h1>
+    <p>Elige lo que te llevas y déjanos tus datos. Te contestamos por correo
+      con el importe final y cómo pagarlo — Bizum o transferencia, lo que te
+      venga mejor.</p>
+  </header>
+
+  <form id="form-pedido">
+    <div class="productos">
+      <label class="prod" for="chk-marco">
+        <img src="assets/img/marco-nfc.webp" alt="Marco dorado NFC de ALTILLO">
+        <div class="fila">
+          <span class="marca"><input type="checkbox" id="chk-marco" name="marco" value="1" data-precio="8"> Marcos NFC</span>
+          <span class="precio">8,00 €</span>
+        </div>
+        <div class="cantidad">
+          Cantidad
+          <input type="number" id="cant-marco" min="1" max="20" value="1" disabled aria-label="Cantidad de Marcos NFC">
+        </div>
+      </label>
+      <label class="prod" for="chk-cassette">
+        <img src="assets/img/cassette-cara-a.webp" alt="Cassette de ALTILLO, Cualquier cosa combina">
+        <div class="fila">
+          <span class="marca"><input type="checkbox" id="chk-cassette" name="cassette" value="1" data-precio="15"> Cassette</span>
+          <span class="precio">15,00 €</span>
+        </div>
+        <div class="cantidad">
+          Cantidad
+          <input type="number" id="cant-cassette" min="1" max="20" value="1" disabled aria-label="Cantidad de cassettes">
+        </div>
+      </label>
+    </div>
+
+    <div class="total"><span>Total estimado</span><span id="total-precio">0,00 €</span></div>
+
+    <div class="formulario">
+      <div class="fila2">
+        <div>
+          <label for="f-nombre">Nombre</label>
+          <input id="f-nombre" name="nombre" autocomplete="name" required maxlength="100">
+        </div>
+        <div>
+          <label for="f-contacto">Email o teléfono</label>
+          <input id="f-contacto" name="contacto" required maxlength="120" placeholder="Para contactarte con el pago">
+        </div>
+      </div>
+      <div>
+        <label for="f-direccion">Dirección de envío</label>
+        <input id="f-direccion" name="direccion" maxlength="200" placeholder="Calle, número, ciudad, código postal">
+      </div>
+      <div>
+        <label for="f-comentarios">Comentarios</label>
+        <textarea id="f-comentarios" name="comentarios" maxlength="1000" placeholder="Lo que quieras añadir"></textarea>
+      </div>
+    </div>
+
+    <button class="btn" type="submit" id="btn-enviar" disabled>
+      Enviar pedido
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3 2h11v11h-2V5.4L3.7 13.7 2.3 12.3 10.6 4H3z"/></svg>
+    </button>
+  </form>
+
+  <div class="confirmacion" id="confirmacion">
+    <h2>Se abrirá tu correo</h2>
+    <p>Hemos preparado un email a altillomusica.oficial@gmail.com con tu
+      pedido. Si tu ordenador o móvil no abre la app de correo automáticamente,
+      escríbenos directamente a esa dirección con los mismos datos.</p>
+  </div>
+
+  <div class="pasos">
+    <p><strong>1.</strong> Nos escribes con lo que quieres llevarte.</p>
+    <p><strong>2.</strong> Te confirmamos el total (incluidos gastos de envío si los hay) y te decimos cómo pagar: Bizum o transferencia.</p>
+    <p><strong>3.</strong> En cuanto vemos el pago, te lo enviamos o quedamos para dártelo en mano.</p>
+  </div>
+</main>
+
+<footer class="pie">Madrid · Medellín — altillomusica.oficial@gmail.com</footer>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+
+const productos = [
+  { chk: '#chk-marco', cant: '#cant-marco', nombre: 'Marco NFC', precio: 8 },
+  { chk: '#chk-cassette', cant: '#cant-cassette', nombre: 'Cassette', precio: 15 }
+];
+
+// Preselecciona el producto según ?producto=marco / ?producto=cassette
+const params = new URLSearchParams(location.search);
+const preseleccion = params.get('producto');
+if (preseleccion === 'marco') $('#chk-marco').checked = true;
+if (preseleccion === 'cassette') $('#chk-cassette').checked = true;
+
+function actualizar() {
+  let total = 0;
+  productos.forEach(p => {
+    const chk = $(p.chk), cant = $(p.cant);
+    cant.disabled = !chk.checked;
+    if (chk.checked) total += p.precio * (parseInt(cant.value, 10) || 1);
+  });
+  $('#total-precio').textContent = total.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + ' €';
+  $('#btn-enviar').disabled = total === 0;
+}
+
+productos.forEach(p => {
+  $(p.chk).addEventListener('change', actualizar);
+  $(p.cant).addEventListener('input', actualizar);
+});
+actualizar();
+
+$('#form-pedido').addEventListener('submit', e => {
+  e.preventDefault();
+  const f = e.currentTarget;
+  if (!f.reportValidity()) return;
+
+  const lineas = [];
+  let total = 0;
+  productos.forEach(p => {
+    const chk = $(p.chk), cant = $(p.cant);
+    if (chk.checked) {
+      const n = parseInt(cant.value, 10) || 1;
+      lineas.push(`- ${p.nombre} x${n} (${(p.precio * n).toLocaleString('es-ES', {minimumFractionDigits:2})} €)`);
+      total += p.precio * n;
+    }
+  });
+
+  const nombre = $('#f-nombre').value;
+  const contacto = $('#f-contacto').value;
+  const direccion = $('#f-direccion').value || '(no indicada)';
+  const comentarios = $('#f-comentarios').value || '(ninguno)';
+
+  const asunto = `Pedido mercadillo ALTILLO — ${nombre}`;
+  const cuerpo = [
+    'Pedido:',
+    ...lineas,
+    `Total estimado: ${total.toLocaleString('es-ES', {minimumFractionDigits:2})} €`,
+    '',
+    `Nombre: ${nombre}`,
+    `Contacto: ${contacto}`,
+    `Dirección de envío: ${direccion}`,
+    `Comentarios: ${comentarios}`
+  ].join('\n');
+
+  location.href = `mailto:altillomusica.oficial@gmail.com?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+  $('#confirmacion').classList.add('visible');
+  $('#confirmacion').scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+</script>
+</body>
+</html>

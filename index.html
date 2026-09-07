@@ -667,12 +667,12 @@ html:not(.motion-on) .cinta-pista,html:not(.motion-on) .damero,html:not(.motion-
         <button class="tarjeta-video" type="button" data-video="directo" data-anim="sube">
           <img src="assets/img/portada-cualquier-cosa-combina.jpg" alt="" loading="lazy">
           <span class="titulo display">Directo</span>
-          <span class="sr-only">Ver vídeo en directo</span>
+          <span class="sr-only">Ver vídeo en directo: Empecinadas</span>
         </button>
-        <button class="tarjeta-video" type="button" data-video="universo" data-anim="sube">
+        <button class="tarjeta-video" type="button" data-video="ultimoLanzamiento" data-anim="sube">
           <img src="assets/img/gazpacho-sonoro.jpg" alt="" loading="lazy">
-          <span class="titulo display">Universo Altillo</span>
-          <span class="sr-only">Ver vídeo Universo Altillo</span>
+          <span class="titulo display">Último lanzamiento</span>
+          <span class="sr-only">Ver vídeo del último lanzamiento: Paseíto</span>
         </button>
       </div>
       <div class="videos-pie">
@@ -692,7 +692,7 @@ html:not(.motion-on) .cinta-pista,html:not(.motion-on) .damero,html:not(.motion-
           <h3>Marcos NFC</h3>
           <p>Un cuadro que suena: acércale el móvil y se abre la música.</p>
           <p class="precio">8,00 €</p>
-          <button class="btn" type="button" data-enlace="productoMarco">Comprar <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3 2h11v11h-2V5.4L3.7 13.7 2.3 12.3 10.6 4H3z"/></svg></button>
+          <a class="btn" href="pedido.html?producto=marco">Comprar <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3 2h11v11h-2V5.4L3.7 13.7 2.3 12.3 10.6 4H3z"/></svg></a>
         </div>
       </article>
       <article class="producto" data-anim="sube">
@@ -700,9 +700,9 @@ html:not(.motion-on) .cinta-pista,html:not(.motion-on) .damero,html:not(.motion-
         <div>
           <h3>Cassette</h3>
           <p>Cualquier cosa combina en cinta reciclada. Cada copia es distinta.</p>
-          <p class="precio"><s>13,50 €</s> <strong>12,02 €</strong></p>
+          <p class="precio">15,00 €</p>
           <div class="acciones" style="margin-top:0">
-            <button class="btn" type="button" data-enlace="productoCassette">Comprar <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3 2h11v11h-2V5.4L3.7 13.7 2.3 12.3 10.6 4H3z"/></svg></button>
+            <a class="btn" href="pedido.html?producto=cassette">Comprar <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3 2h11v11h-2V5.4L3.7 13.7 2.3 12.3 10.6 4H3z"/></svg></a>
             <button class="btn contorno" type="button" id="abrir-cassette">Ver de cerca</button>
           </div>
         </div>
@@ -849,18 +849,15 @@ html:not(.motion-on) .cinta-pista,html:not(.motion-on) .damero,html:not(.motion-
    ============================================================ */
 window.ALTILLO = {
   videos: {
-    espectaculo: "qTfbxBdEPdw", // vídeo de intro / portada
-    directo: "",                // TODO: ID de YouTube del directo
-    universo: ""                // TODO: ID de YouTube de "Universo Altillo"
+    espectaculo: "qTfbxBdEPdw",        // vídeo de intro / portada
+    directo: "O7hlNhw9pQU",            // Empecinadas, en directo
+    ultimoLanzamiento: "hK0c5fvO0U4"   // Paseíto (último lanzamiento)
   },
   enlaces: {
-    // Sacados del dossier (ALTILLO-dossier.pdf):
-    productoCassette: "https://www.altillomusica.com/product-page/cassette",
-    productoMarco: "https://www.altillomusica.com/", // TODO: no hay página de producto propia del Marco NFC en el dossier — pon el enlace directo si existe
     disco: "https://tidal.com/artist/42996330",       // única plataforma de escucha enlazada en el dossier
     youtube: "https://www.youtube.com/channel/UCUPfdS8AhfqtHSKqLbsm5ug",
     contratar: "https://app.altillomusica.com/contratar", // formulario de contratación del dossier
-    instagram: "" // TODO: el dossier solo enlaza a instagram.com genérico, no a vuestro perfil — pega aquí la URL real
+    instagram: "https://www.instagram.com/altillomusica/"
   }
 };
 // Mientras un campo esté vacío, el botón correspondiente muestra un aviso

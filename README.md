@@ -7,13 +7,27 @@ frameworks. Para editarlo solo hace falta abrir `index.html`.
 ## Estructura
 
 ```
-index.html          ← toda la página (estructura, estilos y comportamiento)
+index.html          ← la página principal (carta de restaurante)
+pedido.html          ← formulario de encargo del mercadillo (Bizum/transferencia a mano)
 assets/
   img/               ← fotos y collages (jpg/webp)
   fonts/             ← Nimbus Sans Narrow Bold y Nimbus Roman Italic (respaldo local de Anton / Instrument Serif)
   docs/
     ALTILLO-dossier.pdf
 ```
+
+## Cómo funciona "pedido.html"
+
+No hay pasarela de pago real (la web es estática, sin servidor). Los botones
+"Comprar" del Mercadillo llevan a `pedido.html`, donde la persona elige
+producto y cantidad, deja sus datos y pulsa "Enviar pedido": esto abre su
+aplicación de correo con un email ya redactado a
+`altillomusica.oficial@gmail.com` con el resumen del pedido. Desde ahí
+respondéis a mano con el importe final y cómo pagar (Bizum o transferencia).
+Los precios y el texto de los tres pasos están escritos directamente en el
+HTML — si cambia un precio, edita el `data-precio` y el texto `€` visible en
+`pedido.html`, y también el precio en la tarjeta de producto de
+`index.html`.
 
 ## Enlaces pendientes
 
@@ -23,19 +37,15 @@ formulario de contratación). Cada campo marcado `// TODO` está vacío a
 propósito: mientras lo esté, el botón correspondiente muestra un aviso
 ("Seguimos cocinando") en vez de romperse.
 
-Pendientes ahora mismo:
-- `videos.directo` y `videos.universo` — ID de YouTube de cada vídeo (la
-  parte que va después de `watch?v=`).
-- `enlaces.productoMarco` — el dossier no enlaza una página de producto
-  propia para el Marco NFC; de momento apunta a la home de altillomusica.com.
-- `enlaces.instagram` — el dossier solo enlaza a `instagram.com` genérico,
-  no a vuestro perfil. Pega aquí la URL real cuando la tengas a mano.
-
-Ya rellenados a partir del dossier (`ALTILLO-dossier.pdf`):
-- `enlaces.productoCassette` → página del cassette en la tienda Wix
-- `enlaces.disco` → perfil de Tidal
+Todo relleno por ahora. Si algo cambia:
+- `enlaces.disco` → perfil de Tidal (única plataforma que traía el dossier;
+  añade Spotify/Bandcamp aquí si los usáis)
 - `enlaces.youtube` → canal de YouTube
 - `enlaces.contratar` → formulario de contratación (`app.altillomusica.com/contratar`)
+- `enlaces.instagram` → perfil real de Instagram
+- `videos.espectaculo` / `videos.directo` / `videos.ultimoLanzamiento` → IDs
+  de YouTube (la parte después de `watch?v=`). `directo` es "Empecinadas" en
+  directo; `ultimoLanzamiento` es "Paseíto".
 
 ## Publicarlo en GitHub Pages
 
