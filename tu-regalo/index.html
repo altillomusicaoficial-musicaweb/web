@@ -17,6 +17,7 @@
    ALTILLO — tu regalo / la sobremesa
    Mismo branding rojo/crema que el resto de la web. Se abre al
    desenfundar el cassette — nada de marco NFC aquí.
+   Audios: MP3 en tu-regalo/audio/ (streaming) y WAV en la release "audio-tu-regalo" (descarga).
    ============================================================ */
 @font-face{font-family:"Altillo Display";src:url(../assets/fonts/NimbusSansNarrow-Bold.otf) format("opentype");font-weight:700;font-display:swap}
 @font-face{font-family:"Altillo Serif";src:url(../assets/fonts/NimbusRoman-Italic.otf) format("opentype");font-style:italic;font-display:swap}
@@ -77,7 +78,7 @@ h1,h2,p{margin:0}
 .sobremesa-cab p{margin-top:.9rem;max-width:52ch;color:var(--tinta);opacity:.85}
 .sobremesa-cab-foto{flex:0 0 auto;margin-left:auto;width:clamp(150px,26vw,230px);height:auto;transform:rotate(2deg);filter:drop-shadow(4px 6px 0 rgba(23,20,15,.15))}
 
-.trago{display:grid;grid-template-columns:auto 1fr auto;align-items:center;column-gap:clamp(14px,3vw,22px);row-gap:10px;padding-block:clamp(20px,4vw,26px);border-bottom:1px solid var(--linea)}
+.trago{display:grid;grid-template-columns:2.6rem 1fr auto;align-items:center;column-gap:clamp(14px,3vw,22px);row-gap:10px;padding-block:clamp(20px,4vw,26px);border-bottom:1px solid var(--linea)}
 .trago:first-of-type{border-top:1px solid var(--linea)}
 .trago-num{font-family:var(--serif);font-style:italic;font-size:clamp(1.6rem,3.4vw,2.2rem);color:var(--tomate);line-height:1}
 .trago-play{width:52px;height:52px;flex:none;border:1.5px solid var(--tinta);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--tinta);transition:background .15s,border-color .15s,color .15s}
@@ -91,19 +92,21 @@ h1,h2,p{margin:0}
 .trago.reproduciendo .ico-play{display:none}
 .trago.reproduciendo .ico-pausa{display:block}
 .trago-cuerpo{min-width:0}
-.trago-titulo{font-family:var(--serif);font-style:italic;font-size:clamp(1.35rem,2.6vw,1.75rem);line-height:1.1;color:var(--tinta)}
+.trago-titulo{font-family:var(--serif);font-style:italic;font-weight:400;margin:0;font-size:clamp(1.35rem,2.6vw,1.75rem);line-height:1.1;color:var(--tinta)}
 .trago-barra{margin-top:.7rem;height:3px;background:var(--linea);position:relative;cursor:pointer}
 .trago-barra-relleno{position:absolute;inset:0 auto 0 0;width:0%;background:var(--tomate)}
 .trago-tiempo{grid-column:2;font-size:.78rem;letter-spacing:.04em;color:var(--tinta);opacity:.6;margin-top:.4rem}
 .trago-dur{grid-column:3;justify-self:end;font-size:.8rem;color:var(--tinta);opacity:.6;align-self:start}
+.trago-desc{grid-column:2 / 4;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;margin-top:.15rem;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase}
+.trago-desc-label{opacity:.55}
+.trago-desc a{color:var(--tinta);border-bottom:1px solid var(--tinta);text-decoration:none;padding-block:2px}
+.trago-desc a:hover{color:var(--tomate);border-color:var(--tomate)}
+.trago-desc a span{opacity:.55;text-transform:none;letter-spacing:0}
 @media (max-width:520px){
-  .trago{grid-template-columns:auto 1fr}
-  .trago-dur{grid-column:2;justify-self:start;margin-top:2px}
+  .trago{grid-template-columns:2.2rem 1fr auto}
+  .trago-dur{grid-column:3;justify-self:end}
+  .trago-desc{grid-column:2 / 4}
 }
-
-.nota-audios{position:relative;margin-top:clamp(28px,5vw,40px);padding:16px 18px;border:1px dashed var(--linea);background:var(--crema-2);font-size:.82rem;line-height:1.6;color:var(--tinta)}
-.nota-audios strong{color:var(--tomate)}
-.nota-audios-sticker{position:absolute;top:-24px;right:-10px;width:clamp(52px,8vw,80px);transform:rotate(9deg);filter:drop-shadow(3px 4px 0 rgba(23,20,15,.15))}
 
 /* --- pie ------------------------------------------------------- */
 .pie{padding-block:clamp(32px,6vw,48px);border-top:1.5px solid var(--tinta);text-align:center}
@@ -141,7 +144,7 @@ h1,h2,p{margin:0}
 <section class="sobremesa wrap" aria-labelledby="sobremesa-titulo">
   <header class="sobremesa-cab">
     <div class="sobremesa-cab-texto">
-      <p class="label eyebrow">tres tragos, para llevar</p>
+      <p class="label eyebrow">once temas, para llevar</p>
       <h2 id="sobremesa-titulo">Lo que te has ganado</h2>
       <p>Esto es lo que suena cuando le das la vuelta al cassette. Sin prisa, en el orden que te apetezca.</p>
     </div>
@@ -151,64 +154,238 @@ h1,h2,p{margin:0}
   <div class="tragos" role="list">
 
     <article class="trago" role="listitem">
-      <p class="trago-num">I</p>
+      <p class="trago-num">01</p>
       <div class="trago-cuerpo">
-        <h3 class="trago-titulo">Primer trago</h3>
-        <div class="trago-barra" data-barra role="slider" aria-label="Progreso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+        <h3 class="trago-titulo">Intro</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Intro" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
           <div class="trago-barra-relleno" data-relleno></div>
         </div>
       </div>
-      <button class="trago-play" data-toggle type="button" aria-label="Reproducir primer trago">
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Intro">
         <span class="ico-play"></span><span class="ico-pausa"></span>
       </button>
       <p class="trago-tiempo" data-tiempo>0:00</p>
       <p class="trago-dur" data-duracion>–:–</p>
-      <audio data-audio preload="none" src="audio/trago-1.mp3"></audio>
+      <p class="trago-desc">
+        <span class="trago-desc-label">Descargar</span>
+        <a href="audio/01-intro.mp3" download="01 Intro - Altillo.mp3" aria-label="Descargar Intro en MP3">MP3 <span>1.4 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/01.Intro.wav" download aria-label="Descargar Intro en WAV, calidad máxima">WAV <span>12 MB</span></a>
+      </p>
+      <audio data-audio preload="metadata" src="audio/01-intro.mp3"></audio>
     </article>
 
     <article class="trago" role="listitem">
-      <p class="trago-num">II</p>
+      <p class="trago-num">02</p>
       <div class="trago-cuerpo">
-        <h3 class="trago-titulo">Segundo trago</h3>
-        <div class="trago-barra" data-barra role="slider" aria-label="Progreso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+        <h3 class="trago-titulo">Mande</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Mande" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
           <div class="trago-barra-relleno" data-relleno></div>
         </div>
       </div>
-      <button class="trago-play" data-toggle type="button" aria-label="Reproducir segundo trago">
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Mande">
         <span class="ico-play"></span><span class="ico-pausa"></span>
       </button>
       <p class="trago-tiempo" data-tiempo>0:00</p>
       <p class="trago-dur" data-duracion>–:–</p>
-      <audio data-audio preload="none" src="audio/trago-2.mp3"></audio>
+      <p class="trago-desc">
+        <span class="trago-desc-label">Descargar</span>
+        <a href="audio/02-mande.mp3" download="02 Mande - Altillo.mp3" aria-label="Descargar Mande en MP3">MP3 <span>7.3 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/02.Mande.wav" download aria-label="Descargar Mande en WAV, calidad máxima">WAV <span>66 MB</span></a>
+      </p>
+      <audio data-audio preload="metadata" src="audio/02-mande.mp3"></audio>
     </article>
 
     <article class="trago" role="listitem">
-      <p class="trago-num">III</p>
+      <p class="trago-num">03</p>
       <div class="trago-cuerpo">
-        <h3 class="trago-titulo">Tercer trago</h3>
-        <div class="trago-barra" data-barra role="slider" aria-label="Progreso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+        <h3 class="trago-titulo">Cualquier Cosa Combina</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Cualquier Cosa Combina" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
           <div class="trago-barra-relleno" data-relleno></div>
         </div>
       </div>
-      <button class="trago-play" data-toggle type="button" aria-label="Reproducir tercer trago">
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Cualquier Cosa Combina">
         <span class="ico-play"></span><span class="ico-pausa"></span>
       </button>
       <p class="trago-tiempo" data-tiempo>0:00</p>
       <p class="trago-dur" data-duracion>–:–</p>
-      <audio data-audio preload="none" src="audio/trago-3.mp3"></audio>
+      <p class="trago-desc">
+        <span class="trago-desc-label">Descargar</span>
+        <a href="audio/03-cualquier-cosa-combina.mp3" download="03 Cualquier Cosa Combina - Altillo.mp3" aria-label="Descargar Cualquier Cosa Combina en MP3">MP3 <span>5.7 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/03.Cualquier.Cosa.Combina.wav" download aria-label="Descargar Cualquier Cosa Combina en WAV, calidad máxima">WAV <span>51 MB</span></a>
+      </p>
+      <audio data-audio preload="metadata" src="audio/03-cualquier-cosa-combina.mp3"></audio>
     </article>
+
+    <article class="trago" role="listitem">
+      <p class="trago-num">04</p>
+      <div class="trago-cuerpo">
+        <h3 class="trago-titulo">PEÑA SANTA</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de PEÑA SANTA" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="trago-barra-relleno" data-relleno></div>
+        </div>
+      </div>
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir PEÑA SANTA">
+        <span class="ico-play"></span><span class="ico-pausa"></span>
+      </button>
+      <p class="trago-tiempo" data-tiempo>0:00</p>
+      <p class="trago-dur" data-duracion>–:–</p>
+      <p class="trago-desc">
+        <span class="trago-desc-label">Descargar</span>
+        <a href="audio/04-pena-santa.mp3" download="04 PEÑA SANTA - Altillo.mp3" aria-label="Descargar PEÑA SANTA en MP3">MP3 <span>2.0 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/04.PENA.SANTA.wav" download aria-label="Descargar PEÑA SANTA en WAV, calidad máxima">WAV <span>18 MB</span></a>
+      </p>
+      <audio data-audio preload="metadata" src="audio/04-pena-santa.mp3"></audio>
+    </article>
+
+    <article class="trago" role="listitem">
+      <p class="trago-num">05</p>
+      <div class="trago-cuerpo">
+        <h3 class="trago-titulo">Pena y Manta</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Pena y Manta" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="trago-barra-relleno" data-relleno></div>
+        </div>
+      </div>
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Pena y Manta">
+        <span class="ico-play"></span><span class="ico-pausa"></span>
+      </button>
+      <p class="trago-tiempo" data-tiempo>0:00</p>
+      <p class="trago-dur" data-duracion>–:–</p>
+      <p class="trago-desc">
+        <span class="trago-desc-label">Descargar</span>
+        <a href="audio/05-pena-y-manta.mp3" download="05 Pena y Manta - Altillo.mp3" aria-label="Descargar Pena y Manta en MP3">MP3 <span>6.9 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/05.Pena.y.Manta.wav" download aria-label="Descargar Pena y Manta en WAV, calidad máxima">WAV <span>62 MB</span></a>
+      </p>
+      <audio data-audio preload="metadata" src="audio/05-pena-y-manta.mp3"></audio>
+    </article>
+
+    <article class="trago" role="listitem">
+      <p class="trago-num">06</p>
+      <div class="trago-cuerpo">
+        <h3 class="trago-titulo">Ruina y Cobre</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Ruina y Cobre" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="trago-barra-relleno" data-relleno></div>
+        </div>
+      </div>
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Ruina y Cobre">
+        <span class="ico-play"></span><span class="ico-pausa"></span>
+      </button>
+      <p class="trago-tiempo" data-tiempo>0:00</p>
+      <p class="trago-dur" data-duracion>–:–</p>
+      <p class="trago-desc">
+        <span class="trago-desc-label">Descargar</span>
+        <a href="audio/06-ruina-y-cobre.mp3" download="06 Ruina y Cobre - Altillo.mp3" aria-label="Descargar Ruina y Cobre en MP3">MP3 <span>8.1 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/06.Ruina.y.Cobre.wav" download aria-label="Descargar Ruina y Cobre en WAV, calidad máxima">WAV <span>73 MB</span></a>
+      </p>
+      <audio data-audio preload="metadata" src="audio/06-ruina-y-cobre.mp3"></audio>
+    </article>
+
+    <article class="trago" role="listitem">
+      <p class="trago-num">07</p>
+      <div class="trago-cuerpo">
+        <h3 class="trago-titulo">Paseito</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Paseito" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="trago-barra-relleno" data-relleno></div>
+        </div>
+      </div>
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Paseito">
+        <span class="ico-play"></span><span class="ico-pausa"></span>
+      </button>
+      <p class="trago-tiempo" data-tiempo>0:00</p>
+      <p class="trago-dur" data-duracion>–:–</p>
+      <p class="trago-desc">
+        <span class="trago-desc-label">Descargar</span>
+        <a href="audio/07-paseito.mp3" download="07 Paseito - Altillo.mp3" aria-label="Descargar Paseito en MP3">MP3 <span>6.1 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/07.Paseito.wav" download aria-label="Descargar Paseito en WAV, calidad máxima">WAV <span>50 MB</span></a>
+      </p>
+      <audio data-audio preload="metadata" src="audio/07-paseito.mp3"></audio>
+    </article>
+
+    <article class="trago" role="listitem">
+      <p class="trago-num">08</p>
+      <div class="trago-cuerpo">
+        <h3 class="trago-titulo">Respirar</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Respirar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="trago-barra-relleno" data-relleno></div>
+        </div>
+      </div>
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Respirar">
+        <span class="ico-play"></span><span class="ico-pausa"></span>
+      </button>
+      <p class="trago-tiempo" data-tiempo>0:00</p>
+      <p class="trago-dur" data-duracion>–:–</p>
+      <p class="trago-desc">
+        <span class="trago-desc-label">Descargar</span>
+        <a href="audio/08-respirar.mp3" download="08 Respirar - Altillo.mp3" aria-label="Descargar Respirar en MP3">MP3 <span>8.3 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/08.Respirar.wav" download aria-label="Descargar Respirar en WAV, calidad máxima">WAV <span>69 MB</span></a>
+      </p>
+      <audio data-audio preload="metadata" src="audio/08-respirar.mp3"></audio>
+    </article>
+
+    <article class="trago" role="listitem">
+      <p class="trago-num">09</p>
+      <div class="trago-cuerpo">
+        <h3 class="trago-titulo">Empecinadas</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Empecinadas" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="trago-barra-relleno" data-relleno></div>
+        </div>
+      </div>
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Empecinadas">
+        <span class="ico-play"></span><span class="ico-pausa"></span>
+      </button>
+      <p class="trago-tiempo" data-tiempo>0:00</p>
+      <p class="trago-dur" data-duracion>–:–</p>
+      <p class="trago-desc">
+        <span class="trago-desc-label">Descargar</span>
+        <a href="audio/09-empecinadas.mp3" download="09 Empecinadas - Altillo.mp3" aria-label="Descargar Empecinadas en MP3">MP3 <span>8.4 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/09.Empecinadas.wav" download aria-label="Descargar Empecinadas en WAV, calidad máxima">WAV <span>76 MB</span></a>
+      </p>
+      <audio data-audio preload="metadata" src="audio/09-empecinadas.mp3"></audio>
+    </article>
+
+    <article class="trago" role="listitem">
+      <p class="trago-num">10</p>
+      <div class="trago-cuerpo">
+        <h3 class="trago-titulo">Yoga y Panceta</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Yoga y Panceta" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="trago-barra-relleno" data-relleno></div>
+        </div>
+      </div>
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Yoga y Panceta">
+        <span class="ico-play"></span><span class="ico-pausa"></span>
+      </button>
+      <p class="trago-tiempo" data-tiempo>0:00</p>
+      <p class="trago-dur" data-duracion>–:–</p>
+      <p class="trago-desc">
+        <span class="trago-desc-label">Descargar</span>
+        <a href="audio/10-yoga-y-panceta.mp3" download="10 Yoga y Panceta - Altillo.mp3" aria-label="Descargar Yoga y Panceta en MP3">MP3 <span>4.6 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/10.Yoga.y.Panceta.wav" download aria-label="Descargar Yoga y Panceta en WAV, calidad máxima">WAV <span>41 MB</span></a>
+      </p>
+      <audio data-audio preload="metadata" src="audio/10-yoga-y-panceta.mp3"></audio>
+    </article>
+
+    <article class="trago" role="listitem">
+      <p class="trago-num">11</p>
+      <div class="trago-cuerpo">
+        <h3 class="trago-titulo">La Marea (outro)</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de La Marea (outro)" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="trago-barra-relleno" data-relleno></div>
+        </div>
+      </div>
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir La Marea (outro)">
+        <span class="ico-play"></span><span class="ico-pausa"></span>
+      </button>
+      <p class="trago-tiempo" data-tiempo>0:00</p>
+      <p class="trago-dur" data-duracion>–:–</p>
+      <p class="trago-desc">
+        <span class="trago-desc-label">Descargar</span>
+        <a href="audio/11-la-marea-outro.mp3" download="11 La Marea (outro) - Altillo.mp3" aria-label="Descargar La Marea (outro) en MP3">MP3 <span>5.1 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/11.La.Marea.outro.wav" download aria-label="Descargar La Marea (outro) en WAV, calidad máxima">WAV <span>46 MB</span></a>
+      </p>
+      <audio data-audio preload="metadata" src="audio/11-la-marea-outro.mp3"></audio>
+    </article>
+
 
   </div>
-
-  <p class="nota-audios">
-    <img class="nota-audios-sticker" src="assets/collage/gazpacho.webp" alt="" aria-hidden="true" loading="lazy">
-    <strong>Nota de montaje —</strong> esto es la maqueta con reproductores de ejemplo.
-    Para que suene de verdad: sube tus mp3 a <code>tu-regalo/audio/</code> con los nombres
-    <code>trago-1.mp3</code>, <code>trago-2.mp3</code>, <code>trago-3.mp3</code> (o cambia
-    esos nombres en el código), y cambia los títulos "Primer / Segundo / Tercer trago" por
-    los reales. Añadir o quitar temas es copiar o borrar uno de los bloques
-    <code>&lt;article class="trago"&gt;</code>.
-  </p>
 </section>
 
 <footer class="pie wrap">
@@ -246,7 +423,7 @@ h1,h2,p{margin:0}
     var trago = tragos[indice];
     var audio = trago.querySelector("[data-audio]");
     pausaTodos();
-    audio.play().catch(function(){ /* sin archivo de audio todavía */ });
+    audio.play().catch(function(){ trago.classList.remove("reproduciendo"); });
     trago.classList.add("reproduciendo");
   }
 
@@ -267,9 +444,11 @@ h1,h2,p{margin:0}
       }
     });
 
-    audio.addEventListener("loadedmetadata", function(){
-      duracion.textContent = formatea(audio.duration);
-    });
+    function pintaDuracion(){
+      if(audio.readyState >= 1) duracion.textContent = formatea(audio.duration);
+    }
+    audio.addEventListener("loadedmetadata", pintaDuracion);
+    pintaDuracion(); /* por si los metadatos llegaron antes de engancharse el evento */
     audio.addEventListener("timeupdate", function(){
       tiempo.textContent = formatea(audio.currentTime);
       var pct = audio.duration ? (audio.currentTime/audio.duration*100) : 0;
@@ -283,6 +462,10 @@ h1,h2,p{margin:0}
       if(indice < tragos.length - 1){
         reproducir(indice + 1);
       }
+    });
+    audio.addEventListener("error", function(){
+      trago.classList.remove("reproduciendo");
+      duracion.textContent = "no carga";
     });
 
     function busca(clientX){
