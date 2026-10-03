@@ -398,6 +398,19 @@ body.wide main{max-width:none}
 .floaty .tk:not(.is-note){background:color-mix(in srgb,var(--c) 14%,var(--card))}
 .tk.ghost{position:fixed;z-index:90;pointer-events:none;margin:0;transform:rotate(3deg) scale(1.04);box-shadow:10px 14px 0 var(--c);opacity:.95;animation:none}
 .mesa .tk.dragging{opacity:.3}
+/* ---------- ficha centrada y ancha en ordenador ---------- */
+@keyframes sheetIn{from{opacity:0;transform:translate(-50%,-47%)}to{opacity:1;transform:translate(-50%,-50%)}}
+.sh-b{min-height:0}
+@media (min-width:761px){
+  .scrim{background:rgba(20,12,8,.5);backdrop-filter:blur(2px)}
+  .sheet{top:50%;left:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:min(1060px,calc(100vw - 48px));height:auto;max-height:calc(100dvh - 48px);padding-top:0;border:2px solid var(--rule);border-radius:18px;overflow:hidden;box-shadow:10px 12px 0 var(--rule),0 30px 80px rgba(0,0,0,.28);animation:sheetIn .2s ease-out}
+  .sh-h{padding:14px 22px}
+  .sh-b{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 28px;align-content:start;padding:20px 26px 28px}
+  .sh-b>*{grid-column:1/-1}
+  .sh-b>.fld{grid-column:auto}
+  .sh-f{padding:12px 22px}
+  .ttl-in{font-size:2rem}
+}
 @media (max-width:1100px){
   .lanes{grid-template-columns:repeat(2,minmax(0,1fr))}
   .row3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
@@ -830,10 +843,10 @@ document.addEventListener('pointerdown',e=>{
   else if(mv){const el=mv.closest('.caj');PD={type:'caj',id:mv.dataset.move,el,sx:e.clientX,sy:e.clientY,x:el.offsetLeft,y:el.offsetTop,on:false}}
   else if(tk){PD={type:'card',id:tk.dataset.id,el:tk,sx:e.clientX,sy:e.clientY,on:false}}
   else return;
-  try{(PD.type==='card'?document.body:PD.el).setPointerCapture?.(e.pointerId)}catch(err){}
+  PD.pid=e.pointerId;
 });
 document.addEventListener('pointermove',e=>{if(!PD)return;const dx=e.clientX-PD.sx,dy=e.clientY-PD.sy;
-  if(!PD.on){if(Math.hypot(dx,dy)<6)return;PD.on=true;
+  if(!PD.on){if(Math.hypot(dx,dy)<6)return;PD.on=true;try{document.body.setPointerCapture(PD.pid)}catch(err){}
     if(PD.type==='caj'){PD.el.classList.add('lifting');PD.el.style.zIndex=maxZ()+1}
     if(PD.type==='card'){const r=PD.el.getBoundingClientRect();const g=PD.el.cloneNode(true);g.classList.add('ghost');g.style.width=r.width+'px';g.style.left=r.left+'px';g.style.top=r.top+'px';document.body.appendChild(g);
       PD.ghost=g;PD.ox=e.clientX-r.left;PD.oy=e.clientY-r.top;PD.el.classList.add('dragging');}}
@@ -1021,7 +1034,7 @@ async function importJson(input){const f=input.files[0];if(!f)return;let j;try{j
 
 /* ---------- hoja lateral (edición) ---------- */
 let SH=null, shT=0;
-function openSheet(type,col,id,draft,isNew){flushSheet();SH={type,col,id,draft:clone(draft),isNew:!!isNew,dirty:false,confirm:null};drawSheet(true);$('#scrim').hidden=false;$('#sheet').hidden=false;}
+function openSheet(type,col,id,draft,isNew){flushSheet();SH={type,col,id,draft:clone(draft),isNew:!!isNew,dirty:false,confirm:null};$('#scrim').hidden=false;$('#sheet').hidden=false;drawSheet(true);}
 function closeSheet(){flushSheet();SH=null;$('#sheet').hidden=true;$('#scrim').hidden=true;$('#sheet').innerHTML='';}
 function touch(now){if(!SH)return;SH.dirty=true;clearTimeout(shT);if(now)flushSheet();else shT=setTimeout(flushSheet,500);}
 function flushSheet(){clearTimeout(shT);if(!SH||!SH.dirty||!SH.col)return;const t=SH.draft.title??SH.draft.name??SH.draft.label;if(SH.isNew&&!String(t||'').trim())return;
