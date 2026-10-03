@@ -398,6 +398,16 @@ body.wide main{max-width:none}
 .floaty .tk:not(.is-note){background:color-mix(in srgb,var(--c) 14%,var(--card))}
 .tk.ghost{position:fixed;z-index:90;pointer-events:none;margin:0;transform:rotate(3deg) scale(1.04);box-shadow:10px 14px 0 var(--c);opacity:.95;animation:none}
 .mesa .tk.dragging{opacity:.3}
+/* ---------- conexiones entre cajones ---------- */
+.links{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:99999}
+.links .lk{fill:none;stroke-width:3;stroke-linecap:round;stroke-dasharray:1 0}
+.links .lk.tmp{stroke-dasharray:6 6;stroke-width:3}
+.links .lhit{fill:none;stroke:transparent;stroke-width:18;pointer-events:stroke;cursor:pointer}
+.links .lkg:hover .lk{stroke-width:5}
+.links text{font:700 12px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-width:6px;stroke-linejoin:round;pointer-events:none}
+.links .lk{filter:drop-shadow(1px 1px 0 var(--paper))}
+.cnx{position:absolute;right:-13px;top:24px;width:24px;height:24px;border-radius:50%;background:var(--card);border:2px solid var(--rule);display:grid;place-items:center;font:700 15px/1 var(--f-mono);color:var(--ink);cursor:crosshair;z-index:3;user-select:none;box-shadow:2px 2px 0 var(--rule);transition:transform .12s}
+.cnx:hover{background:var(--red);color:var(--on-red);transform:scale(1.15)}
 /* ---------- ficha centrada y ancha en ordenador ---------- */
 @keyframes sheetIn{from{opacity:0;transform:translate(-50%,-47%)}to{opacity:1;transform:translate(-50%,-50%)}}
 .sh-b{min-height:0}
@@ -688,7 +698,7 @@ function draw(){
   main.innerHTML=({comanda:vComanda,cajones:vCajones,calendario:vCalendario,objetivos:vObjetivos,conciertos:vConciertos,repertorio:vRepertorio,ajustes:vAjustes})[v]();
   $$('[data-keep-scroll]',main).forEach(el=>{const s=sc[el.dataset.keepScroll];if(s){el.scrollLeft=s[0];el.scrollTop=s[1]}else if(el.dataset.startAt){el.scrollLeft=Number(el.dataset.startAt)}});
   if(fid){const el=document.getElementById(fid);if(el){el.value=fval;el.focus();if(fsel)try{el.setSelectionRange(fsel[0],fsel[1])}catch(e){}}}
-  if(v==='cajones'){sizeMesa();if(mesaFix&&mesaFix.length)requestAnimationFrame(()=>{fixMesa();sizeMesa()})}
+  if(v==='cajones'){sizeMesa();drawLinks();if(mesaFix&&mesaFix.length)requestAnimationFrame(()=>{fixMesa();sizeMesa();drawLinks()})}
   const tabs=$('#tabs a[data-v="comanda"] small');if(tabs){const n=arr('items').filter(i=>i.status!=='done'&&i.date&&i.date<=iso(today())&&whoOk(i)).length;tabs.textContent=n?n+' hoy':'hoy';}
   const bn=$('#bnav a[data-v="comanda"]');if(bn){const n=arr('items').filter(i=>i.status!=='done'&&i.date&&i.date<=iso(today())&&whoOk(i)).length;let b=bn.querySelector('b');if(n){if(!b){b=document.createElement('b');bn.appendChild(b)}b.textContent=n}else if(b)b.remove()}
 }
@@ -772,7 +782,7 @@ function vComanda(){
 
 /* ---------- vista: cajones ---------- */
 const isPhone=()=>window.matchMedia('(max-width:760px)').matches;
-const MESA_W=300, MESA_GAP=18;
+const MESA_W=300, MESA_GAP=40;
 let mesaFix=null;
 function mesaW(){const w=$('.mesa-wrap');return Math.max(640,(w?w.clientWidth:(($('#view')?.clientWidth||window.innerWidth)-36))-14)} // cajones sin posición que hay que fijar tras pintar
 function hashRot(id){let h=0;for(const ch of String(id))h=(h*31+ch.charCodeAt(0))|0;return ((Math.abs(h)%7)-3)*0.8}
@@ -789,7 +799,7 @@ function vCajones(){
     return `<section class="caj${pos?' float'+(pos.h?' sized':''):''}" id="caj-${c.id}" style="--c:var(--${c.color})${st}" data-drop="caj" data-id="${c.id}"><header class="caj-h"${pos&&c.id!=='_none'?` data-move="${c.id}" title="Arrastra para mover el cajón"`:''}><h3>${esc(c.name)}</h3><span class="n">${op.length}</span>${c.id==='_none'?'':`<span data-w style="display:flex;gap:3px">${pos?'':`<button data-act="caj-l" data-id="${c.id}" aria-label="Mover cajón a la izquierda">←</button><button data-act="caj-r" data-id="${c.id}" aria-label="Mover cajón a la derecha">→</button>`}<button data-act="caj-edit" data-id="${c.id}" aria-label="Editar cajón">✎</button></span>`}</header>
     <div class="caj-list">${op.length?op.map(i=>card(i,{nodrag:!!pos})).join(''):`<div class="empty">Cajón vacío. ${pos?'Suelta aquí una tarjeta':'Arrastra aquí'} o escribe abajo.</div>`}${show?dn.map(i=>card(i,{nodrag:!!pos})).join(''):''}</div>
     ${c.id==='_none'?'':`<form class="add-in" data-form="caj-add" data-id="${c.id}" data-w><label class="vh" for="add-${c.id}">Añadir a ${esc(c.name)}</label><input id="add-${c.id}" placeholder="+ Añadir a ${esc(c.name)}" autocomplete="off"></form>`}
-    ${dn.length?`<button class="done-tg" data-act="show-done" data-id="${c.id}">${show?'Ocultar':'Ver'} hechas (${dn.length})</button>`:''}${pos&&c.id!=='_none'?`<span class="rs" data-resize="${c.id}" title="Arrastra para cambiar el tamaño" aria-hidden="true"></span>`:''}</section>`;};
+    ${dn.length?`<button class="done-tg" data-act="show-done" data-id="${c.id}">${show?'Ocultar':'Ver'} hechas (${dn.length})</button>`:''}${pos&&c.id!=='_none'?`<span class="rs" data-resize="${c.id}" title="Arrastra para cambiar el tamaño" aria-hidden="true"></span><span class="cnx" data-connect="${c.id}" title="Arrastra hasta otro cajón para conectarlos" data-w>+</span>`:''}</section>`;};
   const head=vhd('Los cajones',mesa?'Mueve los cajones y suelta notas donde quieras, como pósits en la nevera.':'Todo lo que hay que hacer, por áreas. Arrastra las tarjetas entre cajones.',`${modes}<button class="btn red" data-act="new-item" data-w>+ Nueva tarea</button><button class="btn" data-act="${mesa?'mesa-note':'new-item'}" data-kind="nota" data-w>+ Nota</button>${mesa?'<button class="btn" data-act="caj-new" data-w>+ Cajón</button>':''}`);
   if(!mesa){const none=items.filter(i=>!i.cajon||!S.cajones[i.cajon]);
     return head+filt+`<div class="board${isPhone()?'':' grid'}" data-keep-scroll="board">${none.length?col({id:'_none',name:'Sin cajón',color:'c7'},none):''}${cs.map(c=>col(c,items.filter(i=>i.cajon===c.id))).join('')}<button class="caj-new" data-act="caj-new" data-w>+ Nuevo cajón</button></div>`;}
@@ -806,7 +816,7 @@ function vCajones(){
   const notes=floats.map(i=>`<div class="floaty" style="left:${i.free.x}px;top:${i.free.y}px;z-index:${i.free.z||1};--rot:${hashRot(i.id)}deg">${card(i,{nodrag:true,caj:1})}</div>`).join('');
   let H=Math.max(...heights,560);floats.forEach(i=>{H=Math.max(H,i.free.y+260)});cs.forEach(c=>{const p=c.pos||auto[c.id];H=Math.max(H,p.y+(p.h||estH(docked.filter(i=>i.cajon===c.id&&(i.status!=='done'||F.showDone[c.id])).length)))});
   let W=cw;cs.forEach(c=>{const p=c.pos||auto[c.id];W=Math.max(W,p.x+p.w+MESA_GAP)});floats.forEach(i=>{W=Math.max(W,i.free.x+260)});
-  return head+filt+`<div class="mesa-wrap" data-keep-scroll="mesa"><div class="mesa" id="mesa" style="width:${W}px;height:${H+120}px">${noneHtml}${panels}${notes}</div></div>`;
+  return head+filt+`<div class="mesa-wrap" data-keep-scroll="mesa"><div class="mesa" id="mesa" style="width:${W}px;height:${H+120}px"><svg class="links" id="links" aria-hidden="false"></svg>${noneHtml}${panels}${notes}</div></div>`;
 }
 /* coloca los cajones que aún no tienen sitio, midiendo su altura real */
 function fixMesa(){if(!mesaFix||!mesaFix.length||view()!=='cajones'||!$('#mesa'))return;const ids=mesaFix;mesaFix=null;
@@ -823,10 +833,22 @@ function arrangeMesa(silent){const m=$('#mesa');if(!m)return;const cw=mesaW(),nc
     let h=el?el.offsetHeight:estH(4);if(el&&el.classList.contains('sized')){el.style.height='auto';h=el.offsetHeight}
     write('cajones',c.id,Object.assign({},S.cajones[c.id],{pos:{x:k*(w+MESA_GAP),y:heights[k],w,z:1}}));heights[k]+=h+MESA_GAP});
   if(!silent)toast('Cajones repartidos por toda la mesa.');}
-function sizeMesa(){const m=$('#mesa');if(!m)return;let b=0,r=0;[...m.children].forEach(el=>{b=Math.max(b,el.offsetTop+el.offsetHeight);r=Math.max(r,el.offsetLeft+el.offsetWidth)});
+const mesaKids=m=>[...m.children].filter(el=>!(el instanceof SVGElement));
+const boxOf=el=>({x:el.offsetLeft,y:el.offsetTop,w:el.offsetWidth,h:el.offsetHeight});
+function edgePt(r,tx,ty,pad){const cx=r.x+r.w/2,cy=r.y+r.h/2,dx=tx-cx,dy=ty-cy;if(!dx&&!dy)return{x:cx,y:cy};
+  const k=Math.min(dx?(r.w/2+pad)/Math.abs(dx):Infinity,dy?(r.h/2+pad)/Math.abs(dy):Infinity);return{x:cx+dx*k,y:cy+dy*k}}
+function linkPath(a,b){const ca={x:a.x+a.w/2,y:a.y+a.h/2},cb={x:b.x+b.w/2,y:b.y+b.h/2};const p1=edgePt(a,cb.x,cb.y,4),p2=edgePt(b,ca.x,ca.y,10);
+  const mx=(p1.x+p2.x)/2,my=(p1.y+p2.y)/2,dx=p2.x-p1.x,dy=p2.y-p1.y,len=Math.hypot(dx,dy)||1,bend=Math.min(60,len*.12);
+  const qx=mx-dy/len*bend,qy=my+dx/len*bend;return{d:`M${p1.x.toFixed(1)} ${p1.y.toFixed(1)} Q${qx.toFixed(1)} ${qy.toFixed(1)} ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`,lx:(p1.x+2*qx+p2.x)/4,ly:(p1.y+2*qy+p2.y)/4}}
+function drawLinks(){const svg=$('#links');if(!svg)return;let out='<defs>'+COLORS.map(c=>`<marker id="ah-${c}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" style="fill:var(--${c})"/></marker>`).join('')+'</defs>';
+  cajList().forEach(c=>{(c.links||[]).forEach((l,i)=>{const A=document.getElementById('caj-'+c.id),B=document.getElementById('caj-'+l.to);if(!A||!B)return;
+    const p=linkPath(boxOf(A),boxOf(B)),col=c.color||'c7';
+    out+=`<g class="lkg" data-act="link" data-id="${c.id}" data-v="${i}"><title>${esc(c.name)} → ${esc((S.cajones[l.to]||{}).name||'')}${l.label?': '+esc(l.label):''}</title><path class="lhit" d="${p.d}"/><path class="lk" d="${p.d}" style="stroke:var(--${col})" marker-end="url(#ah-${col})"/>${l.label?`<text x="${p.lx.toFixed(1)}" y="${p.ly.toFixed(1)}" text-anchor="middle" dominant-baseline="middle">${esc(l.label)}</text>`:''}</g>`;})});
+  out+='<path id="tmp-link" class="lk tmp" d=""/>';svg.innerHTML=out;}
+function sizeMesa(){const m=$('#mesa');if(!m)return;let b=0,r=0;mesaKids(m).forEach(el=>{b=Math.max(b,el.offsetTop+el.offsetHeight);r=Math.max(r,el.offsetLeft+el.offsetWidth)});
   m.style.height=Math.max(560,b+90)+'px';m.style.width=Math.max(m.parentElement.clientWidth-12,r+MESA_GAP)+'px';}
 function freeSpot(){const wrap=$('.mesa-wrap'),m=$('#mesa');if(!wrap||!m)return{x:40,y:40};const mr=m.getBoundingClientRect();
-  const rects=[...m.children].map(el=>({x:el.offsetLeft,y:el.offsetTop,r:el.offsetLeft+el.offsetWidth,b:el.offsetTop+el.offsetHeight}));
+  const rects=mesaKids(m).map(el=>({x:el.offsetLeft,y:el.offsetTop,r:el.offsetLeft+el.offsetWidth,b:el.offsetTop+el.offsetHeight}));
   const fits=(x,y)=>rects.every(q=>x+250<q.x||x>q.r+10||y+170<q.y||y>q.b+10);
   const top=Math.max(0,-mr.top+60),bot=top+window.innerHeight-200,left=wrap.scrollLeft,right=left+wrap.clientWidth-260;
   for(let y=top;y<=bot;y+=30)for(let x=left+10;x<=right;x+=30)if(fits(x,y))return{x:Math.round(x),y:Math.round(y)};
@@ -838,8 +860,9 @@ document.addEventListener('click',e=>{if(suppressClick){suppressClick=false;e.pr
 document.addEventListener('pointerdown',e=>{
   if(e.button!==0||!$('#mesa')||!e.target.closest('#mesa'))return;
   if(e.target.closest('button,input,textarea,select,a,label,audio,video,form'))return;
-  const rs=e.target.closest('[data-resize]'), mv=e.target.closest('[data-move]'), tk=e.target.closest('.tk[data-id]');
-  if(rs){const el=rs.closest('.caj');PD={type:'resize',id:rs.dataset.resize,el,sx:e.clientX,sy:e.clientY,w:el.offsetWidth,h:el.offsetHeight,on:true};el.style.zIndex=maxZ()+1;e.preventDefault()}
+  const cx=e.target.closest('[data-connect]'),rs=e.target.closest('[data-resize]'), mv=e.target.closest('[data-move]'), tk=e.target.closest('.tk[data-id]');
+  if(cx){const el=cx.closest('.caj');PD={type:'link',id:cx.dataset.connect,el,sx:e.clientX,sy:e.clientY,on:true};e.preventDefault()}
+  else if(rs){const el=rs.closest('.caj');PD={type:'resize',id:rs.dataset.resize,el,sx:e.clientX,sy:e.clientY,w:el.offsetWidth,h:el.offsetHeight,on:true};el.style.zIndex=maxZ()+1;e.preventDefault()}
   else if(mv){const el=mv.closest('.caj');PD={type:'caj',id:mv.dataset.move,el,sx:e.clientX,sy:e.clientY,x:el.offsetLeft,y:el.offsetTop,on:false}}
   else if(tk){PD={type:'card',id:tk.dataset.id,el:tk,sx:e.clientX,sy:e.clientY,on:false}}
   else return;
@@ -851,8 +874,11 @@ document.addEventListener('pointermove',e=>{if(!PD)return;const dx=e.clientX-PD.
     if(PD.type==='card'){const r=PD.el.getBoundingClientRect();const g=PD.el.cloneNode(true);g.classList.add('ghost');g.style.width=r.width+'px';g.style.left=r.left+'px';g.style.top=r.top+'px';document.body.appendChild(g);
       PD.ghost=g;PD.ox=e.clientX-r.left;PD.oy=e.clientY-r.top;PD.el.classList.add('dragging');}}
   e.preventDefault();
-  if(PD.type==='caj'){PD.el.style.left=Math.max(0,PD.x+dx)+'px';PD.el.style.top=Math.max(0,PD.y+dy)+'px'}
-  else if(PD.type==='resize'){PD.el.style.width=Math.max(220,PD.w+dx)+'px';PD.el.style.height=Math.max(160,PD.h+dy)+'px';PD.el.classList.add('sized')}
+  if(PD.type==='caj'){PD.el.style.left=Math.max(0,PD.x+dx)+'px';PD.el.style.top=Math.max(0,PD.y+dy)+'px';drawLinks()}
+  else if(PD.type==='resize'){PD.el.style.width=Math.max(220,PD.w+dx)+'px';PD.el.style.height=Math.max(160,PD.h+dy)+'px';PD.el.classList.add('sized');drawLinks()}
+  else if(PD.type==='link'){const m=$('#mesa'),mr=m.getBoundingClientRect(),px=e.clientX-mr.left,py=e.clientY-mr.top,p1=edgePt(boxOf(PD.el),px,py,4);
+    const t=$('#tmp-link');if(t){t.setAttribute('d',`M${p1.x} ${p1.y} L${px} ${py}`);t.style.stroke=`var(--${(S.cajones[PD.id]||{}).color||'c7'})`}
+    $$('.caj.over').forEach(x=>x.classList.remove('over'));const under=document.elementFromPoint(e.clientX,e.clientY),cz=under&&under.closest('.caj[data-id]');if(cz&&cz!==PD.el&&cz.dataset.id!=='_none')cz.classList.add('over');}
   else{PD.ghost.style.left=(e.clientX-PD.ox)+'px';PD.ghost.style.top=(e.clientY-PD.oy)+'px';
     $$('.caj.over').forEach(x=>x.classList.remove('over'));PD.ghost.style.display='none';const under=document.elementFromPoint(e.clientX,e.clientY);PD.ghost.style.display='';
     const cz=under&&under.closest('.caj[data-id]');if(cz)cz.classList.add('over');}
@@ -862,6 +888,12 @@ function endDrag(e,cancel){if(!PD)return;const d=PD;PD=null;
   if(!d.on){return}
   suppressClick=true;setTimeout(()=>{suppressClick=false},0);
   if(cancel){if(d.ghost)d.ghost.remove();render();return}
+  if(d.type==='link'){const under=document.elementFromPoint(e.clientX,e.clientY),cz=under&&under.closest('.caj[data-id]'),c=S.cajones[d.id];
+    if(cz&&cz!==d.el&&cz.dataset.id!=='_none'&&c){const to=cz.dataset.id,ls=(c.links||[]);
+      if(ls.some(l=>l.to===to))toast('Esos cajones ya estaban conectados.');
+      else{write('cajones',d.id,Object.assign({},c,{links:ls.concat({to,label:''})}));toast(`Conectados: ${c.name} → ${(S.cajones[to]||{}).name||''}. Pulsa la flecha para ponerle nombre.`)}}
+    else drawLinks();
+    if(pendingDraw){pendingDraw=false;render()}return}
   if(d.type==='caj'){const c=S.cajones[d.id];if(c)write('cajones',d.id,Object.assign({},c,{pos:Object.assign({},c.pos||{},{x:d.el.offsetLeft,y:d.el.offsetTop,w:d.el.offsetWidth,z:maxZ()+1})}))}
   else if(d.type==='resize'){const c=S.cajones[d.id];if(c)write('cajones',d.id,Object.assign({},c,{pos:Object.assign({},c.pos||{x:d.el.offsetLeft,y:d.el.offsetTop},{w:d.el.offsetWidth,h:d.el.offsetHeight,z:maxZ()+1})}))}
   else{d.ghost.style.display='none';const under=document.elementFromPoint(e.clientX,e.clientY);const gr=d.ghost.getBoundingClientRect();d.ghost.remove();
@@ -1093,10 +1125,17 @@ function drawSheet(first){
     <div class="fld"><span class="lbl">Enlaces</span>${linksH(d.links)}</div>
     <div class="fld"><label for="f-note">Notas (letra, tonalidad, BPM, colaboraciones)</label><textarea class="ta" id="f-note" data-f="note">${esc(d.note)}</textarea></div>
     ${SH.isNew?'':`<div class="fld"><span class="lbl">Tareas del tema</span>${arr('items').filter(i=>i.song===SH.id).sort(byDate).map(i=>card(i,{caj:1})).join('')||'<span class="hint">Ninguna.</span>'}<div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn sm" data-act="new-item" data-song="${SH.id}" data-w>+ Tarea</button><button type="button" class="btn sm red" data-act="gen-rel" data-id="${SH.id}" data-w>Planificar lanzamiento</button></div></div>`}`;}
+  else if(SH.type==='link'){const c=S.cajones[SH.id],l=c&&(c.links||[])[SH.draft.idx];title='Conexión';
+    foot=`<div class="sh-f"><button type="button" class="btn sm ghost danger${SH.confirm==='del'?' go':''}" data-act="link-del" data-w>${SH.confirm==='del'?'¿Seguro? Quitar':'Quitar conexión'}</button><button type="button" class="btn sm red" data-act="sheet-close">Listo</button></div>`;
+    body=l?`<p style="margin:0;font:400 1.6rem/1.2 var(--f-disp);text-transform:uppercase">${esc(c.name)} <span style="color:var(--red)">→</span> ${esc((S.cajones[l.to]||{}).name||'')}</p>
+    <div class="fld"><label for="f-lbl">Qué los une (opcional)</label><input class="in" id="f-lbl" value="${esc(l.label||'')}" placeholder="depende de · alimenta a · antes que…" autocomplete="off"></div>
+    <div class="fld"><span class="lbl">Sentido</span><button type="button" class="btn sm" data-act="link-flip" data-w>Invertir la flecha</button></div>`:'<p class="hint">Esta conexión ya no existe.</p>';}
   else if(SH.type==='cajon'){title='Cajón';
     body=`<div class="fld"><label for="f-title">Nombre</label><input class="in" id="f-title" data-f="name" value="${esc(d.name)}"></div>
     <div class="fld"><span class="lbl">Color</span><div class="colors">${COLORS.map(c=>`<button type="button" style="--c:var(--${c})" data-act="color" data-v="${c}" aria-pressed="${d.color===c}" aria-label="Color ${c}"></button>`).join('')}</div></div>
-    ${SH.isNew?'':`<p class="hint">Si eliminas el cajón, sus ${arr('items').filter(i=>i.cajon===SH.id).length} tarjetas pasan a «Sin cajón».</p>`}`;}
+    ${SH.isNew?'':`<div class="fld"><span class="lbl">Conectado con</span><div class="checks">${(d.links||[]).map((l,i)=>`<div class="chk"><span style="flex:1">→ ${esc((S.cajones[l.to]||{}).name||'(cajón borrado)')}${l.label?' · <i>'+esc(l.label)+'</i>':''}</span><button type="button" class="x" data-act="cnx-del" data-v="${i}" aria-label="Quitar conexión">×</button></div>`).join('')}${cajList().filter(o=>(o.links||[]).some(l=>l.to===SH.id)).map(o=>`<div class="chk"><span style="flex:1;color:var(--ink-2)">← ${esc(o.name)} (viene de allí)</span></div>`).join('')}
+      <select class="sel" id="f-cnx" data-w><option value="">+ Conectar con…</option>${cajList().filter(o=>o.id!==SH.id&&!(d.links||[]).some(l=>l.to===o.id)).map(o=>`<option value="${o.id}">${esc(o.name)}</option>`).join('')}</select></div><p class="hint" style="margin:0">En la mesa libre también puedes arrastrar el botón «+» del borde de un cajón hasta otro.</p></div>
+    <p class="hint">Si eliminas el cajón, sus ${arr('items').filter(i=>i.cajon===SH.id).length} tarjetas pasan a «Sin cajón».</p>`}`;}
   else if(SH.type==='stickers'){title='Pegatinas';foot=`<div class="sh-f"><span class="hint">Los cambios se guardan al momento.</span><button class="btn sm red" data-act="sheet-close">Listo</button></div>`;
     body=`<p class="hint" style="margin:0">Las pegatinas se pegan en cualquier tarjeta y sirven para filtrar los cajones.</p>${arr('stickers').map(s=>`<div class="chk"><span class="stk" style="--s:var(--${s.color})">${esc(s.label)}</span><input type="text" id="sk-${s.id}" data-sk="${s.id}" value="${esc(s.label)}" aria-label="Nombre"><span class="colors">${COLORS.map(c=>`<button type="button" style="--c:var(--${c});width:20px;height:20px" data-act="sk-color" data-id="${s.id}" data-v="${c}" aria-pressed="${s.color===c}" aria-label="Color ${c}"></button>`).join('')}</span><button type="button" class="x" data-act="sk-del" data-id="${s.id}" aria-label="Borrar">×</button></div>`).join('')}<form data-form="sk-add" style="display:flex;gap:6px"><input class="in" id="sk-new" placeholder="Nueva pegatina" autocomplete="off"><button class="btn sm">Crear</button></form>`;}
   else if(SH.type==='release'){const s=get('songs',SH.id);title='Plan de lanzamiento';
@@ -1197,6 +1236,13 @@ const ACT={
   'mesa-note':()=>{newItem({kind:'nota'});if(SH)SH.draft.free=Object.assign(freeSpot(),{z:maxZ()+1})},
   'show-done':t=>{F.showDone[t.dataset.id]=!F.showDone[t.dataset.id];render()},
   'caj-new':()=>openSheet('cajon','cajones',uid('caj'),{name:'',color:COLORS[cajList().length%COLORS.length],order:cajList().length},true),
+  link:t=>openSheet('link',null,t.dataset.id,{idx:Number(t.dataset.v)},false),
+  'link-flip':()=>{const c=S.cajones[SH.id],l=c&&c.links[SH.draft.idx];if(!l)return;const to=S.cajones[l.to];if(!to){toast('El otro cajón ya no existe.');return}
+    write('cajones',SH.id,Object.assign({},c,{links:c.links.filter((x,i)=>i!==SH.draft.idx)}));
+    const tl=(to.links||[]).filter(x=>x.to!==SH.id).concat({to:SH.id,label:l.label||''});write('cajones',l.to,Object.assign({},to,{links:tl}));
+    SH.id=l.to;SH.draft.idx=tl.length-1;drawSheet();},
+  'link-del':()=>{if(SH.confirm!=='del'){SH.confirm='del';drawSheet();return}const c=S.cajones[SH.id];if(c)write('cajones',SH.id,Object.assign({},c,{links:(c.links||[]).filter((x,i)=>i!==SH.draft.idx)}));closeSheet();toast('Conexión quitada.')},
+  'cnx-del':t=>{SH.draft.links=(SH.draft.links||[]).filter((x,i)=>i!==Number(t.dataset.v));touch(true);drawSheet()},
   'caj-edit':t=>{const c=get('cajones',t.dataset.id);if(c)openSheet('cajon','cajones',c.id,c)},
   'caj-l':t=>moveCaj(t.dataset.id,-1),'caj-r':t=>moveCaj(t.dataset.id,1),
   'caj-defaults':()=>{DEF_CAJ.forEach(([k,n,c],i)=>write('cajones','caj-'+k,{key:k,name:n,color:c,order:i}));if(!arr('stickers').length)DEF_STK.forEach(([k,n,c])=>write('stickers','stk-'+k,{label:n,color:c}))},
@@ -1233,7 +1279,7 @@ const ACT={
   export:()=>exportJson(),
   'sh-del':()=>{if(SH.confirm!=='del'){SH.confirm='del';drawSheet();return}
     const{col,id}=SH,data=clone(S[col][id]);SH.dirty=false;
-    if(col==='cajones'){arr('items').filter(i=>i.cajon===id).forEach(i=>write('items',i.id,Object.assign({},S.items[i.id],{cajon:null})))}
+    if(col==='cajones'){cajList().filter(o=>(o.links||[]).some(l=>l.to===id)).forEach(o=>write('cajones',o.id,Object.assign({},S.cajones[o.id],{links:o.links.filter(l=>l.to!==id)})));arr('items').filter(i=>i.cajon===id).forEach(i=>write('items',i.id,Object.assign({},S.items[i.id],{cajon:null})))}
     removeDoc(col,id);closeSheet();toast('Eliminado.','Deshacer',()=>write(col,id,data));},
 };
 function moveCaj(id,dir){const l=cajList(),i=l.findIndex(c=>c.id===id),j=i+dir;if(i<0||j<0||j>=l.length)return;
@@ -1266,6 +1312,7 @@ document.addEventListener('submit',e=>{const f=e.target;e.preventDefault();const
 document.addEventListener('input',e=>{const t=e.target;
   if(t.id==='qa-in'){qaPreview();return}
   if(t.id==='q-in'){qaPreview(t,$('#q-prev'));return}
+  if(t.id==='f-lbl'&&SH&&SH.type==='link'){clearTimeout(t._t);const id=SH.id,idx=SH.draft.idx,v=t.value.trim();t._t=setTimeout(()=>{const c=S.cajones[id];if(!c||!c.links||!c.links[idx])return;const ls=c.links.map((x,i)=>i===idx?Object.assign({},x,{label:v}):x);write('cajones',id,Object.assign({},c,{links:ls}))},500);return}
   if(!SH||!$('#sheet').contains(t))return;
   if(t.dataset.f){const f=t.dataset.f;let v=t.type==='checkbox'?t.checked:t.value;if(f==='stage')v=Number(v);if((f==='date'||f==='end'||f==='due'||f==='goal'||f==='song'||f==='gig'||f==='cajon')&&!v)v=null;
     SH.draft[f]=v;if(t.classList.contains('ttl-in')){t.style.height='auto';t.style.height=t.scrollHeight+'px'}
@@ -1277,6 +1324,7 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.sk){const s=S.stickers[t.dataset.sk];clearTimeout(t._t);t._t=setTimeout(()=>{if(s&&t.value.trim())write('stickers',t.dataset.sk,Object.assign({},s,{label:t.value.trim()}))},600);return}
 });
 document.addEventListener('change',async e=>{const t=e.target;
+  if(t.id==='f-cnx'&&t.value&&SH){SH.draft.links=(SH.draft.links||[]).concat({to:t.value,label:''});touch(true);drawSheet();return}
   if(t.id==='f-addsong'&&t.value&&SH){SH.draft.setlist=(SH.draft.setlist||[]).concat(t.value);touch(true);drawSheet();return}
   if(t.id==='f-up'&&SH){await uploadFiles(t);return}
   if(t.id==='imp'){await importJson(t);return}
