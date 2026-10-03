@@ -1,0 +1,23 @@
+{
+  "name": "La Cocina de Altillo",
+  "short_name": "Cocina",
+  "description": "Tablero interno de ALTILLO: cajones, calendario, objetivos, conciertos y repertorio.",
+  "lang": "es",
+  "start_url": "./#comanda",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F3E8D3",
+  "theme_color": "#D4261A",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Apuntar", "url": "./#comanda", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Calendario", "url": "./#calendario", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Conciertos", "url": "./#conciertos", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
