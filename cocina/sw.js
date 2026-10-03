@@ -1,6 +1,6 @@
 /* La Cocina de Altillo — funciona sin conexión.
    La app se guarda en caché; los datos van y vienen de GitHub y nunca se cachean aquí. */
-const VERSION = 'cocina-v1';
+const VERSION = 'cocina-v2';
 const SHELL = [
   './',
   './index.html',

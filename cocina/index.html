@@ -152,7 +152,7 @@ main{padding-block:22px 80px;padding-inline:18px;max-width:1500px;margin:0 auto}
 .tk.is-note:nth-child(even){transform:rotate(.7deg)}
 .tk.is-note h4{font:italic 1.15rem/1.25 var(--f-serif)}
 .tk-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;font:500 .64rem var(--f-mono);color:var(--ink-3)}
-.tk-meta span{white-space:nowrap}
+.tk-meta span{white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .stks{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 .stk{--s:var(--c1);display:inline-block;font:600 .62rem/1 var(--f-body);letter-spacing:.02em;text-transform:uppercase;padding:4px 7px 3px;border-radius:3px;background:color-mix(in srgb,var(--s) 22%,var(--card));border:1.5px solid var(--s);color:var(--ink);transform:rotate(-2deg);box-shadow:1px 1px 0 var(--shadow)}
 .stk:nth-child(even){transform:rotate(1.5deg)}
@@ -376,6 +376,28 @@ video{height:auto;border-radius:8px}
 
 body.ro [data-w]{display:none!important}
 
+
+/* ---------- mesa libre (cajones a pantalla completa) ---------- */
+body.wide main{max-width:none}
+.board.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));overflow:visible;align-items:start;gap:18px}
+.board.grid .caj{flex:none;max-width:none}
+.board.grid .caj-new{min-height:160px}
+.mesa-wrap{overflow-x:auto;overflow-y:hidden;margin-inline:-6px;padding:6px;border-radius:18px;background:radial-gradient(circle,color-mix(in srgb,var(--ink-3) 35%,transparent) 1px,transparent 1.5px) 0 0/22px 22px,color-mix(in srgb,var(--paper-2) 55%,var(--paper));border:1.5px dashed var(--hair)}
+.mesa{position:relative;min-width:100%}
+.caj.float{position:absolute;flex:none;max-width:none;box-shadow:4px 5px 0 var(--shadow);transition:box-shadow .15s}
+.caj.float.sized .caj-list{flex:1;min-height:0;overflow:auto}
+.caj.lifting{box-shadow:10px 14px 0 var(--shadow);transition:none}
+.caj-h[data-move]{cursor:grab;user-select:none}
+.caj-h[data-move]:active{cursor:grabbing}
+.rs{position:absolute;right:3px;bottom:3px;width:18px;height:18px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 45%,var(--ink-3) 45%,var(--ink-3) 52%,transparent 52%,transparent 64%,var(--ink-3) 64%,var(--ink-3) 71%,transparent 71%);border-radius:0 0 10px 0;opacity:.7}
+.rs:hover{opacity:1}
+.mesa .tk{cursor:grab;user-select:none}
+.floaty{position:absolute;width:240px;transform:rotate(var(--rot,0deg));transition:transform .15s}
+.floaty:hover{transform:rotate(0deg) scale(1.02)}
+.floaty .tk{box-shadow:5px 7px 0 var(--c)}
+.floaty .tk:not(.is-note){background:color-mix(in srgb,var(--c) 14%,var(--card))}
+.tk.ghost{position:fixed;z-index:90;pointer-events:none;margin:0;transform:rotate(3deg) scale(1.04);box-shadow:10px 14px 0 var(--c);opacity:.95;animation:none}
+.mesa .tk.dragging{opacity:.3}
 @media (max-width:1100px){
   .lanes{grid-template-columns:repeat(2,minmax(0,1fr))}
   .row3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
@@ -519,8 +541,8 @@ const COLS=['cajones','items','goals','songs','gigs','stickers'];
 let S={cajones:{},items:{},goals:{},songs:{},gigs:{},stickers:{}};
 const loaded=new Set();
 const F={who:'all',cal:'mes',proj:'all',stk:null,calMonth:null,calDay:null,showDone:{}};
-try{const p=JSON.parse(localStorage.getItem('altillo-cocina-prefs')||'{}');['who','cal','proj'].forEach(k=>{if(p[k])F[k]=p[k]});if(p.who)F.whoSet=true}catch(e){}
-const savePrefs=()=>{F.whoSet=true;try{localStorage.setItem('altillo-cocina-prefs',JSON.stringify({who:F.who,cal:F.cal,proj:F.proj}))}catch(e){}};
+try{const p=JSON.parse(localStorage.getItem('altillo-cocina-prefs')||'{}');['who','cal','proj','cajView'].forEach(k=>{if(p[k])F[k]=p[k]});if(p.who)F.whoSet=true}catch(e){}
+const savePrefs=()=>{F.whoSet=true;try{localStorage.setItem('altillo-cocina-prefs',JSON.stringify({who:F.who,cal:F.cal,proj:F.proj,cajView:F.cajView}))}catch(e){}};
 const arr=c=>Object.entries(S[c]).map(([id,d])=>Object.assign({},d,{id}));
 const get=(c,id)=>id&&S[c][id]?Object.assign({},S[c][id],{id}):null;
 const cajList=()=>arr('cajones').sort((a,b)=>(a.order??0)-(b.order??0));
@@ -640,6 +662,7 @@ let rq=0;
 function render(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;draw()})}
 function view(){const v=(location.hash||'#comanda').slice(1);return ['comanda','cajones','calendario','objetivos','conciertos','repertorio','ajustes'].includes(v)?v:'comanda'}
 function draw(){
+  if(typeof PD!=='undefined'&&PD&&PD.on){pendingDraw=true;return}
   $$('#tabs a,#bnav a,.gear').forEach(a=>a.setAttribute('aria-current',a.dataset.v===view()?'page':'false'));
   $$('.whos button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===F.who)));
   if(loaded.size<COLS.length||!READY)return;
@@ -648,9 +671,11 @@ function draw(){
   const sc={};$$('[data-keep-scroll]',main).forEach(el=>{sc[el.dataset.keepScroll]=[el.scrollLeft,el.scrollTop]});
   const ae=document.activeElement, fid=ae&&main.contains(ae)&&ae.id?ae.id:null, fval=fid?ae.value:null, fsel=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
   const v=view();
+  document.body.classList.toggle('wide',v==='cajones');
   main.innerHTML=({comanda:vComanda,cajones:vCajones,calendario:vCalendario,objetivos:vObjetivos,conciertos:vConciertos,repertorio:vRepertorio,ajustes:vAjustes})[v]();
   $$('[data-keep-scroll]',main).forEach(el=>{const s=sc[el.dataset.keepScroll];if(s){el.scrollLeft=s[0];el.scrollTop=s[1]}else if(el.dataset.startAt){el.scrollLeft=Number(el.dataset.startAt)}});
   if(fid){const el=document.getElementById(fid);if(el){el.value=fval;el.focus();if(fsel)try{el.setSelectionRange(fsel[0],fsel[1])}catch(e){}}}
+  if(v==='cajones'){sizeMesa();if(mesaFix&&mesaFix.length)requestAnimationFrame(()=>{fixMesa();sizeMesa()})}
   const tabs=$('#tabs a[data-v="comanda"] small');if(tabs){const n=arr('items').filter(i=>i.status!=='done'&&i.date&&i.date<=iso(today())&&whoOk(i)).length;tabs.textContent=n?n+' hoy':'hoy';}
   const bn=$('#bnav a[data-v="comanda"]');if(bn){const n=arr('items').filter(i=>i.status!=='done'&&i.date&&i.date<=iso(today())&&whoOk(i)).length;let b=bn.querySelector('b');if(n){if(!b){b=document.createElement('b');bn.appendChild(b)}b.textContent=n}else if(b)b.remove()}
 }
@@ -670,7 +695,7 @@ function card(it,o={}){
   const gl=get('goals',it.goal);if(gl&&!o.noGoal)meta.push(`<span>→ ${esc(gl.title)}</span>`);
   const ch=it.checks||[];if(ch.length)meta.push(`<span>☐ ${ch.filter(x=>x.d).length}/${ch.length}</span>`);
   if((it.files||[]).length)meta.push(`<span>⎘ ${it.files.length} archivo${it.files.length>1?'s':''}</span>`);
-  return `<article class="tk${note?' is-note':''}${it.status==='done'?' is-done':''}${it.hito?' is-hito':''}" style="--c:var(--${c?c.color:'c7'})" data-act="item" data-id="${it.id}" draggable="true" data-drag="${it.id}" tabindex="0">
+  return `<article class="tk${note?' is-note':''}${it.status==='done'?' is-done':''}${it.hito?' is-hito':''}" style="--c:var(--${c?c.color:'c7'})" data-act="item" data-id="${it.id}" draggable="${o.nodrag?'false':'true'}" data-drag="${it.id}" tabindex="0">
     <div class="tk-top">${note?'':`<button class="tk-check" data-act="done" data-id="${it.id}" aria-label="${it.status==='done'?'Marcar pendiente':'Marcar hecha'}" data-w>${it.status==='done'?'✓':''}</button>`}<span class="code">${k.c}</span>${it.hito?'<span class="hito">✳ hito</span>':''}${it.status==='doing'?'<span class="code" style="border-color:var(--ok);color:var(--ok)">EN MARCHA</span>':''}<span class="sp"></span>${dueTag(it)}${note?'':whoB(it.who)}</div>
     <h4>${esc(it.title)}</h4>${stkHtml(it.stickers)}${meta.length?`<div class="tk-meta">${meta.join('')}</div>`:''}
   </article>`;}
@@ -733,20 +758,111 @@ function vComanda(){
 }
 
 /* ---------- vista: cajones ---------- */
+const isPhone=()=>window.matchMedia('(max-width:760px)').matches;
+const MESA_W=300, MESA_GAP=18;
+let mesaFix=null;
+function mesaW(){const w=$('.mesa-wrap');return Math.max(640,(w?w.clientWidth:(($('#view')?.clientWidth||window.innerWidth)-36))-14)} // cajones sin posición que hay que fijar tras pintar
+function hashRot(id){let h=0;for(const ch of String(id))h=(h*31+ch.charCodeAt(0))|0;return ((Math.abs(h)%7)-3)*0.8}
+function maxZ(){let z=1;arr('cajones').forEach(c=>{if(c.pos&&c.pos.z>z)z=c.pos.z});arr('items').forEach(i=>{if(i.free&&i.free.z>z)z=i.free.z});return z}
+function estH(n){return 150+Math.min(n,8)*86}
 function vCajones(){
   const cs=cajList(), items=arr('items').filter(i=>whoOk(i)&&stkOk(i));
-  const stks=arr('stickers');
+  const stks=arr('stickers'), mesa=F.cajView!=='cols'&&!isPhone();
+  const modes=isPhone()?'':`<div class="seg" role="group" aria-label="Vista de los cajones"><button data-act="caj-view" data-v="mesa" aria-pressed="${mesa}">Mesa libre</button><button data-act="caj-view" data-v="cols" aria-pressed="${!mesa}">Columnas</button></div>${mesa?'<button class="btn sm" data-act="mesa-arrange" data-w>Ordenar la mesa</button>':''}`;
   const filt=`<div class="toolbar"><span class="lbl">Pegatinas</span><button class="stk" style="--s:var(--ink-3)" data-act="stk-filter" data-v="" aria-pressed="${!F.stk}">Todas</button>${stks.map(s=>`<button class="stk" style="--s:var(--${s.color})" data-act="stk-filter" data-v="${s.id}" aria-pressed="${F.stk===s.id||!F.stk}">${esc(s.label)}</button>`).join('')}<button class="btn sm ghost" data-act="stk-manage" data-w>Gestionar pegatinas</button></div>`;
   if(!cs.length)return vhd('Los cajones','Todo lo que hay que hacer, ordenado por áreas','')+`<div class="empty" style="padding:40px">Todavía no hay cajones.<br><br><button class="btn red" data-act="caj-defaults" data-w>Crear los cajones básicos</button> <button class="btn" data-act="caj-new" data-w>Crear uno vacío</button></div>`;
-  const col=(c,list)=>{const op=list.filter(i=>i.status!=='done').sort(byDate),dn=list.filter(i=>i.status==='done');const show=F.showDone[c.id];
-    return `<section class="caj" style="--c:var(--${c.color})" data-drop="caj" data-id="${c.id}"><header class="caj-h"><h3>${esc(c.name)}</h3><span class="n">${op.length}</span>${c.id==='_none'?'':`<span data-w style="display:flex;gap:3px"><button data-act="caj-l" data-id="${c.id}" aria-label="Mover cajón a la izquierda">←</button><button data-act="caj-r" data-id="${c.id}" aria-label="Mover cajón a la derecha">→</button><button data-act="caj-edit" data-id="${c.id}" aria-label="Editar cajón">✎</button></span>`}</header>
-    <div class="caj-list">${op.length?op.map(i=>card(i)).join(''):'<div class="empty">Cajón vacío. Arrastra aquí o escribe abajo.</div>'}${show?dn.map(i=>card(i)).join(''):''}</div>
+  const col=(c,list,pos)=>{const op=list.filter(i=>i.status!=='done').sort(byDate),dn=list.filter(i=>i.status==='done');const show=F.showDone[c.id];
+    const st=pos?`;left:${pos.x}px;top:${pos.y}px;width:${pos.w}px;z-index:${pos.z||1}${pos.h?';height:'+pos.h+'px':''}`:'';
+    return `<section class="caj${pos?' float'+(pos.h?' sized':''):''}" id="caj-${c.id}" style="--c:var(--${c.color})${st}" data-drop="caj" data-id="${c.id}"><header class="caj-h"${pos&&c.id!=='_none'?` data-move="${c.id}" title="Arrastra para mover el cajón"`:''}><h3>${esc(c.name)}</h3><span class="n">${op.length}</span>${c.id==='_none'?'':`<span data-w style="display:flex;gap:3px">${pos?'':`<button data-act="caj-l" data-id="${c.id}" aria-label="Mover cajón a la izquierda">←</button><button data-act="caj-r" data-id="${c.id}" aria-label="Mover cajón a la derecha">→</button>`}<button data-act="caj-edit" data-id="${c.id}" aria-label="Editar cajón">✎</button></span>`}</header>
+    <div class="caj-list">${op.length?op.map(i=>card(i,{nodrag:!!pos})).join(''):`<div class="empty">Cajón vacío. ${pos?'Suelta aquí una tarjeta':'Arrastra aquí'} o escribe abajo.</div>`}${show?dn.map(i=>card(i,{nodrag:!!pos})).join(''):''}</div>
     ${c.id==='_none'?'':`<form class="add-in" data-form="caj-add" data-id="${c.id}" data-w><label class="vh" for="add-${c.id}">Añadir a ${esc(c.name)}</label><input id="add-${c.id}" placeholder="+ Añadir a ${esc(c.name)}" autocomplete="off"></form>`}
-    ${dn.length?`<button class="done-tg" data-act="show-done" data-id="${c.id}">${show?'Ocultar':'Ver'} hechas (${dn.length})</button>`:''}</section>`;};
-  const none=items.filter(i=>!i.cajon||!S.cajones[i.cajon]);
-  return vhd('Los cajones','Todo lo que hay que hacer, por áreas. Arrastra las tarjetas entre cajones.',`<button class="btn red" data-act="new-item" data-w>+ Nueva tarea</button><button class="btn" data-act="new-item" data-kind="nota" data-w>+ Nota</button>`)+filt+
-    `<div class="board" data-keep-scroll="board">${none.length?col({id:'_none',name:'Sin cajón',color:'c7'},none):''}${cs.map(c=>col(c,items.filter(i=>i.cajon===c.id))).join('')}<button class="caj-new" data-act="caj-new" data-w>+ Nuevo cajón</button></div>`;
+    ${dn.length?`<button class="done-tg" data-act="show-done" data-id="${c.id}">${show?'Ocultar':'Ver'} hechas (${dn.length})</button>`:''}${pos&&c.id!=='_none'?`<span class="rs" data-resize="${c.id}" title="Arrastra para cambiar el tamaño" aria-hidden="true"></span>`:''}</section>`;};
+  const head=vhd('Los cajones',mesa?'Mueve los cajones y suelta notas donde quieras, como pósits en la nevera.':'Todo lo que hay que hacer, por áreas. Arrastra las tarjetas entre cajones.',`${modes}<button class="btn red" data-act="new-item" data-w>+ Nueva tarea</button><button class="btn" data-act="${mesa?'mesa-note':'new-item'}" data-kind="nota" data-w>+ Nota</button>${mesa?'<button class="btn" data-act="caj-new" data-w>+ Cajón</button>':''}`);
+  if(!mesa){const none=items.filter(i=>!i.cajon||!S.cajones[i.cajon]);
+    return head+filt+`<div class="board${isPhone()?'':' grid'}" data-keep-scroll="board">${none.length?col({id:'_none',name:'Sin cajón',color:'c7'},none):''}${cs.map(c=>col(c,items.filter(i=>i.cajon===c.id))).join('')}<button class="caj-new" data-act="caj-new" data-w>+ Nuevo cajón</button></div>`;}
+  // Mesa libre: posiciones guardadas; los cajones sin posición se colocan en el hueco más bajo
+  const cw=mesaW(), ncol=Math.max(1,Math.floor((cw+MESA_GAP)/(MESA_W+MESA_GAP))), w=Math.floor((cw-MESA_GAP*(ncol-1))/ncol);
+  const docked=items.filter(i=>!i.free), floats=items.filter(i=>i.free);
+  const none=docked.filter(i=>!i.cajon||!S.cajones[i.cajon]);
+  const heights=new Array(ncol).fill(0);
+  cs.forEach(c=>{if(c.pos){const k=Math.min(ncol-1,Math.max(0,Math.round(c.pos.x/(w+MESA_GAP))));heights[k]=Math.max(heights[k],c.pos.y+(c.pos.h||estH(docked.filter(i=>i.cajon===c.id&&i.status!=='done').length))+MESA_GAP)}});
+  const auto={};mesaFix=[];
+  cs.filter(c=>!c.pos).forEach(c=>{let k=heights.indexOf(Math.min(...heights));const p={x:k*(w+MESA_GAP),y:heights[k],w,z:1};auto[c.id]=p;mesaFix.push(c.id);heights[k]+=estH(docked.filter(i=>i.cajon===c.id&&i.status!=='done').length)+MESA_GAP});
+  let noneHtml='';if(none.length){const k=heights.indexOf(Math.min(...heights));noneHtml=col({id:'_none',name:'Sin cajón',color:'c7'},none,{x:k*(w+MESA_GAP),y:heights[k],w,z:1});heights[k]+=estH(none.length)+MESA_GAP}
+  const panels=cs.map(c=>col(c,docked.filter(i=>i.cajon===c.id),c.pos||auto[c.id])).join('');
+  const notes=floats.map(i=>`<div class="floaty" style="left:${i.free.x}px;top:${i.free.y}px;z-index:${i.free.z||1};--rot:${hashRot(i.id)}deg">${card(i,{nodrag:true,caj:1})}</div>`).join('');
+  let H=Math.max(...heights,560);floats.forEach(i=>{H=Math.max(H,i.free.y+260)});cs.forEach(c=>{const p=c.pos||auto[c.id];H=Math.max(H,p.y+(p.h||estH(docked.filter(i=>i.cajon===c.id&&(i.status!=='done'||F.showDone[c.id])).length)))});
+  let W=cw;cs.forEach(c=>{const p=c.pos||auto[c.id];W=Math.max(W,p.x+p.w+MESA_GAP)});floats.forEach(i=>{W=Math.max(W,i.free.x+260)});
+  return head+filt+`<div class="mesa-wrap" data-keep-scroll="mesa"><div class="mesa" id="mesa" style="width:${W}px;height:${H+120}px">${noneHtml}${panels}${notes}</div></div>`;
 }
+/* coloca los cajones que aún no tienen sitio, midiendo su altura real */
+function fixMesa(){if(!mesaFix||!mesaFix.length||view()!=='cajones'||!$('#mesa'))return;const ids=mesaFix;mesaFix=null;
+  if(ids.length===cajList().length){arrangeMesa(true);return}
+  const cw=mesaW(),ncol=Math.max(1,Math.floor((cw+MESA_GAP)/(MESA_W+MESA_GAP))),w=Math.floor((cw-MESA_GAP*(ncol-1))/ncol);
+  const bottoms=new Array(ncol).fill(0);
+  cajList().filter(c=>c.pos&&!ids.includes(c.id)).forEach(c=>{const el=document.getElementById('caj-'+c.id);if(!el)return;const k=Math.min(ncol-1,Math.max(0,Math.round(el.offsetLeft/(w+MESA_GAP))));bottoms[k]=Math.max(bottoms[k],el.offsetTop+el.offsetHeight+MESA_GAP)});
+  ids.forEach(id=>{const el=document.getElementById('caj-'+id),c=S.cajones[id];if(!el||!c)return;const k=bottoms.indexOf(Math.min(...bottoms));
+    write('cajones',id,Object.assign({},c,{pos:{x:k*(w+MESA_GAP),y:bottoms[k],w,z:maxZ()+1}}));bottoms[k]+=el.offsetHeight+MESA_GAP});}
+/* reparte todos los cajones por el ancho de la pantalla (columnas tipo mampostería) */
+function arrangeMesa(silent){const m=$('#mesa');if(!m)return;const cw=mesaW(),ncol=Math.max(1,Math.floor((cw+MESA_GAP)/(MESA_W+MESA_GAP))),w=Math.floor((cw-MESA_GAP*(ncol-1))/ncol);
+  const heights=new Array(ncol).fill(0);
+  cajList().forEach(c=>{const el=document.getElementById('caj-'+c.id);const k=heights.indexOf(Math.min(...heights));
+    let h=el?el.offsetHeight:estH(4);if(el&&el.classList.contains('sized')){el.style.height='auto';h=el.offsetHeight}
+    write('cajones',c.id,Object.assign({},S.cajones[c.id],{pos:{x:k*(w+MESA_GAP),y:heights[k],w,z:1}}));heights[k]+=h+MESA_GAP});
+  if(!silent)toast('Cajones repartidos por toda la mesa.');}
+function sizeMesa(){const m=$('#mesa');if(!m)return;let b=0,r=0;[...m.children].forEach(el=>{b=Math.max(b,el.offsetTop+el.offsetHeight);r=Math.max(r,el.offsetLeft+el.offsetWidth)});
+  m.style.height=Math.max(560,b+90)+'px';m.style.width=Math.max(m.parentElement.clientWidth-12,r+MESA_GAP)+'px';}
+function freeSpot(){const wrap=$('.mesa-wrap'),m=$('#mesa');if(!wrap||!m)return{x:40,y:40};const mr=m.getBoundingClientRect();
+  const rects=[...m.children].map(el=>({x:el.offsetLeft,y:el.offsetTop,r:el.offsetLeft+el.offsetWidth,b:el.offsetTop+el.offsetHeight}));
+  const fits=(x,y)=>rects.every(q=>x+250<q.x||x>q.r+10||y+170<q.y||y>q.b+10);
+  const top=Math.max(0,-mr.top+60),bot=top+window.innerHeight-200,left=wrap.scrollLeft,right=left+wrap.clientWidth-260;
+  for(let y=top;y<=bot;y+=30)for(let x=left+10;x<=right;x+=30)if(fits(x,y))return{x:Math.round(x),y:Math.round(y)};
+  const b=Math.max(0,...rects.map(q=>q.b));return{x:Math.round(left+wrap.clientWidth/2-120),y:Math.round(b+20)}}
+
+/* ---------- arrastrar en la mesa (ratón o dedo) ---------- */
+let PD=null, suppressClick=false, pendingDraw=false;
+document.addEventListener('click',e=>{if(suppressClick){suppressClick=false;e.preventDefault();e.stopPropagation()}},true);
+document.addEventListener('pointerdown',e=>{
+  if(e.button!==0||!$('#mesa')||!e.target.closest('#mesa'))return;
+  if(e.target.closest('button,input,textarea,select,a,label,audio,video,form'))return;
+  const rs=e.target.closest('[data-resize]'), mv=e.target.closest('[data-move]'), tk=e.target.closest('.tk[data-id]');
+  if(rs){const el=rs.closest('.caj');PD={type:'resize',id:rs.dataset.resize,el,sx:e.clientX,sy:e.clientY,w:el.offsetWidth,h:el.offsetHeight,on:true};el.style.zIndex=maxZ()+1;e.preventDefault()}
+  else if(mv){const el=mv.closest('.caj');PD={type:'caj',id:mv.dataset.move,el,sx:e.clientX,sy:e.clientY,x:el.offsetLeft,y:el.offsetTop,on:false}}
+  else if(tk){PD={type:'card',id:tk.dataset.id,el:tk,sx:e.clientX,sy:e.clientY,on:false}}
+  else return;
+  try{(PD.type==='card'?document.body:PD.el).setPointerCapture?.(e.pointerId)}catch(err){}
+});
+document.addEventListener('pointermove',e=>{if(!PD)return;const dx=e.clientX-PD.sx,dy=e.clientY-PD.sy;
+  if(!PD.on){if(Math.hypot(dx,dy)<6)return;PD.on=true;
+    if(PD.type==='caj'){PD.el.classList.add('lifting');PD.el.style.zIndex=maxZ()+1}
+    if(PD.type==='card'){const r=PD.el.getBoundingClientRect();const g=PD.el.cloneNode(true);g.classList.add('ghost');g.style.width=r.width+'px';g.style.left=r.left+'px';g.style.top=r.top+'px';document.body.appendChild(g);
+      PD.ghost=g;PD.ox=e.clientX-r.left;PD.oy=e.clientY-r.top;PD.el.classList.add('dragging');}}
+  e.preventDefault();
+  if(PD.type==='caj'){PD.el.style.left=Math.max(0,PD.x+dx)+'px';PD.el.style.top=Math.max(0,PD.y+dy)+'px'}
+  else if(PD.type==='resize'){PD.el.style.width=Math.max(220,PD.w+dx)+'px';PD.el.style.height=Math.max(160,PD.h+dy)+'px';PD.el.classList.add('sized')}
+  else{PD.ghost.style.left=(e.clientX-PD.ox)+'px';PD.ghost.style.top=(e.clientY-PD.oy)+'px';
+    $$('.caj.over').forEach(x=>x.classList.remove('over'));PD.ghost.style.display='none';const under=document.elementFromPoint(e.clientX,e.clientY);PD.ghost.style.display='';
+    const cz=under&&under.closest('.caj[data-id]');if(cz)cz.classList.add('over');}
+});
+function endDrag(e,cancel){if(!PD)return;const d=PD;PD=null;
+  $$('.caj.over').forEach(x=>x.classList.remove('over'));
+  if(!d.on){return}
+  suppressClick=true;setTimeout(()=>{suppressClick=false},0);
+  if(cancel){if(d.ghost)d.ghost.remove();render();return}
+  if(d.type==='caj'){const c=S.cajones[d.id];if(c)write('cajones',d.id,Object.assign({},c,{pos:Object.assign({},c.pos||{},{x:d.el.offsetLeft,y:d.el.offsetTop,w:d.el.offsetWidth,z:maxZ()+1})}))}
+  else if(d.type==='resize'){const c=S.cajones[d.id];if(c)write('cajones',d.id,Object.assign({},c,{pos:Object.assign({},c.pos||{x:d.el.offsetLeft,y:d.el.offsetTop},{w:d.el.offsetWidth,h:d.el.offsetHeight,z:maxZ()+1})}))}
+  else{d.ghost.style.display='none';const under=document.elementFromPoint(e.clientX,e.clientY);const gr=d.ghost.getBoundingClientRect();d.ghost.remove();
+    const it=S.items[d.id];const m=$('#mesa');if(!it||!m){render();return}
+    const cz=under&&under.closest('.caj[data-id]');
+    if(cz){const cid=cz.dataset.id==='_none'?null:cz.dataset.id;write('items',d.id,Object.assign({},it,{cajon:cid,free:null}));const c=get('cajones',cid);toast(c?'Guardada en '+c.name+'.':'Guardada en «Sin cajón».')}
+    else if(under&&under.closest('#mesa')){const mr=m.getBoundingClientRect();write('items',d.id,Object.assign({},it,{free:{x:Math.round(Math.max(0,gr.left-mr.left)),y:Math.round(Math.max(0,gr.top-mr.top)),z:maxZ()+1}}))}
+    else render();}
+  if(pendingDraw){pendingDraw=false;render()}
+}
+document.addEventListener('pointerup',e=>endDrag(e,false));
+document.addEventListener('pointercancel',e=>endDrag(e,true));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&PD&&PD.on){endDrag(e,true)}});
+let rzT=0;window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(view()==='cajones')render()},250)});
 
 /* ---------- vista: calendario ---------- */
 function vCalendario(){
@@ -1063,6 +1179,9 @@ const ACT={
   proj:t=>{F.proj=t.dataset.v;savePrefs();render()},
   'stk-filter':t=>{F.stk=t.dataset.v&&F.stk!==t.dataset.v?t.dataset.v:null;render()},
   'stk-manage':()=>openSheet('stickers',null,null,{},false),
+  'caj-view':t=>{F.cajView=t.dataset.v;savePrefs();render()},
+  'mesa-arrange':()=>arrangeMesa(),
+  'mesa-note':()=>{newItem({kind:'nota'});if(SH)SH.draft.free=Object.assign(freeSpot(),{z:maxZ()+1})},
   'show-done':t=>{F.showDone[t.dataset.id]=!F.showDone[t.dataset.id];render()},
   'caj-new':()=>openSheet('cajon','cajones',uid('caj'),{name:'',color:COLORS[cajList().length%COLORS.length],order:cajList().length},true),
   'caj-edit':t=>{const c=get('cajones',t.dataset.id);if(c)openSheet('cajon','cajones',c.id,c)},
@@ -1160,7 +1279,7 @@ document.addEventListener('dragstart',e=>{const t=e.target.closest&&e.target.clo
 document.addEventListener('dragend',e=>{dragId=null;$$('.dragging').forEach(x=>x.classList.remove('dragging'));$$('.over').forEach(x=>x.classList.remove('over'))});
 document.addEventListener('dragover',e=>{if(!dragId)return;const z=e.target.closest('[data-drop]');if(!z)return;e.preventDefault();$$('.over').forEach(x=>{if(x!==z)x.classList.remove('over')});z.classList.add('over')});
 document.addEventListener('drop',e=>{if(!dragId)return;const z=e.target.closest('[data-drop]');if(!z)return;e.preventDefault();const it=S.items[dragId];if(!it)return;
-  if(z.dataset.drop==='caj'){const c=z.dataset.id==='_none'?null:z.dataset.id;if(it.cajon!==c)write('items',dragId,Object.assign({},it,{cajon:c}))}
+  if(z.dataset.drop==='caj'){const c=z.dataset.id==='_none'?null:z.dataset.id;if(it.cajon!==c||it.free)write('items',dragId,Object.assign({},it,{cajon:c,free:null}))}
   if(z.dataset.drop==='day'){const nd=z.dataset.id;if(it.date!==nd){const o=Object.assign({},it,{date:nd});if(it.end&&it.date)o.end=iso(addD(pd(nd),diff(pd(it.date),pd(it.end))));write('items',dragId,o);toast(`«${it.title}» movida al ${fmtD(nd,1)}.`)}}
   dragId=null;});
 window.addEventListener('hashchange',()=>{if(SH)closeSheet();render();window.scrollTo(0,0)});
