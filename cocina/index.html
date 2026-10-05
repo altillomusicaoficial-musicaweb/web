@@ -259,13 +259,17 @@ button.stk[aria-pressed="false"]{opacity:.45;transform:none;box-shadow:none}
 .mk.lab b{flex:0 0 auto;width:14px;height:14px;display:grid;place-items:center;background:var(--c);color:var(--on-c);border:1.5px solid var(--rule);transform:rotate(45deg);border-radius:2px;font:400 .55rem var(--f-disp)}
 .mk.lab span{overflow:hidden;text-overflow:ellipsis;background:color-mix(in srgb,var(--card) 88%,transparent);padding:1px 4px;border-radius:3px}
 .mk.lab.mk-gig b{border-radius:50%;transform:none;background:var(--ink)}
-.mk.mk-goal{height:24px;margin-left:-8px;padding:0 10px 0 3px;gap:6px;background:var(--card);border:1.5px solid var(--rule);border-radius:99px;box-shadow:2px 2px 0 var(--rule);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.map-wrap .mk.lab{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.mk.mk-goal{height:24px;margin-left:-8px;padding:0 10px 0 3px;gap:6px;background:var(--card);border:1.5px solid var(--rule);border-radius:99px;box-shadow:2px 2px 0 var(--rule)}
 .mk.mk-goal b{width:16px;height:16px;transform:none;border-radius:50%;font:400 .7rem/1 var(--f-body);color:var(--on-c)}
 .mk.mk-goal span{background:none;padding:0;font-weight:600}
 .mk.mk-goal.done{opacity:.55} .mk.mk-goal.done span{text-decoration:line-through}
 .mk.mk-goal:hover{box-shadow:3px 3px 0 var(--red)}
-.mk.mk-goal.dragging{cursor:grabbing;z-index:30;box-shadow:4px 4px 0 var(--red);transform:translateY(-2px)}
-.mk.mk-goal.dragging::after,.gchip.ghost::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);background:var(--ink);color:var(--paper);font:500 .66rem/1 var(--f-mono);letter-spacing:.04em;padding:4px 8px;border-radius:5px;white-space:nowrap;pointer-events:none}
+.mk.lab.dragging{cursor:grabbing;z-index:30;transform:translateY(-2px)}
+.mk.lab.dragging span{background:var(--card);box-shadow:3px 3px 0 var(--red)}
+.mk.mk-goal.dragging{box-shadow:4px 4px 0 var(--red)}
+.mk.mk-goal.dragging span{box-shadow:none}
+.mk.lab.dragging::after,.gchip.ghost::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);background:var(--ink);color:var(--paper);font:500 .66rem/1 var(--f-mono);letter-spacing:.04em;padding:4px 8px;border-radius:5px;white-space:nowrap;pointer-events:none}
 .gtray{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;padding:9px 12px;border:2px dashed var(--rule);border-radius:12px;background:var(--card)}
 .gtray .lbl{font:500 .66rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin-right:4px}
 .gchip{--c:var(--c7);display:inline-flex;align-items:center;gap:6px;max-width:260px;padding:4px 11px 4px 4px;border:1.5px solid var(--rule);border-radius:99px;background:var(--paper);color:var(--ink);font:600 .74rem/1 var(--f-body);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -934,22 +938,25 @@ let rzT=0;window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout
 /* ---------- arrastrar objetivos por el mapa del año ---------- */
 const MAP_PX=5;
 let GD=null;
+const GCOL={item:['items','date'],gig:['gigs','date'],goal:['goals','due']};
 document.addEventListener('pointerdown',e=>{
   if(e.button!==0)return;
-  const el=e.target.closest('.mk-goal[data-id],.gchip[data-tray]');if(!el)return;
-  const wrap=$('.map-wrap'),g=S.goals[el.dataset.id];if(!wrap||!g)return;
-  GD={id:el.dataset.id,el,tray:el.classList.contains('gchip'),sx:e.clientX,sy:e.clientY,cx:e.clientX,cy:e.clientY,pid:e.pointerId,on:false,wrap,sc:wrap.scrollLeft,left:parseFloat(el.style.left)||0,
+  const el=e.target.closest('.map-wrap .mk.lab[data-id],.gchip[data-tray]');if(!el)return;
+  const wrap=$('.map-wrap'),cf=GCOL[el.dataset.act];if(!wrap||!cf)return;const g=S[cf[0]][el.dataset.id];if(!g)return;
+  const bar=el.classList.contains('gchip')?null:$('.mbar[data-bar="'+el.dataset.id+'"]',wrap);
+  GD={id:el.dataset.id,col:cf[0],f:cf[1],el,bar,barLeft:bar?parseFloat(bar.style.left):0,tray:el.classList.contains('gchip'),sx:e.clientX,sy:e.clientY,cx:e.clientX,cy:e.clientY,pid:e.pointerId,on:false,wrap,sc:wrap.scrollLeft,left:parseFloat(el.style.left)||0,
     start:pd(wrap.dataset.mapStart),total:Number(wrap.dataset.mapDays),nd:null};
 });
+const gdTip=di=>fmtD(di,1)+' · '+fmtRel(diff(today(),pd(di)));
 function gdUpdate(){const d=GD;if(!d||!d.on)return;const wr=d.wrap.getBoundingClientRect();
   if(d.cx>wr.right-50)d.wrap.scrollLeft+=14;else if(d.cx<wr.left+130+40)d.wrap.scrollLeft-=14;
-  if(!d.tray){const g=S.goals[d.id],base=diff(d.start,pd(g.due)),shift=(d.cx-d.sx)+(d.wrap.scrollLeft-d.sc);
+  if(!d.tray){const g=S[d.col][d.id],base=diff(d.start,pd(g[d.f])),shift=(d.cx-d.sx)+(d.wrap.scrollLeft-d.sc);
     const nd=Math.max(0,Math.min(d.total-1,base+Math.round(shift/MAP_PX)));d.nd=nd;
-    d.el.style.left=(d.left+(nd-base)*MAP_PX)+'px';
-    const di=iso(addD(d.start,nd));d.el.dataset.tip=fmtD(di,1)+' · '+fmtRel(diff(today(),pd(di))); }
+    d.el.style.left=(d.left+(nd-base)*MAP_PX)+'px';if(d.bar)d.bar.style.left=(d.barLeft+(nd-base)*MAP_PX)+'px';
+    d.el.dataset.tip=gdTip(iso(addD(d.start,nd)));}
   else{d.ghost.style.left=(d.cx-d.ox)+'px';d.ghost.style.top=(d.cy-d.oy)+'px';
     const tr=$('.mrow .mtrack',d.wrap),r=tr.getBoundingClientRect(),inside=d.cx>=r.left&&d.cx<=r.right&&d.cy>=wr.top&&d.cy<=wr.bottom;
-    if(inside){const nd=Math.max(0,Math.min(d.total-1,Math.round((d.cx-r.left)/MAP_PX)));d.nd=nd;const di=iso(addD(d.start,nd));d.ghost.dataset.tip=fmtD(di,1)+' · '+fmtRel(diff(today(),pd(di)))}
+    if(inside){const nd=Math.max(0,Math.min(d.total-1,Math.round((d.cx-r.left)/MAP_PX)));d.nd=nd;d.ghost.dataset.tip=gdTip(iso(addD(d.start,nd)))}
     else{d.nd=null;d.ghost.dataset.tip='Suéltalo sobre el mapa'}}}
 document.addEventListener('pointermove',e=>{if(!GD)return;const dx=e.clientX-GD.sx,dy=e.clientY-GD.sy;
   if(!GD.on){if(Math.hypot(dx,dy)<6)return;GD.on=true;try{document.body.setPointerCapture(GD.pid)}catch(err){}
@@ -961,11 +968,14 @@ document.addEventListener('pointermove',e=>{if(!GD)return;const dx=e.clientX-GD.
 function gdEnd(cancel){if(!GD)return;const d=GD;GD=null;clearInterval(d.iv);if(!d.on)return;
   suppressClick=true;setTimeout(()=>{suppressClick=false},0);
   if(d.ghost)d.ghost.remove();d.el.classList.remove('dragging');
-  const g=S.goals[d.id];if(cancel||!g||d.nd==null){render();return}
-  const old=g.due||null,nd=iso(addD(d.start,d.nd));
+  const g=S[d.col][d.id];if(cancel||!g||d.nd==null){render();return}
+  const old=g[d.f]||null,nd=iso(addD(d.start,d.nd));
   if(nd===old){render();return}
-  write('goals',d.id,Object.assign({},g,{due:nd}));
-  toast(`${g.title} → ${fmtD(nd,1)}`,'Deshacer',()=>{const h=S.goals[d.id];if(h)write('goals',d.id,Object.assign({},h,{due:old}))});
+  const o=Object.assign({},g,{[d.f]:nd});
+  if(d.col==='items'&&g.end&&old)o.end=iso(addD(pd(nd),diff(pd(old),pd(g.end))));
+  const before=Object.assign({},g);
+  write(d.col,d.id,o);
+  toast(`${g.title||g.name} → ${fmtD(nd,1)}`,'Deshacer',()=>{if(S[d.col][d.id])write(d.col,d.id,before)});
 }
 document.addEventListener('pointerup',()=>gdEnd(false));
 document.addEventListener('pointercancel',()=>gdEnd(true));
@@ -987,9 +997,9 @@ function calMonth(){
   const last=new Date(m0.getFullYear(),m0.getMonth()+1,0), end=addD(wStart(last),6);
   let cells='';
   for(let d=start;d<=end;d=addD(d,1)){const dI=iso(d),{its,gigs,goals}=dayStuff(dI);
-    const evs=gigs.map(g=>`<div class="ev gig" data-act="gig" data-id="${g.id}">◉ ${esc(g.name)}</div>`)
+    const evs=gigs.map(g=>`<div class="ev gig" draggable="true" data-drag="gigs/${g.id}" data-act="gig" data-id="${g.id}">◉ ${esc(g.name)}</div>`)
       .concat(its.map(i=>{const c=get('cajones',i.cajon);return `<div class="ev${i.hito?' hito':''}${i.status==='done'?' done':''}" style="--c:var(--${c?c.color:'c7'})" draggable="true" data-drag="${i.id}" data-act="item" data-id="${i.id}">${i.hito?'✳ ':''}${esc(i.title)}</div>`}))
-      .concat(goals.map(g=>`<div class="ev goal" data-act="goal" data-id="${g.id}">→ ${esc(g.title)}</div>`));
+      .concat(goals.map(g=>`<div class="ev goal" draggable="true" data-drag="goals/${g.id}" data-act="goal" data-id="${g.id}">→ ${esc(g.title)}</div>`));
     const shown=evs.slice(0,4).join('')+(evs.length>4?`<div class="ev more">+${evs.length-4} más</div>`:'');
     cells+=`<div class="day${d.getMonth()!==m0.getMonth()?' out':''}${dI===ti?' is-today':''}${F.calDay===dI?' sel':''}" data-act="cal-day" data-v="${dI}" data-drop="day" data-id="${dI}"><span class="dn">${d.getDate()}</span>${shown}</div>`;}
   let panel='';
@@ -1014,8 +1024,8 @@ function calMap(){
       const w=Math.min(cap,m.title.length*(isG?6.8:isT?6:6.4)+(isG?46:isT?24:26)), barW=isT&&m.endX!=null?Math.max(4,m.endX-m.x):0, foot=Math.max(w,barW+8);
       let ln=lanes.findIndex(e=>e+8<=m.x);if(ln<0){if(lanes.length<max){ln=lanes.length;lanes.push(-1e9)}else ln=lanes.indexOf(Math.min(...lanes))}lanes[ln]=m.x+foot;
       const top=top0+ln*step;
-      if(barW)out.push(`<div class="mbar" style="--c:var(--${m.color});left:${m.x}px;width:${barW}px;top:${top+22}px"></div>`);
-      out.push(`<button class="mk lab ${m.cls||''}${m.done?' done':''}" style="--c:var(--${m.color});left:${m.x}px;top:${top}px;max-width:${cap}px" data-act="${m.act}" data-id="${m.id}" title="${esc(m.title)} · ${esc(fmtD(m.date))}${m.end?' → '+esc(fmtD(m.end)):''}${isG?' · arrástrala para cambiar la fecha':''}"><b>${m.cls==='mk-gig'||isT?'':isG?(m.done?'✓':'→'):'✳'}</b><span>${esc(m.title)}</span></button>`)});
+      if(barW)out.push(`<div class="mbar" data-bar="${m.id}" style="--c:var(--${m.color});left:${m.x}px;width:${barW}px;top:${top+22}px"></div>`);
+      out.push(`<button class="mk lab ${m.cls||''}${m.done?' done':''}" style="--c:var(--${m.color});left:${m.x}px;top:${top}px;max-width:${cap}px" data-act="${m.act}" data-id="${m.id}" title="${esc(m.title)} · ${esc(fmtD(m.date))}${m.end?' → '+esc(fmtD(m.end)):''} · arrástralo para cambiar la fecha"><b>${m.cls==='mk-gig'||isT?'':isG?(m.done?'✓':'→'):'✳'}</b><span>${esc(m.title)}</span></button>`)});
     const h=Math.max(52,top0+Math.max(1,lanes.length)*step+4);
     return `<div class="mrow"><div class="mlab" style="--c:var(--${color})"><i class="dot"></i>${esc(label)}</div><div class="mtrack" style="width:${W}px;height:${h}px">${grid}<div class="tline" style="left:${tx}px"></div>${out.join('')}</div></div>`;};
   const its=arr('items').filter(i=>whoOk(i)&&inR(i.date));
@@ -1023,12 +1033,14 @@ function calMap(){
   let rows=row('Conciertos','c5',arr('gigs').filter(g=>inR(g.date)).map(g=>({x:x(g.date),label:true,cls:'mk-gig',title:g.name,date:g.date,act:'gig',id:g.id,color:'c5'})));
   const PC={semana:'c1',mes:'c2',bimestre:'c3',trimestre:'c4',temporada:'c6'};
   rows+=row('Objetivos','c7',arr('goals').filter(g=>inR(g.due)).map(g=>({x:x(g.due),label:true,cls:'mk-goal',title:g.title,date:g.due,act:'goal',id:g.id,color:PC[g.period]||'c7',done:!!g.done})),{maxW:300});
-  const loose=arr('goals').filter(g=>!g.done&&!inR(g.due));
-  const tray=loose.length?`<div class="gtray"><span class="lbl">Objetivos fuera del mapa · arrástralos al tiempo</span>${loose.map(g=>`<button class="gchip" style="--c:var(--${PC[g.period]||'c7'})" data-act="goal" data-id="${g.id}" data-tray="1" title="${esc(g.title)}"><b>→</b><span>${esc(g.title)}</span><small>${g.due?esc(fmtD(g.due)):'sin fecha'}</small></button>`).join('')}</div>`:'';
+  const TRAY=[].concat(arr('goals').filter(g=>!g.done&&!inR(g.due)).map(g=>({g,act:'goal',date:g.due,t:g.title,c:PC[g.period]||'c7'})),
+    arr('items').filter(i=>whoOk(i)&&i.hito&&i.status!=='done'&&!inR(i.date)).map(g=>({g,act:'item',date:g.date,t:g.title,c:(get('cajones',g.cajon)||{}).color||'c7'})),
+    arr('gigs').filter(g=>g.status!=='hecha'&&!inR(g.date)).map(g=>({g,act:'gig',date:g.date,t:g.name,c:'c5'}))),loose=TRAY;
+  const tray=loose.length?`<div class="gtray"><span class="lbl">Sin fecha o fuera del mapa · arrástralos al tiempo</span>${loose.map(q=>`<button class="gchip" style="--c:var(--${q.c})" data-act="${q.act}" data-id="${q.g.id}" data-tray="1" title="${esc(q.t)}"><b>${q.act==='item'?'✳':q.act==='gig'?'◉':'→'}</b><span>${esc(q.t)}</span><small>${q.date?esc(fmtD(q.date)):'sin fecha'}</small></button>`).join('')}</div>`:'';
   cajList().forEach(c=>{rows+=row(c.name,c.color,its.filter(i=>i.cajon===c.id).map(mk))});
   const nc=its.filter(i=>!i.cajon||!S.cajones[i.cajon]);if(nc.length)rows+=row('Sin cajón','c7',nc.map(mk));
   const nod=arr('items').filter(i=>i.hito&&!i.date&&i.status!=='done');
-  return `<p class="hint" style="margin:-6px 0 10px">✳ hitos con nombre · ● tareas (la barra marca cuánto duran) · objetivos: <strong>arrástralos a izquierda o derecha para cambiar su fecha</strong> · línea roja: hoy.${nod.length?` <strong>${nod.length} hitos sin fecha no aparecen aquí.</strong>`:''}</p>${tray}<div class="map-wrap" data-keep-scroll="map" data-map-start="${iso(start)}" data-map-days="${diff(start,end)}" data-start-at="${Math.max(0,tx-160)}"><div class="map" style="width:${W+130}px">${head}${rows}</div></div>`;
+  return `<p class="hint" style="margin:-6px 0 10px">✳ hitos con nombre · ● tareas (la barra marca cuánto duran) · <strong>arrastra cualquier tarea, hito, concierto u objetivo a izquierda o derecha para cambiar su fecha</strong> · línea roja: hoy.${nod.length?` <strong>${nod.length} hitos sin fecha no aparecen aquí.</strong>`:''}</p>${tray}<div class="map-wrap" data-keep-scroll="map" data-map-start="${iso(start)}" data-map-days="${diff(start,end)}" data-start-at="${Math.max(0,tx-160)}"><div class="map" style="width:${W+130}px">${head}${rows}</div></div>`;
 }
 
 /* ---------- vista: objetivos ---------- */
@@ -1412,7 +1424,9 @@ let dragId=null;
 document.addEventListener('dragstart',e=>{const t=e.target.closest&&e.target.closest('[data-drag]');if(!t||document.body.classList.contains('ro'))return;dragId=t.dataset.drag;t.classList.add('dragging');try{e.dataTransfer.setData('text/plain',dragId);e.dataTransfer.effectAllowed='move'}catch(err){}});
 document.addEventListener('dragend',e=>{dragId=null;$$('.dragging').forEach(x=>x.classList.remove('dragging'));$$('.over').forEach(x=>x.classList.remove('over'))});
 document.addEventListener('dragover',e=>{if(!dragId)return;const z=e.target.closest('[data-drop]');if(!z)return;e.preventDefault();$$('.over').forEach(x=>{if(x!==z)x.classList.remove('over')});z.classList.add('over')});
-document.addEventListener('drop',e=>{if(!dragId)return;const z=e.target.closest('[data-drop]');if(!z)return;e.preventDefault();const it=S.items[dragId];if(!it)return;
+document.addEventListener('drop',e=>{if(!dragId)return;const z=e.target.closest('[data-drop]');if(!z)return;e.preventDefault();if(dragId.includes('/')&&z.dataset.drop==='day'){const[col,id]=dragId.split('/'),f=col==='goals'?'due':'date',d0=S[col]&&S[col][id];dragId=null;
+    if(d0&&d0[f]!==z.dataset.id){const old=d0[f]||null;write(col,id,Object.assign({},d0,{[f]:z.dataset.id}));toast(`${d0.title||d0.name} → ${fmtD(z.dataset.id,1)}`,'Deshacer',()=>{const h=S[col][id];if(h)write(col,id,Object.assign({},h,{[f]:old}))})}return}
+  const it=S.items[dragId];if(!it)return;
   if(z.dataset.drop==='caj'){const c=z.dataset.id==='_none'?null:z.dataset.id;if(it.cajon!==c||it.free)write('items',dragId,Object.assign({},it,{cajon:c,free:null}))}
   if(z.dataset.drop==='day'){const nd=z.dataset.id;if(it.date!==nd){const o=Object.assign({},it,{date:nd});if(it.end&&it.date)o.end=iso(addD(pd(nd),diff(pd(it.date),pd(it.end))));write('items',dragId,o);toast(`«${it.title}» movida al ${fmtD(nd,1)}.`)}}
   dragId=null;});
