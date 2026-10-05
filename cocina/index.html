@@ -263,6 +263,7 @@ button.stk[aria-pressed="false"]{opacity:.45;transform:none;box-shadow:none}
 .mk.mk-goal{height:24px;margin-left:-8px;padding:0 10px 0 3px;gap:6px;background:var(--card);border:1.5px solid var(--rule);border-radius:99px;box-shadow:2px 2px 0 var(--rule)}
 .mk.mk-goal b{width:16px;height:16px;transform:none;border-radius:50%;font:400 .7rem/1 var(--f-body);color:var(--on-c)}
 .mk.mk-goal span{background:none;padding:0;font-weight:600}
+.mk.mk-goal small{flex:0 0 auto;font:500 .6rem var(--f-mono);color:var(--ink-2);background:var(--paper);border-radius:99px;padding:2px 6px}
 .mk.mk-goal.done{opacity:.55} .mk.mk-goal.done span{text-decoration:line-through}
 .mk.mk-goal:hover{box-shadow:3px 3px 0 var(--red)}
 .mk.lab.dragging{cursor:grabbing;z-index:30;transform:translateY(-2px)}
@@ -738,7 +739,7 @@ function card(it,o={}){
   if(o.caj&&c)meta.push(`<span class="chip" style="--c:var(--${c.color})"><i class="dot"></i>${esc(c.name)}</span>`);
   const s=get('songs',it.song);if(s)meta.push(`<span>♪ ${esc(s.title)}</span>`);
   const g=get('gigs',it.gig);if(g)meta.push(`<span>◉ ${esc(g.name)}</span>`);
-  const gl=get('goals',it.goal);if(gl&&!o.noGoal)meta.push(`<span>→ ${esc(gl.title)}</span>`);
+  const gl=get('goals',itemGoalId(it));if(gl&&!o.noGoal)meta.push(`<span>→ ${esc(gl.title)}</span>`);
   const ch=it.checks||[];if(ch.length)meta.push(`<span>☐ ${ch.filter(x=>x.d).length}/${ch.length}</span>`);
   if((it.files||[]).length)meta.push(`<span>⎘ ${it.files.length} archivo${it.files.length>1?'s':''}</span>`);
   return `<article class="tk${note?' is-note':''}${it.status==='done'?' is-done':''}${it.hito?' is-hito':''}" style="--c:var(--${c?c.color:'c7'})" data-act="item" data-id="${it.id}" draggable="${o.nodrag?'false':'true'}" data-drag="${it.id}" tabindex="0">
@@ -746,7 +747,10 @@ function card(it,o={}){
     <h4>${esc(it.title)}</h4>${stkHtml(it.stickers)}${meta.length?`<div class="tk-meta">${meta.join('')}</div>`:''}
   </article>`;}
 function vhd(t,sub,act){return `<header class="vhd"><div><h1>${t}</h1><p>${sub}</p></div><div class="vhd-act">${act||''}</div></header>`}
-function goalProg(g){const its=arr('items').filter(i=>i.goal===g.id);const d=its.filter(i=>i.status==='done').length;return{its,d,n:its.length,pct:g.done?100:its.length?Math.round(d/its.length*100):0}}
+/* un objetivo se vincula a un cajón (a mano o, si se llaman igual, solos): todo lo que haya en ese cajón cuenta para el objetivo */
+function goalCaj(g){if(g.cajon&&S.cajones[g.cajon])return g.cajon;const n=norm(g.title),c=arr('cajones').find(c=>norm(c.name)===n);return c?c.id:null}
+function itemGoalId(i){if(i.goal&&S.goals[i.goal])return i.goal;if(!i.cajon)return null;const g=arr('goals').find(g=>!g.done&&goalCaj(g)===i.cajon);return g?g.id:null}
+function goalProg(g){const gc=goalCaj(g);const its=arr('items').filter(i=>i.goal===g.id||(gc&&i.cajon===gc&&(!i.goal||!S.goals[i.goal])));const d=its.filter(i=>i.status==='done').length;return{its,d,n:its.length,pct:g.done?100:its.length?Math.round(d/its.length*100):0}}
 function horizon(dateIso){if(!dateIso)return'l';const n=diff(today(),pd(dateIso));return n<=30?'c':n<=90?'m':'l'}
 
 /* ---------- vista: comanda ---------- */
@@ -1025,14 +1029,14 @@ function calMap(){
       let ln=lanes.findIndex(e=>e+8<=m.x);if(ln<0){if(lanes.length<max){ln=lanes.length;lanes.push(-1e9)}else ln=lanes.indexOf(Math.min(...lanes))}lanes[ln]=m.x+foot;
       const top=top0+ln*step;
       if(barW)out.push(`<div class="mbar" data-bar="${m.id}" style="--c:var(--${m.color});left:${m.x}px;width:${barW}px;top:${top+22}px"></div>`);
-      out.push(`<button class="mk lab ${m.cls||''}${m.done?' done':''}" style="--c:var(--${m.color});left:${m.x}px;top:${top}px;max-width:${cap}px" data-act="${m.act}" data-id="${m.id}" title="${esc(m.title)} · ${esc(fmtD(m.date))}${m.end?' → '+esc(fmtD(m.end)):''} · arrástralo para cambiar la fecha"><b>${m.cls==='mk-gig'||isT?'':isG?(m.done?'✓':'→'):'✳'}</b><span>${esc(m.title)}</span></button>`)});
+      out.push(`<button class="mk lab ${m.cls||''}${m.done?' done':''}" style="--c:var(--${m.color});left:${m.x}px;top:${top}px;max-width:${cap}px" data-act="${m.act}" data-id="${m.id}" title="${esc(m.title)} · ${esc(fmtD(m.date))}${m.end?' → '+esc(fmtD(m.end)):''} · arrástralo para cambiar la fecha"><b>${m.cls==='mk-gig'||isT?'':isG?(m.done?'✓':'→'):'✳'}</b><span>${esc(m.title)}</span>${m.prog?`<small>${m.prog}</small>`:''}</button>`)});
     const h=Math.max(52,top0+Math.max(1,lanes.length)*step+4);
     return `<div class="mrow"><div class="mlab" style="--c:var(--${color})"><i class="dot"></i>${esc(label)}</div><div class="mtrack" style="width:${W}px;height:${h}px">${grid}<div class="tline" style="left:${tx}px"></div>${out.join('')}</div></div>`;};
   const its=arr('items').filter(i=>whoOk(i)&&inR(i.date));
   const mk=i=>{const c=get('cajones',i.cajon);return{x:x(i.date),endX:i.end&&!i.hito?x(i.end<iso(end)?i.end:iso(end)):null,label:true,cls:i.hito?'':'mk-task',end:i.end&&!i.hito?i.end:null,title:i.title,date:i.date,act:'item',id:i.id,color:c?c.color:'c7',done:i.status==='done'}};
   let rows=row('Conciertos','c5',arr('gigs').filter(g=>inR(g.date)).map(g=>({x:x(g.date),label:true,cls:'mk-gig',title:g.name,date:g.date,act:'gig',id:g.id,color:'c5'})));
   const PC={semana:'c1',mes:'c2',bimestre:'c3',trimestre:'c4',temporada:'c6'};
-  rows+=row('Objetivos','c7',arr('goals').filter(g=>inR(g.due)).map(g=>({x:x(g.due),label:true,cls:'mk-goal',title:g.title,date:g.due,act:'goal',id:g.id,color:PC[g.period]||'c7',done:!!g.done})),{maxW:300});
+  rows+=row('Objetivos','c7',arr('goals').filter(g=>inR(g.due)).map(g=>({x:x(g.due),label:true,cls:'mk-goal',title:g.title,date:g.due,act:'goal',id:g.id,color:PC[g.period]||'c7',done:!!g.done,prog:(p=>p.n?p.d+'/'+p.n:'')(goalProg(g))})),{maxW:300});
   const TRAY=[].concat(arr('goals').filter(g=>!g.done&&!inR(g.due)).map(g=>({g,act:'goal',date:g.due,t:g.title,c:PC[g.period]||'c7'})),
     arr('items').filter(i=>whoOk(i)&&i.hito&&i.status!=='done'&&!inR(i.date)).map(g=>({g,act:'item',date:g.date,t:g.title,c:(get('cajones',g.cajon)||{}).color||'c7'})),
     arr('gigs').filter(g=>g.status!=='hecha'&&!inR(g.date)).map(g=>({g,act:'gig',date:g.date,t:g.name,c:'c5'}))),loose=TRAY;
@@ -1173,7 +1177,7 @@ function drawSheet(first){
     <div class="fld"><span class="lbl">Estado</span>${segF('status',STATUS,d.status||'todo')}</div>
     <div class="fld"><span class="lbl">Quién</span>${segF('who',{D:'David',A:'Ariana',DA:'Los dos','':'Sin asignar'},d.who||'')}</div>
     <div class="grid2"><label class="tgl"><input type="checkbox" id="f-hito" data-f="hito" ${d.hito?'checked':''}> ✳ Es un hito</label><div class="fld"><label for="f-end">Hasta (si dura varios días)</label><input class="in" type="date" id="f-end" data-f="end" value="${esc(d.end||'')}"></div></div>
-    <div class="grid3"><div class="fld"><label for="f-goal">Objetivo</label><select class="sel" id="f-goal" data-f="goal">${opts(Object.fromEntries(arr('goals').filter(g=>!g.done||g.id===d.goal).map(g=>[g.id,g.title])),d.goal,'—')}</select></div>
+    <div class="grid3"><div class="fld"><label for="f-goal">Objetivo</label><select class="sel" id="f-goal" data-f="goal">${opts(Object.fromEntries(arr('goals').filter(g=>!g.done||g.id===d.goal).map(g=>[g.id,g.title])),d.goal,(()=>{const a=d.cajon&&arr('goals').find(g=>!g.done&&goalCaj(g)===d.cajon);return a?'Automático: '+a.title:'—'})())}</select></div>
       <div class="fld"><label for="f-song">Tema</label><select class="sel" id="f-song" data-f="song">${opts(Object.fromEntries(arr('songs').sort((a,b)=>String(a.title).localeCompare(b.title)).map(s=>[s.id,s.title])),d.song,'—')}</select></div>
       <div class="fld"><label for="f-gig">Concierto</label><select class="sel" id="f-gig" data-f="gig">${opts(Object.fromEntries(arr('gigs').map(g=>[g.id,g.name])),d.gig,'—')}</select></div></div>
     <div class="fld"><span class="lbl">Pegatinas</span><div class="stks">${arr('stickers').map(s=>`<button type="button" class="stk" style="--s:var(--${s.color})" data-act="stk-tg" data-v="${s.id}" aria-pressed="${(d.stickers||[]).includes(s.id)}">${esc(s.label)}</button>`).join('')||'<span class="hint">Sin pegatinas.</span>'}</div></div>
@@ -1184,6 +1188,7 @@ function drawSheet(first){
   else if(SH.type==='goal'){title='Objetivo';
     body=`<textarea class="ta ttl-in" id="f-title" data-f="title" rows="1" placeholder="¿Qué queremos conseguir?">${esc(d.title)}</textarea>
     <div class="grid2"><div class="fld"><label for="f-period">Periodo</label><select class="sel" id="f-period" data-f="period">${opts(PERIODS,d.period||'mes')}</select></div><div class="fld"><label for="f-due">Fecha límite</label><input class="in" type="date" id="f-due" data-f="due" value="${esc(d.due||'')}"></div></div>
+    <div class="fld"><label for="f-gcaj">Cajón vinculado</label><select class="sel" id="f-gcaj" data-f="cajon">${opts(Object.fromEntries(cajList().map(c=>[c.id,c.name])),goalCaj(d),'Ninguno')}</select><span class="hint">Todo lo que guardéis en ese cajón cuenta para este objetivo.</span></div>
     <label class="tgl"><input type="checkbox" id="f-done" data-f="done" ${d.done?'checked':''}> Conseguido</label>
     <div class="fld"><label for="f-note">Por qué y cómo sabremos que está hecho</label><textarea class="ta" id="f-note" data-f="note">${esc(d.note)}</textarea></div>
     ${SH.isNew?'':`<div class="fld"><span class="lbl">Acciones vinculadas</span>${goalProg(Object.assign({},d,{id:SH.id})).its.sort(byDate).map(i=>card(i,{noGoal:1,caj:1})).join('')||'<span class="hint">Ninguna todavía.</span>'}<button type="button" class="btn sm" data-act="new-item" data-goal="${SH.id}" data-w>+ Acción</button></div>`}`;}
