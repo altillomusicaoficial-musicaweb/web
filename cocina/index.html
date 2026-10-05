@@ -258,8 +258,22 @@ button.stk[aria-pressed="false"]{opacity:.45;transform:none;box-shadow:none}
 .mk.lab{display:flex;align-items:center;gap:5px;height:20px;margin-left:-7px;font:600 .72rem/1 var(--f-body);white-space:nowrap;max-width:200px;color:var(--ink)}
 .mk.lab b{flex:0 0 auto;width:14px;height:14px;display:grid;place-items:center;background:var(--c);color:var(--on-c);border:1.5px solid var(--rule);transform:rotate(45deg);border-radius:2px;font:400 .55rem var(--f-disp)}
 .mk.lab span{overflow:hidden;text-overflow:ellipsis;background:color-mix(in srgb,var(--card) 88%,transparent);padding:1px 4px;border-radius:3px}
-.mk.lab.gig b{border-radius:50%;transform:none;background:var(--ink)}
-.mk.lab.goal b{background:transparent;border-style:dashed;border-color:var(--ink-3)}
+.mk.lab.mk-gig b{border-radius:50%;transform:none;background:var(--ink)}
+.mk.mk-goal{height:24px;margin-left:-8px;padding:0 10px 0 3px;gap:6px;background:var(--card);border:1.5px solid var(--rule);border-radius:99px;box-shadow:2px 2px 0 var(--rule);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.mk.mk-goal b{width:16px;height:16px;transform:none;border-radius:50%;font:400 .7rem/1 var(--f-body);color:var(--on-c)}
+.mk.mk-goal span{background:none;padding:0;font-weight:600}
+.mk.mk-goal.done{opacity:.55} .mk.mk-goal.done span{text-decoration:line-through}
+.mk.mk-goal:hover{box-shadow:3px 3px 0 var(--red)}
+.mk.mk-goal.dragging{cursor:grabbing;z-index:30;box-shadow:4px 4px 0 var(--red);transform:translateY(-2px)}
+.mk.mk-goal.dragging::after,.gchip.ghost::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);background:var(--ink);color:var(--paper);font:500 .66rem/1 var(--f-mono);letter-spacing:.04em;padding:4px 8px;border-radius:5px;white-space:nowrap;pointer-events:none}
+.gtray{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;padding:9px 12px;border:2px dashed var(--rule);border-radius:12px;background:var(--card)}
+.gtray .lbl{font:500 .66rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin-right:4px}
+.gchip{--c:var(--c7);display:inline-flex;align-items:center;gap:6px;max-width:260px;padding:4px 11px 4px 4px;border:1.5px solid var(--rule);border-radius:99px;background:var(--paper);color:var(--ink);font:600 .74rem/1 var(--f-body);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.gchip b{flex:0 0 auto;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:var(--on-c);font:400 .7rem/1 var(--f-body)}
+.gchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gchip small{font:500 .62rem var(--f-mono);color:var(--ink-3);white-space:nowrap}
+.gchip.dragging{opacity:.35}
+.gchip.ghost{position:fixed;z-index:99999;pointer-events:none;box-shadow:4px 4px 0 var(--red);opacity:1;margin:0}
 .mbar{position:absolute;top:61px;height:6px;border-radius:99px;background:var(--c);opacity:.6}
 
 /* ---------- objetivos ---------- */
@@ -909,6 +923,46 @@ document.addEventListener('pointercancel',e=>endDrag(e,true));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&PD&&PD.on){endDrag(e,true)}});
 let rzT=0;window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(view()==='cajones')render()},250)});
 
+/* ---------- arrastrar objetivos por el mapa del año ---------- */
+const MAP_PX=5;
+let GD=null;
+document.addEventListener('pointerdown',e=>{
+  if(e.button!==0)return;
+  const el=e.target.closest('.mk-goal[data-id],.gchip[data-tray]');if(!el)return;
+  const wrap=$('.map-wrap'),g=S.goals[el.dataset.id];if(!wrap||!g)return;
+  GD={id:el.dataset.id,el,tray:el.classList.contains('gchip'),sx:e.clientX,sy:e.clientY,cx:e.clientX,cy:e.clientY,pid:e.pointerId,on:false,wrap,sc:wrap.scrollLeft,left:parseFloat(el.style.left)||0,
+    start:pd(wrap.dataset.mapStart),total:Number(wrap.dataset.mapDays),nd:null};
+});
+function gdUpdate(){const d=GD;if(!d||!d.on)return;const wr=d.wrap.getBoundingClientRect();
+  if(d.cx>wr.right-50)d.wrap.scrollLeft+=14;else if(d.cx<wr.left+130+40)d.wrap.scrollLeft-=14;
+  if(!d.tray){const g=S.goals[d.id],base=diff(d.start,pd(g.due)),shift=(d.cx-d.sx)+(d.wrap.scrollLeft-d.sc);
+    const nd=Math.max(0,Math.min(d.total-1,base+Math.round(shift/MAP_PX)));d.nd=nd;
+    d.el.style.left=(d.left+(nd-base)*MAP_PX)+'px';
+    const di=iso(addD(d.start,nd));d.el.dataset.tip=fmtD(di,1)+' · '+fmtRel(diff(today(),pd(di))); }
+  else{d.ghost.style.left=(d.cx-d.ox)+'px';d.ghost.style.top=(d.cy-d.oy)+'px';
+    const tr=$('.mrow .mtrack',d.wrap),r=tr.getBoundingClientRect(),inside=d.cx>=r.left&&d.cx<=r.right&&d.cy>=wr.top&&d.cy<=wr.bottom;
+    if(inside){const nd=Math.max(0,Math.min(d.total-1,Math.round((d.cx-r.left)/MAP_PX)));d.nd=nd;const di=iso(addD(d.start,nd));d.ghost.dataset.tip=fmtD(di,1)+' · '+fmtRel(diff(today(),pd(di)))}
+    else{d.nd=null;d.ghost.dataset.tip='Suéltalo sobre el mapa'}}}
+document.addEventListener('pointermove',e=>{if(!GD)return;const dx=e.clientX-GD.sx,dy=e.clientY-GD.sy;
+  if(!GD.on){if(Math.hypot(dx,dy)<6)return;GD.on=true;try{document.body.setPointerCapture(GD.pid)}catch(err){}
+    GD.el.classList.add('dragging');
+    if(GD.tray){const r=GD.el.getBoundingClientRect(),g=GD.el.cloneNode(true);g.classList.add('ghost');g.removeAttribute('data-act');g.style.left=r.left+'px';g.style.top=r.top+'px';document.body.appendChild(g);GD.ghost=g;GD.ox=e.clientX-r.left;GD.oy=e.clientY-r.top}
+    GD.iv=setInterval(gdUpdate,30)}
+  e.preventDefault();GD.cx=e.clientX;GD.cy=e.clientY;gdUpdate();
+});
+function gdEnd(cancel){if(!GD)return;const d=GD;GD=null;clearInterval(d.iv);if(!d.on)return;
+  suppressClick=true;setTimeout(()=>{suppressClick=false},0);
+  if(d.ghost)d.ghost.remove();d.el.classList.remove('dragging');
+  const g=S.goals[d.id];if(cancel||!g||d.nd==null){render();return}
+  const old=g.due||null,nd=iso(addD(d.start,d.nd));
+  if(nd===old){render();return}
+  write('goals',d.id,Object.assign({},g,{due:nd}));
+  toast(`${g.title} → ${fmtD(nd,1)}`,'Deshacer',()=>{const h=S.goals[d.id];if(h)write('goals',d.id,Object.assign({},h,{due:old}))});
+}
+document.addEventListener('pointerup',()=>gdEnd(false));
+document.addEventListener('pointercancel',()=>gdEnd(true));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&GD&&GD.on)gdEnd(true)});
+
 /* ---------- vista: calendario ---------- */
 function vCalendario(){
   const seg=`<div class="seg" role="group" aria-label="Modo"><button data-act="cal-mode" data-v="mes" aria-pressed="${F.cal==='mes'}">Mes</button><button data-act="cal-mode" data-v="mapa" aria-pressed="${F.cal==='mapa'}">Mapa del año</button></div>`;
@@ -939,27 +993,33 @@ function calMonth(){
 }
 function calMap(){
   const t=today(), start=new Date(t.getFullYear(),t.getMonth(),1), end=new Date(t.getFullYear(),t.getMonth()+12,1);
-  const PX=5, W=diff(start,end)*PX, x=s=>diff(start,pd(s))*PX, inR=s=>s&&s>=iso(start)&&s<iso(end);
+  const PX=MAP_PX, W=diff(start,end)*PX, x=s=>diff(start,pd(s))*PX, inR=s=>s&&s>=iso(start)&&s<iso(end);
   const tx=x(iso(t));
   let months='',grid='';
   for(let i=0;i<12;i++){const m=new Date(start.getFullYear(),start.getMonth()+i,1),n=new Date(start.getFullYear(),start.getMonth()+i+1,1);const l=diff(start,m)*PX,w=diff(m,n)*PX;
     months+=`<div class="mm" style="left:${l}px;width:${w}px">${MES3[m.getMonth()]} ${String(m.getFullYear()).slice(2)}</div>`;grid+=`<div class="mgrid" style="left:${l}px"></div>`;}
   const hz=(a,b,cls,txt)=>{const l=Math.max(0,x(iso(addD(t,a)))),r=Math.min(W,x(iso(addD(t,b))));return r>l?`<div class="hz ${cls}" style="left:${l}px;width:${r-l}px">${txt}</div>`:''};
   const head=`<div class="mhead"><div class="mlab lbl" style="font:500 .66rem var(--f-mono)">Plazo</div><div class="mtrack" style="width:${W}px">${months}${hz(0,30,'c','Corto plazo · 30 días')}${hz(30,90,'m','Medio plazo · hasta 3 meses')}${hz(90,366,'l','Largo plazo')}<div class="tline" style="left:${tx}px"></div></div></div>`;
-  const row=(label,color,marks)=>{
-    const lab=marks.filter(m=>m.label).sort((a,b)=>a.x-b.x), lanes=[-1e9,-1e9];
+  const row=(label,color,marks,o={})=>{
+    const lab=marks.filter(m=>m.label).sort((a,b)=>a.x-b.x), lanes=[], max=o.maxLanes||2, step=o.step||24, top0=o.top==null?6:o.top;
     const out=marks.filter(m=>!m.label).map(m=>(m.endX!=null?`<div class="mbar" style="--c:var(--${m.color});left:${m.x}px;width:${Math.max(4,m.endX-m.x)}px"></div>`:'')+`<button class="mk dot${m.done?' done':''}" style="--c:var(--${m.color});left:${m.x}px" data-act="${m.act}" data-id="${m.id}" title="${esc(m.title)} · ${esc(fmtD(m.date))}" aria-label="${esc(m.title)}"></button>`);
-    lab.forEach(m=>{const w=Math.min(200,m.title.length*6.4+26);let ln=lanes[0]+8<=m.x?0:lanes[1]+8<=m.x?1:(lanes[0]<lanes[1]?0:1);lanes[ln]=m.x+w;
-      out.push(`<button class="mk lab ${m.cls||''}" style="--c:var(--${m.color});left:${m.x}px;top:${6+ln*24}px" data-act="${m.act}" data-id="${m.id}" title="${esc(m.title)} · ${esc(fmtD(m.date))}"><b>${m.cls==='gig'?'':'✳'}</b><span>${esc(m.title)}</span></button>`)});
-    return `<div class="mrow"><div class="mlab" style="--c:var(--${color})"><i class="dot"></i>${esc(label)}</div><div class="mtrack" style="width:${W}px">${grid}<div class="tline" style="left:${tx}px"></div>${out.join('')}</div></div>`;};
+    lab.forEach(m=>{const w=Math.min(o.maxW||200,m.title.length*(m.cls==='mk-goal'?6.8:6.4)+(m.cls==='mk-goal'?46:26));
+      let ln=lanes.findIndex(e=>e+8<=m.x);if(ln<0){if(lanes.length<max){ln=lanes.length;lanes.push(-1e9)}else ln=lanes.indexOf(Math.min(...lanes))}lanes[ln]=m.x+w;
+      const isG=m.cls==='mk-goal';
+      out.push(`<button class="mk lab ${m.cls||''}${m.done?' done':''}" style="--c:var(--${m.color});left:${m.x}px;top:${top0+ln*step}px${isG?`;max-width:${o.maxW}px`:''}" data-act="${m.act}" data-id="${m.id}" title="${esc(m.title)} · ${esc(fmtD(m.date))}${isG?' · arrástrala para cambiar la fecha':''}"><b>${m.cls==='mk-gig'?'':isG?(m.done?'✓':'→'):'✳'}</b><span>${esc(m.title)}</span></button>`)});
+    const h=o.maxLanes?Math.max(52,top0+Math.max(1,lanes.length)*step+6):78;
+    return `<div class="mrow"><div class="mlab" style="--c:var(--${color})"><i class="dot"></i>${esc(label)}</div><div class="mtrack" style="width:${W}px;height:${h}px">${grid}<div class="tline" style="left:${tx}px"></div>${out.join('')}</div></div>`;};
   const its=arr('items').filter(i=>whoOk(i)&&inR(i.date));
   const mk=i=>{const c=get('cajones',i.cajon);return{x:x(i.date),endX:i.end&&!i.hito?x(i.end<iso(end)?i.end:iso(end)):null,label:!!i.hito,title:i.title,date:i.date,act:'item',id:i.id,color:c?c.color:'c7',done:i.status==='done'}};
-  let rows=row('Conciertos','c5',arr('gigs').filter(g=>inR(g.date)).map(g=>({x:x(g.date),label:true,cls:'gig',title:g.name,date:g.date,act:'gig',id:g.id,color:'c5'})));
-  rows+=row('Objetivos','c7',arr('goals').filter(g=>inR(g.due)).map(g=>({x:x(g.due),label:true,cls:'goal',title:g.title,date:g.due,act:'goal',id:g.id,color:'c7'})));
+  let rows=row('Conciertos','c5',arr('gigs').filter(g=>inR(g.date)).map(g=>({x:x(g.date),label:true,cls:'mk-gig',title:g.name,date:g.date,act:'gig',id:g.id,color:'c5'})));
+  const PC={semana:'c1',mes:'c2',bimestre:'c3',trimestre:'c4',temporada:'c6'};
+  rows+=row('Objetivos','c7',arr('goals').filter(g=>inR(g.due)).map(g=>({x:x(g.due),label:true,cls:'mk-goal',title:g.title,date:g.due,act:'goal',id:g.id,color:PC[g.period]||'c7',done:!!g.done})),{maxLanes:8,step:30,top:8,maxW:300});
+  const loose=arr('goals').filter(g=>!g.done&&!inR(g.due));
+  const tray=loose.length?`<div class="gtray"><span class="lbl">Objetivos fuera del mapa · arrástralos al tiempo</span>${loose.map(g=>`<button class="gchip" style="--c:var(--${PC[g.period]||'c7'})" data-act="goal" data-id="${g.id}" data-tray="1" title="${esc(g.title)}"><b>→</b><span>${esc(g.title)}</span><small>${g.due?esc(fmtD(g.due)):'sin fecha'}</small></button>`).join('')}</div>`:'';
   cajList().forEach(c=>{rows+=row(c.name,c.color,its.filter(i=>i.cajon===c.id).map(mk))});
   const nc=its.filter(i=>!i.cajon||!S.cajones[i.cajon]);if(nc.length)rows+=row('Sin cajón','c7',nc.map(mk));
   const nod=arr('items').filter(i=>i.hito&&!i.date&&i.status!=='done');
-  return `<p class="hint" style="margin:-6px 0 10px">✳ hitos con nombre · puntos: tareas (pasa por encima para ver cuál) · línea roja: hoy.${nod.length?` <strong>${nod.length} hitos sin fecha no aparecen aquí.</strong>`:''}</p><div class="map-wrap" data-keep-scroll="map" data-start-at="${Math.max(0,tx-160)}"><div class="map" style="width:${W+130}px">${head}${rows}</div></div>`;
+  return `<p class="hint" style="margin:-6px 0 10px">✳ hitos con nombre · puntos: tareas (pasa por encima para ver cuál) · objetivos: <strong>arrástralos a izquierda o derecha para cambiar su fecha</strong> · línea roja: hoy.${nod.length?` <strong>${nod.length} hitos sin fecha no aparecen aquí.</strong>`:''}</p>${tray}<div class="map-wrap" data-keep-scroll="map" data-map-start="${iso(start)}" data-map-days="${diff(start,end)}" data-start-at="${Math.max(0,tx-160)}"><div class="map" style="width:${W+130}px">${head}${rows}</div></div>`;
 }
 
 /* ---------- vista: objetivos ---------- */
