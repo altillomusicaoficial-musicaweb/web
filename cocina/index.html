@@ -338,6 +338,21 @@ button.stk[aria-pressed="false"]{opacity:.45;transform:none;box-shadow:none}
 .env .ln span{font:500 .68rem var(--f-mono);border:1.5px solid var(--hair);border-radius:99px;padding:2px 8px;background:var(--paper)}
 .env .nt{font-size:.8rem;color:var(--ink-2);white-space:pre-wrap;overflow-wrap:anywhere}
 .env .er{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.vgrps{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:14px}
+.vgrp{display:flex;gap:12px;align-items:center;background:var(--card);border:2px solid var(--rule);border-radius:12px;padding:10px 14px;box-shadow:3px 3px 0 var(--shadow)}
+.vgrp b{font:400 2.2rem/1 var(--f-disp);color:var(--red)}
+.vgrp span{display:flex;flex-direction:column;gap:3px;min-width:0}
+.vgrp strong{font:600 .9rem var(--f-body);overflow-wrap:anywhere}
+.vgrp small{font:500 .68rem var(--f-mono);color:var(--ink-2);overflow-wrap:anywhere}
+.vlist{display:flex;flex-direction:column;background:var(--card);border:2px solid var(--rule);border-radius:12px;overflow:hidden}
+.vta{display:grid;grid-template-columns:76px minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:center;padding:9px 14px;border-top:1px solid var(--hair);cursor:pointer;font-size:.86rem}
+.vta:first-child{border-top:0}
+.vta:hover{background:var(--paper)}
+.vta .d{font:500 .7rem var(--f-mono);color:var(--ink-2)}
+.vta .q{font-weight:700}
+.vta .b i{color:var(--ink-3)}
+.vta span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:640px){.vta{grid-template-columns:70px minmax(0,1fr);row-gap:2px}.vta .w,.vta .b{grid-column:2}}
 .qty{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:10px;align-items:center}
 .qty span{font-weight:600;font-size:.9rem}
 .lot-r{display:grid;grid-template-columns:minmax(0,1fr) 70px 70px 28px;gap:6px;align-items:center}
@@ -643,8 +658,8 @@ const DEF_STK=[['urgente','¡Urgente!','c1'],['espera','Esperando respuesta','c2
 const GIG_CHECKS=['Contrato o acuerdo cerrado','Rider técnico enviado','Backline y sonido confirmados','Transporte y horario de montaje','Setlist cerrado','Merch: cassettes y marcos NFC','Difusión en redes','Cobro recibido y 10% a la caja de Altillo'];
 
 /* ---------- estado ---------- */
-const COLS=['cajones','items','goals','songs','gigs','stickers','prods','envios'];
-let S={cajones:{},items:{},goals:{},songs:{},gigs:{},stickers:{},prods:{},envios:{}};
+const COLS=['cajones','items','goals','songs','gigs','stickers','prods','envios','ventas'];
+let S={cajones:{},items:{},goals:{},songs:{},gigs:{},stickers:{},prods:{},envios:{},ventas:{}};
 const loaded=new Set();
 const F={who:'all',cal:'mes',proj:'all',stk:null,calMonth:null,calDay:null,showDone:{}};
 try{const p=JSON.parse(localStorage.getItem('altillo-cocina-prefs')||'{}');['who','cal','proj','cajView'].forEach(k=>{if(p[k])F[k]=p[k]});if(p.who)F.whoSet=true}catch(e){}
@@ -679,7 +694,7 @@ function httpErr(r){const m={401:'La clave no vale o ha caducado. Revísala en A
 async function pullRemote(){const r=await gh(cpath(FILE));if(r.status===404)return{sha:null,data:null};if(!r.ok)throw httpErr(r);const j=await r.json();let txt;
   if(j.content&&j.encoding==='base64')txt=b64dec(j.content);else{const r2=await gh(cpath(FILE),{accept:'application/vnd.github.raw+json'});if(!r2.ok)throw httpErr(r2);txt=await r2.text()}
   try{return{sha:j.sha,data:JSON.parse(txt)}}catch(e){throw new Error('El archivo de datos está dañado. Restaura la versión anterior desde el historial del repo.')}}
-function compose(base){const o={};COLS.forEach(c=>{o[c]=Object.assign({},base[c]||{})});Object.entries(P).forEach(([k,v])=>{const i=k.indexOf('/'),c=k.slice(0,i),id=k.slice(i+1);if(!o[c])o[c]={};if(v===null)delete o[c][id];else o[c][id]=v});return o;}
+function compose(base){const o={};/* conserva también colecciones que esta versión no conoce, para no borrar datos de versiones más nuevas */Object.keys(base||{}).forEach(c=>{if(base[c]&&typeof base[c]==='object')o[c]=Object.assign({},base[c])});COLS.forEach(c=>{o[c]=Object.assign({},o[c]||{},base[c]||{})});Object.entries(P).forEach(([k,v])=>{const i=k.indexOf('/'),c=k.slice(0,i),id=k.slice(i+1);if(!o[c])o[c]={};if(v===null)delete o[c][id];else o[c][id]=v});return o;}
 async function sync(){
   if(!connected()||syncing)return;
   if(!navigator.onLine){syncErr='offline';READY=true;setSync();render();return}
@@ -1059,14 +1074,20 @@ const MICON={
   otro:'<svg viewBox="0 0 48 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M24 3v26M13 9l22 14M13 23 35 9"/></svg>'};
 const PROD_W=300, PROD_GAP=34;
 const lotsOf=p=>Array.isArray(p.lots)?p.lots:[];
-function stockOf(p){const l=lotsOf(p),made=l.reduce((a,x)=>a+(Number(x.made)||0),0),sold=l.reduce((a,x)=>a+(Number(x.sold)||0),0);return{made,sold,left:made-sold}}
+/* vendidos de una tirada = los que se apuntaron sin detalle (lot.sold) + cada venta registrada */
+const ventasLot=lid=>arr('ventas').filter(v=>v.lot===lid);
+const soldOf=l=>(Number(l.sold)||0)+ventasLot(l.id).reduce((a,v)=>a+(Number(v.qty)||0),0);
+function stockOf(p){const l=lotsOf(p),made=l.reduce((a,x)=>a+(Number(x.made)||0),0),sold=l.reduce((a,x)=>a+soldOf(x),0);return{made,sold,left:made-sold}}
 function pendOf(p){return arr('envios').filter(e=>e.status!=='enviado').reduce((a,e)=>a+(Number((e.lines||{})[p.id])||0),0)}
+function gigDefault(){const t=iso(today()),gs=arr('gigs').filter(g=>g.date);const hoy=gs.find(g=>g.date===t);if(hoy)return hoy.id;
+  const rec=gs.filter(g=>g.date<t&&diff(pd(g.date),today())<=2).sort((a,b)=>a.date<b.date?1:-1)[0];return rec?rec.id:null}
+const CANAL={concierto:'En un concierto',online:'Online / envío',otro:'Otro'};
 const fixUrl=u=>/^https?:\/\//i.test(u)?u:'https://'+u;
 function prodCard(p,list){
   const st=stockOf(p),pend=pendOf(p),c=p.color||MCOL[p.kind]||'c7',pos=!list&&p.pos?p.pos:null;
   const style=`--c:var(--${c})${pos?`;left:${pos.x}px;top:${pos.y}px;z-index:${pos.z||1}`:''}`;
-  const lots=lotsOf(p).map(l=>{const left=(Number(l.made)||0)-(Number(l.sold)||0);
-    return `<li><span class="ln" title="${esc(l.name||'')}">${esc(l.name||'Tirada')}</span><span class="lc">${left} <small>/ ${Number(l.made)||0}</small></span><span class="sell"><button type="button" data-act="lot-sell" data-id="${p.id}" data-lot="${l.id}" data-d="-1" aria-label="Quitar una venta"${Number(l.sold)>0?'':' disabled'}>−</button><button type="button" data-act="lot-sell" data-id="${p.id}" data-lot="${l.id}" data-d="1" aria-label="Una venta más"${left>0?'':' disabled'}>+1 vendido</button></span></li>`}).join('');
+  const lots=lotsOf(p).map(l=>{const sd=soldOf(l),left=(Number(l.made)||0)-sd;
+    return `<li><span class="ln" title="${esc(l.name||'')}">${esc(l.name||'Tirada')}</span><span class="lc">${left} <small>/ ${Number(l.made)||0}</small></span><span class="sell"><button type="button" data-act="lot-sell" data-id="${p.id}" data-lot="${l.id}" data-d="-1" aria-label="Deshacer la última venta"${sd>0?'':' disabled'}>−</button><button type="button" data-act="lot-sell" data-id="${p.id}" data-lot="${l.id}" data-d="1" aria-label="Una venta más"${left>0?'':' disabled'}>+1 vendido</button></span></li>`}).join('');
   const price=p.price?`<span class="price">${esc(p.price)}${/^[\d.,]+$/.test(String(p.price).trim())?' €':''}</span>`:'';
   return `<article class="prod${!list&&!p.pos?' hid':''}" id="mm-${p.id}" style="${style}" data-id="${p.id}">
     <header class="prod-h"${list?'':` data-mmove="${p.id}" title="Arrastra para colocarlo donde quieras"`}><span class="pi">${MICON[p.kind]||MICON.otro}</span><h3>${esc(p.name||'Producto')}</h3><button type="button" data-act="prod" data-id="${p.id}" aria-label="Editar producto">✎</button></header>
@@ -1093,7 +1114,13 @@ function vMerch(){
   const envs=arr('envios').sort((a,b)=>(a.date||'9999')<(b.date||'9999')?-1:1);
   const col=k=>{const l=envs.filter(e=>(e.status||'pendiente')===k);return `<div class="env-col"><h3>${EST[k]} <span class="chip">${l.length}</span></h3>${l.map(envCard).join('')||'<div class="prod-empty">Nada aquí.</div>'}</div>`};
   const envH=`<div class="env-h"><div><h2>Comanda de envíos</h2><p>Qué hay que preparar y mandar, y a quién.</p></div><button class="btn sm" data-act="envio-copy" data-w>Copiar lista de pendientes</button></div><div class="env-grid">${col('pendiente')}${col('preparado')}${col('enviado')}</div>`;
-  return head+sum+`<div class="mesa-wrap" data-keep-scroll="mmesa"><div class="mesa mmesa${list?' list':''}" id="mm">${ps.map(p=>prodCard(p,list)).join('')}</div></div>`+envH;
+  const vs=arr('ventas').sort((a,b)=>(b.date||'')<(a.date||'')?-1:(b.date||'')>(a.date||'')?1:(b._u||0)-(a._u||0)), grp={};
+  vs.forEach(v=>{const k=(v.canal||'concierto')==='concierto'?(v.gig&&S.gigs[v.gig]?v.gig:'_c'):(v.canal||'otro');const g=grp[k]||(grp[k]={k,n:0,by:{},last:v.date||''});g.n+=Number(v.qty)||0;const nm=(S.prods[v.prod]||{}).name||'?';g.by[nm]=(g.by[nm]||0)+(Number(v.qty)||0);if((v.date||'')>g.last)g.last=v.date});
+  const gname=k=>S.gigs[k]?S.gigs[k].name+(S.gigs[k].date?' · '+fmtD(S.gigs[k].date):''):k==='_c'?'Concierto sin concretar':k==='online'?'Online / envío':'Otras ventas';
+  const wh=v=>(v.canal||'concierto')==='concierto'?((S.gigs[v.gig]||{}).name||'Concierto'):v.canal==='online'?'Online / envío':'Otro';
+  const vtaH=`<div class="env-h"><div><h2>Ventas</h2><p>Qué se ha vendido, en qué concierto y a quién (cuando se sabe).</p></div><button class="btn sm" data-act="new-venta" data-w>+ Apuntar venta</button></div>`+(vs.length?`<div class="vgrps">${Object.values(grp).sort((a,b)=>a.last<b.last?1:-1).map(g=>`<div class="vgrp"><b>${g.n}</b><span><strong>${esc(gname(g.k))}</strong><small>${Object.entries(g.by).map(([n,c])=>c+'× '+esc(n)).join(' · ')}</small></span></div>`).join('')}</div>
+    <div class="vlist">${vs.slice(0,40).map(v=>`<div class="vta" data-act="venta" data-id="${v.id}" tabindex="0"><span class="d">${v.date?esc(fmtD(v.date)):'—'}</span><span class="q">${Number(v.qty)||1}× ${esc((S.prods[v.prod]||{}).name||'?')}</span><span class="w">${esc(wh(v))}</span><span class="b">${v.buyer?esc(v.buyer):'<i>sin nombre</i>'}</span></div>`).join('')}${vs.length>40?`<div class="prod-empty">…y ${vs.length-40} ventas más antiguas.</div>`:''}</div>`:`<div class="prod-empty">Todavía no hay ventas apuntadas. Pulsa «+1 vendido» en cualquier producto.</div>`);
+  return head+sum+`<div class="mesa-wrap" data-keep-scroll="mmesa"><div class="mesa mmesa${list?' list':''}" id="mm">${ps.map(p=>prodCard(p,list)).join('')}</div></div>`+vtaH+envH;
 }
 /* colocar los productos nuevos en el hueco más bajo y ajustar el tamaño de la mesa */
 function mmAfter(){const m=$('#mm');if(!m||m.classList.contains('list'))return;
@@ -1289,8 +1316,8 @@ let SH=null, shT=0;
 function openSheet(type,col,id,draft,isNew){flushSheet();SH={type,col,id,draft:clone(draft),isNew:!!isNew,dirty:false,confirm:null};$('#scrim').hidden=false;$('#sheet').hidden=false;drawSheet(true);}
 function commitTyped(){if(!SH||!SH.draft||!(SH.type==='item'||SH.type==='gig'||SH.type==='prod'))return;const c=$('#chk-new'),v=c&&c.value.trim();if(v){SH.draft.checks=(SH.draft.checks||[]).concat({t:v,d:false});c.value='';SH.dirty=true}const l=$('#lk-url');if(l&&l.value.trim()&&SH.type==='item')addLink(true)}
 function closeSheet(){commitTyped();flushSheet();SH=null;$('#sheet').hidden=true;$('#scrim').hidden=true;$('#sheet').innerHTML='';}
-function touch(now){if(!SH)return;SH.dirty=true;clearTimeout(shT);if(now)flushSheet();else shT=setTimeout(flushSheet,500);}
-function flushSheet(){clearTimeout(shT);if(!SH||!SH.dirty||!SH.col)return;const t=SH.draft.title??SH.draft.name??SH.draft.label;if(SH.isNew&&!String(t||'').trim())return;
+function touch(now){if(!SH)return;if(SH.type==='venta'&&SH.isNew)return;SH.dirty=true;clearTimeout(shT);if(now)flushSheet();else shT=setTimeout(flushSheet,500);}
+function flushSheet(){clearTimeout(shT);if(!SH||!SH.dirty||!SH.col)return;const t=SH.draft.title??SH.draft.name??SH.draft.label;if(SH.isNew&&SH.type!=='venta'&&!String(t||'').trim())return;
   if(SH.draft.status==='done'&&!SH.draft.doneAt)SH.draft.doneAt=iso(today());write(SH.col,SH.id,SH.draft);SH.isNew=false;SH.dirty=false;}
 function opts(map,val,empty){return (empty!=null?`<option value="">${esc(empty)}</option>`:'')+Object.entries(map).map(([k,l])=>`<option value="${esc(k)}"${k===val?' selected':''}>${esc(l)}</option>`).join('')}
 function segF(f,map,val){return `<div class="seg" role="group">${Object.entries(map).map(([k,l])=>`<button type="button" data-act="seg" data-f="${f}" data-v="${k}" aria-pressed="${k===(val||'')}">${esc(l)}</button>`).join('')}</div>`}
@@ -1375,10 +1402,10 @@ function drawSheet(first){
     <div class="fld"><span class="lbl">Estado</span>${segF('status',PST,d.status||'idea')}</div>
     <div class="fld"><span class="lbl">Color</span><div class="colors">${COLORS.map(c=>`<button type="button" style="--c:var(--${c})" data-act="color" data-v="${c}" aria-pressed="${(d.color||MCOL[d.kind]||'c7')===c}" aria-label="Color ${c}"></button>`).join('')}</div></div>
     <div class="fld"><span class="lbl">Tiradas · hechos y vendidos (stock ahora: ${st.left})</span>
-      <div class="lot-r h"><span>Tirada</span><span>Hechos</span><span>Vendidos</span><span></span></div>
+      <div class="lot-r h"><span>Tirada</span><span>Hechos</span><span>Vendidos*</span><span></span></div>
       ${lotsOf(d).map(l=>`<div class="lot-r"><input class="in" type="text" data-lot="${l.id}" data-lf="name" value="${esc(l.name||'')}" placeholder="Tirada 1" aria-label="Nombre de la tirada"><input class="in" type="number" min="0" inputmode="numeric" data-lot="${l.id}" data-lf="made" value="${Number(l.made)||0}" aria-label="Hechos"><input class="in" type="number" min="0" inputmode="numeric" data-lot="${l.id}" data-lf="sold" value="${Number(l.sold)||0}" aria-label="Vendidos"><button type="button" class="x" data-act="lot-del" data-v="${l.id}" aria-label="Quitar tirada">×</button></div>`).join('')}
       <div><button type="button" class="btn sm" data-act="lot-add">+ Añadir tirada</button></div>
-      <span class="hint">Una tirada es cada producción: la primera hornada de casetes, el segundo pedido de VHS…</span></div>
+      <span class="hint">Una tirada es cada producción: la primera hornada de casetes, el segundo pedido de VHS… *«Vendidos» es para los que ya se vendieron sin apuntar quién ni dónde; cada «+1 vendido» que registréis se suma solo.</span></div>
     <div class="fld"><label for="f-design">Enlace a los diseños gráficos (Drive, Dropbox, Canva…)</label><div style="display:flex;gap:6px"><input class="in" id="f-design" data-f="design" type="url" inputmode="url" value="${esc(d.design||'')}" placeholder="https://drive.google.com/…">${d.design?`<a class="btn sm" href="${esc(fixUrl(d.design))}" target="_blank" rel="noopener">Abrir ↗</a>`:''}</div></div>
     <div class="fld"><label for="f-dnote">Para la imprenta (medidas, papel, proveedor, qué archivo es cuál)</label><textarea class="ta" id="f-dnote" data-f="designNote" placeholder="Ej.: cara A y B en PDF 300 ppp, sangrado 3 mm…">${esc(d.designNote)}</textarea></div>
     <div class="fld"><span class="lbl">Producción: pendientes</span>${checksH(d.checks)}</div>
@@ -1388,6 +1415,16 @@ function drawSheet(first){
     <div class="grid2"><div class="fld"><label for="f-edate">Fecha de envío</label><input class="in" type="date" id="f-edate" data-f="date" value="${esc(d.date||'')}"></div><div class="fld"><span class="lbl">Estado</span>${segF('status',EST,d.status||'pendiente')}</div></div>
     <div class="fld"><span class="lbl">Qué llevamos</span>${arr('prods').sort((a,b)=>(a.order??0)-(b.order??0)).map(q=>`<label class="qty"><span>${esc(q.name)} <small class="hint">(${stockOf(q).left} en stock)</small></span><input class="in" type="number" min="0" inputmode="numeric" data-ql="${q.id}" value="${Number((d.lines||{})[q.id])||''}" placeholder="0"></label>`).join('')||'<span class="hint">Crea primero algún producto.</span>'}</div>
     <div class="fld"><label for="f-enote">Dirección, seguimiento, notas</label><textarea class="ta" id="f-enote" data-f="note" placeholder="Calle, ciudad, teléfono, nº de seguimiento…">${esc(d.note)}</textarea></div>`;}
+  else if(SH.type==='venta'){title=SH.isNew?'Apuntar venta':'Venta';
+    const pp=S.prods[d.prod],lots=pp?lotsOf(pp):[],gigs=arr('gigs').sort((a,b)=>(b.date||'')<(a.date||'')?-1:1),buyers=[...new Set(arr('ventas').map(v=>v.buyer).filter(Boolean))];
+    body=`<div class="grid2"><div class="fld"><label for="f-vprod">Producto</label><select class="sel" id="f-vprod" data-f="prod">${opts(Object.fromEntries(arr('prods').sort((a,b)=>(a.order??0)-(b.order??0)).map(q=>[q.id,q.name])),d.prod,'Elige producto')}</select></div>
+      <div class="fld"><label for="f-vlot">Tirada</label><select class="sel" id="f-vlot" data-f="lot">${lots.length?opts(Object.fromEntries(lots.map(l=>[l.id,(l.name||'Tirada')+' · '+((Number(l.made)||0)-soldOf(l))+' en stock'])),d.lot):'<option value="">Sin tiradas</option>'}</select></div></div>
+    <div class="grid2"><div class="fld"><label for="f-vqty">Cuántos</label><input class="in" id="f-vqty" type="number" min="1" inputmode="numeric" data-f="qty" value="${Number(d.qty)||1}"></div><div class="fld"><label for="f-vdate">Fecha</label><input class="in" type="date" id="f-vdate" data-f="date" value="${esc(d.date||'')}"></div></div>
+    <div class="fld"><span class="lbl">Dónde se vendió</span>${segF('canal',CANAL,d.canal||'concierto')}</div>
+    ${(d.canal||'concierto')==='concierto'?`<div class="fld"><label for="f-vgig">Concierto</label><select class="sel" id="f-vgig" data-f="gig">${opts(Object.fromEntries(gigs.map(g=>[g.id,g.name+(g.date?' · '+fmtD(g.date):'')])),d.gig,'Sin concretar')}</select></div>`:''}
+    <div class="fld"><label for="f-vbuyer">A quién (si lo sabéis)</label><input class="in" id="f-vbuyer" data-f="buyer" list="buyers" value="${esc(d.buyer||'')}" placeholder="Nombre, o déjalo vacío si fue en mano"><datalist id="buyers">${buyers.map(b=>`<option value="${esc(b)}">`).join('')}</datalist></div>
+    <div class="fld"><label for="f-vnote">Notas</label><textarea class="ta" id="f-vnote" data-f="note" placeholder="Contacto, dedicatoria, cómo nos conoció…">${esc(d.note)}</textarea></div>`;
+    if(SH.isNew)foot=`<div class="sh-f"><button type="button" class="btn sm ghost" data-act="venta-cancel">Cancelar</button><button type="button" class="btn sm red" data-act="venta-save">Guardar venta</button></div>`;}
   else if(SH.type==='help'){title='Apuntar rápido';foot=`<div class="sh-f"><span></span><button class="btn sm red" data-act="sheet-close">Entendido</button></div>`;
     body=`<p style="margin:0;font:italic 1.25rem var(--f-serif)">Escribe en la barra roja de arriba como hablaríais entre vosotras. Se entiende esto:</p>
     <div class="syntax"><code>@ariana</code><span>Responsable: @david, @ariana o @ambos</span><code>#prensa</code><span>Cajón (vale el principio del nombre)</span><code>hoy · mañana · viernes</code><span>Fecha: también 15/10, 15 oct, finde, en 3 días, en 2 semanas</span><code>✳ o *</code><span>Es un hito</span><code>nota: …</code><span>Guarda una nota en vez de una tarea</span></div>
@@ -1469,7 +1506,18 @@ const ACT={
   'prod-defaults':()=>[['etiqueta','Etiquetas recicladas'],['casete','Casetes'],['marco','Marcos con NFC'],['vhs','VHS']].forEach(([k,n],i)=>write('prods','pr-'+k,{name:n,kind:k,color:MCOL[k],status:'idea',price:'',lots:[],design:'',designNote:'',checks:[],note:'',order:i})),
   'lot-add':()=>{if(!SH)return;SH.draft.lots=lotsOf(SH.draft).concat({id:uid('l'),name:'Tirada '+(lotsOf(SH.draft).length+1),made:0,sold:0});touch(true);drawSheet()},
   'lot-del':t=>{if(!SH)return;SH.draft.lots=lotsOf(SH.draft).filter(l=>l.id!==t.dataset.v);touch(true);drawSheet()},
-  'lot-sell':t=>{const p=S.prods[t.dataset.id];if(!p)return;const d=Number(t.dataset.d);write('prods',t.dataset.id,Object.assign({},p,{lots:lotsOf(p).map(l=>l.id===t.dataset.lot?Object.assign({},l,{sold:Math.max(0,Math.min(Number(l.made)||0,(Number(l.sold)||0)+d))}):l)}))},
+  'lot-sell':t=>{const p=S.prods[t.dataset.id];if(!p)return;const lid=t.dataset.lot,l=lotsOf(p).find(x=>x.id===lid);if(!l)return;
+    if(Number(t.dataset.d)>0){openSheet('venta','ventas',uid('v'),{prod:t.dataset.id,lot:lid,qty:1,date:iso(today()),canal:'concierto',gig:gigDefault(),buyer:'',note:''},true);return}
+    const last=ventasLot(lid).sort((a,b)=>(b._u||0)-(a._u||0))[0];
+    if(last){const data=clone(S.ventas[last.id]);removeDoc('ventas',last.id);toast('Última venta quitada.','Deshacer',()=>write('ventas',last.id,data))}
+    else if(Number(l.sold)>0)write('prods',p.id,Object.assign({},p,{lots:lotsOf(p).map(x=>x.id===lid?Object.assign({},x,{sold:Number(x.sold)-1}):x)}))},
+  venta:t=>{const v=get('ventas',t.dataset.id);if(v)openSheet('venta','ventas',v.id,v)},
+  'new-venta':()=>openSheet('venta','ventas',uid('v'),{prod:null,lot:null,qty:1,date:iso(today()),canal:'concierto',gig:gigDefault(),buyer:'',note:''},true),
+  'venta-save':()=>{if(!SH)return;const d=SH.draft,p=S.prods[d.prod];
+    if(!p){toast('Elige qué producto se ha vendido.');return}
+    if(!lotsOf(p).some(l=>l.id===d.lot)){toast('Ese producto aún no tiene tirada. Añade una desde su ficha.');return}
+    SH.dirty=true;closeSheet();toast('Venta apuntada.')},
+  'venta-cancel':()=>{if(SH)SH.dirty=false;closeSheet()},
   envio:t=>{const e=get('envios',t.dataset.id);if(e)openSheet('envio','envios',e.id,e)},
   'new-envio':()=>openSheet('envio','envios',uid('env'),{name:'',date:null,status:'pendiente',lines:{},note:''},true),
   'envio-st':t=>{const e=S.envios[t.dataset.id];if(e)write('envios',t.dataset.id,Object.assign({},e,{status:t.dataset.to}))},
@@ -1570,9 +1618,10 @@ document.addEventListener('input',e=>{const t=e.target;
   if(!SH||!$('#sheet').contains(t))return;
   if(t.dataset.lot){const l=lotsOf(SH.draft).find(x=>x.id===t.dataset.lot);if(l){const f=t.dataset.lf;l[f]=(f==='made'||f==='sold')?Math.max(0,Math.floor(Number(t.value)||0)):t.value;touch()}return}
   if(t.dataset.ql!=null){const ln=Object.assign({},SH.draft.lines||{});const n=Math.max(0,Math.floor(Number(t.value)||0));if(n)ln[t.dataset.ql]=n;else delete ln[t.dataset.ql];SH.draft.lines=ln;touch();return}
-  if(t.dataset.f){const f=t.dataset.f;let v=t.type==='checkbox'?t.checked:t.value;if(f==='stage')v=Number(v);if((f==='date'||f==='end'||f==='due'||f==='goal'||f==='song'||f==='gig'||f==='cajon')&&!v)v=null;
+  if(t.dataset.f){const f=t.dataset.f;let v=t.type==='checkbox'?t.checked:t.value;if(f==='stage')v=Number(v);if(f==='qty')v=Math.max(1,Math.floor(Number(v))||1);if((f==='date'||f==='end'||f==='due'||f==='goal'||f==='song'||f==='gig'||f==='cajon')&&!v)v=null;
     SH.draft[f]=v;if(t.classList.contains('ttl-in')){t.style.height='auto';t.style.height=t.scrollHeight+'px'}
     if(SH.type==='release'){drawSheet();return}
+    if(SH.type==='venta'&&f==='prod'){const pp=S.prods[v],l=pp&&(lotsOf(pp).find(x=>(Number(x.made)||0)-soldOf(x)>0)||lotsOf(pp)[0]);SH.draft.lot=l?l.id:null;touch();drawSheet();return}
     touch(t.type==='checkbox'||t.tagName==='SELECT'||t.type==='date');
     if(f==='period'&&SH.isNew){SH.draft.due=periodDue(v);drawSheet()}return}
   if(t.dataset.chk!=null){SH.draft.checks[Number(t.dataset.chk)].d=t.checked;touch(true);drawSheet();return}
