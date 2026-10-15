@@ -432,6 +432,19 @@ button.stk[aria-pressed="false"]{opacity:.45;transform:none;box-shadow:none}
 .ord-tot{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:10px;padding-top:8px;border-top:1.5px dashed var(--hair);font:500 .74rem var(--f-mono);color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em}
 .ord-tot b{font:400 1.5rem/1 var(--f-disp);color:var(--ink);letter-spacing:0}
 .ord-tot small{display:block;text-transform:none;letter-spacing:0;color:var(--ink-3);font-size:.68rem}
+.run-sum{display:flex;gap:6px 16px;align-items:baseline;flex-wrap:wrap;padding:10px 12px;border:2px solid var(--rule);border-radius:12px;background:var(--card)}
+.run-sum b{font:400 1.9rem/1 var(--f-disp);text-transform:uppercase}
+.run-sum span{font:500 .72rem var(--f-mono);color:var(--ink-2)}
+.run{display:flex;flex-direction:column;gap:6px}
+.run-r{display:flex;align-items:center;gap:6px;padding:5px 6px;border:1.5px solid var(--hair);border-radius:10px;background:var(--paper);min-width:0}
+.run-r.mo{border-style:dashed;background:color-mix(in srgb,var(--note) 45%,var(--paper))}
+.run-r .t0{flex:none;width:38px;font:500 .66rem var(--f-mono);color:var(--ink-3)}
+.run-r .n{flex:none;width:18px;text-align:center;font:600 .72rem var(--f-mono);color:var(--red)}
+.run-r .tt{flex:1;min-width:0;font:italic 1.05rem/1.1 var(--f-serif);overflow-wrap:anywhere}
+.run-r .tt .live{margin-left:6px;display:inline-block;white-space:nowrap}
+.run-r input.rl{flex:1;min-width:0;border:0;border-bottom:1.5px solid var(--hair);background:transparent;color:var(--ink);font:600 .92rem var(--f-body);padding:3px 2px}
+.run-r .dur-in{width:56px}
+.run-tabs{margin-bottom:12px;display:flex}
 .dragging{opacity:.45;outline:2px dashed var(--red);outline-offset:2px}
 @media(max-width:1000px){.disc-w{grid-template-columns:1fr}.disc{position:static}}
 .stages{display:flex;gap:3px}
@@ -1267,7 +1280,7 @@ function vConciertos(){
       <div><span class="lbl">Preparación ${dn}/${ch.length}</span><div class="bar" style="--c:var(--c5);margin-top:4px"><i style="width:${ch.length?Math.round(dn/ch.length*100):0}%"></i></div></div>
       ${ens.length?`<div style="display:flex;flex-direction:column;gap:4px">${ens.map(i=>`<button class="chip" style="justify-content:flex-start" data-act="item" data-id="${i.id}">${esc(KINDS[i.kind]?.c||'')} · ${esc(i.title)} · ${esc(fmtD(i.date))}</button>`).join('')}</div>`:''}
       <div style="display:flex;gap:6px;flex-wrap:wrap" data-w><button class="btn sm" data-act="gig" data-id="${g.id}">Abrir</button><button class="btn sm" data-act="new-item" data-kind="ensayo" data-gig="${g.id}">+ Ensayo</button>${!past.includes(g)?`<button class="btn sm red" data-act="gen-gig" data-id="${g.id}">${g.planned?'Volver a generar plan':'Generar plan de preparación'}</button>`:''}</div></div>
-    <div class="gside"><span class="lbl">Setlist · ${set.length} temas</span>${miss.length?`<div class="warn">Faltan por montar: ${miss.map(s=>esc(s.title)).join(', ')}</div>`:set.length?'<div class="hint">Todo el setlist está montado.</div>':''}
+    <div class="gside"><span class="lbl">Setlist · ${set.length} temas${runStats(g).tot?' · ≈ '+fmtMin(runStats(g).tot):''}</span>${miss.length?`<div class="warn">Faltan por montar: ${miss.map(s=>esc(s.title)).join(', ')}</div>`:set.length?'<div class="hint">Todo el setlist está montado.</div>':''}
       ${set.length?`<ol class="setl">${set.map(s=>`<li>${esc(s.title)}<span class="live ${s.live||'falta'}">${LIVE[s.live]||'Sin montar'}</span></li>`).join('')}</ol>`:'<div class="empty" style="padding:10px">Sin setlist. Ábrelo para elegir temas.</div>'}</div></article>`;};
   return vhd('Los conciertos','Preparación, ensayos y temas que faltan por montar',`<button class="btn red" data-act="new-gig" data-w>+ Concierto</button>`)+
    `<div class="gigs">${up.length?up.map(gcard).join(''):'<div class="empty">Ningún concierto por delante. Añade el siguiente.</div>'}</div>`+
@@ -1283,6 +1296,26 @@ const fmtDur=n=>{n=Math.round(Number(n)||0);return Math.floor(n/60)+':'+String(n
 const songsOf=p=>arr('songs').filter(s=>(s.project||'Sin proyecto')===p).sort((a,b)=>(a.order??99)-(b.order??99)||String(a.title).localeCompare(b.title));
 function discTot(l){const t=l.reduce((a,s)=>a+(Number(s.dur)||0),0),n=l.filter(s=>!(Number(s.dur)>0)).length;
   return `<span>Total aprox.${n?`<small>${n} ${n===1?'tema sin':'temas sin'} duración</small>`:''}</span><b>${t?(t>=3600?Math.floor(t/3600)+' h '+String(Math.round(t%3600/60)).padStart(2,'0')+' min':fmtDur(t)+' min'):'—'}</b>`}
+const runOf=g=>Array.isArray(g.run)?g.run:(g.setlist||[]).map(id=>({id:'r-'+id,song:id}));
+const rowDur=r=>r.song?(Number((S.songs[r.song]||{}).dur)||0):(Number(r.dur)||0);
+function runStats(g){const l=runOf(g);let sg=0,mo=0,nS=0,nM=0,nod=0;l.forEach(r=>{const d=rowDur(r);if(r.song){if(S.songs[r.song]){nS++;sg+=d;if(!d)nod++}}else{nM++;mo+=d}});return {l,sg,mo,nS,nM,nod,tot:sg+mo}}
+const fmtMin=n=>{n=Math.round(n/60);return n>=60?Math.floor(n/60)+' h '+String(n%60).padStart(2,'0')+' min':n+' min'};
+const clockAdd=(t,sec)=>{const m=String(t||'').match(/^(\d{1,2})[:.h](\d{2})$/);if(!m)return null;const x=(Number(m[1])*60+Number(m[2])+Math.round(sec/60))%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')};
+function runH(d){const st=runStats(d),l=st.l,inRun=new Set(l.map(r=>r.song).filter(Boolean));let acc=0,sn=0;
+  const rows=l.map((r,i)=>{const du=rowDur(r),t0=fmtDur(acc);acc+=du;
+    const ctr=`<button type="button" class="x" data-act="run-up" data-v="${i}" aria-label="Subir">↑</button><button type="button" class="x" data-act="run-down" data-v="${i}" aria-label="Bajar">↓</button><button type="button" class="x" data-act="run-del" data-v="${i}" aria-label="Quitar">×</button>`;
+    if(r.song){const sg=S.songs[r.song];return `<div class="run-r"><span class="t0">${t0}</span><span class="n">${++sn}</span><span class="tt">${sg?esc(sg.title)+`<span class="live ${sg.live||'falta'}">${LIVE[sg.live]||'Sin montar'}</span>`:'<em>(tema borrado)</em>'}</span>${sg?`<input class="dur-in" id="rd-${r.song}" data-sdur="${r.song}" value="${sg.dur>0?fmtDur(sg.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración de ${esc(sg.title)}">`:''}${ctr}</div>`}
+    return `<div class="run-r mo"><span class="t0">${t0}</span><span class="n">✳</span><input class="rl" id="rl-${r.id}" data-rl="${r.id}" value="${esc(r.t||'')}" placeholder="Momento (hablar, acting…)" autocomplete="off" aria-label="Nombre del momento"><input class="dur-in" id="rdu-${r.id}" data-rd="${r.id}" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración del momento">${ctr}</div>`}).join('');
+  const end=clockAdd(d.time,st.tot);
+  const rest=arr('songs').filter(x=>!inRun.has(x.id)),byP={};rest.forEach(x=>{(byP[x.project||'Sin proyecto']=byP[x.project||'Sin proyecto']||[]).push(x)});
+  const sel=Object.entries(byP).map(([p,ls])=>`<optgroup label="${esc(p)}">${ls.sort((a,b)=>(a.order??99)-(b.order??99)||String(a.title).localeCompare(b.title)).map(x=>`<option value="${x.id}">${esc(x.title)}${x.live!=='montado'?' (sin montar)':''}${x.dur>0?' · '+fmtDur(x.dur):''}</option>`).join('')}</optgroup>`).join('');
+  const nm=rest.filter(x=>x.live==='montado').length;
+  return `<div class="run-sum"><b>${st.tot?'≈ '+fmtMin(st.tot):'—'}</b><span>${st.nS} ${st.nS===1?'tema':'temas'} ${fmtDur(st.sg)}${st.nM?` · ${st.nM} ${st.nM===1?'momento':'momentos'} ${fmtDur(st.mo)}`:''}${st.nod?` · ${st.nod} sin duración`:''}${end?` · empieza ${esc(d.time)} · acaba ≈ ${end}`:''}</span></div>
+  <div class="run">${rows||'<div class="empty" style="padding:12px">Aún no hay nada. Añade temas del repertorio y momentos entre medias.</div>'}</div>
+  <select class="sel" id="f-addsong" aria-label="Añadir tema"><option value="">+ Añadir tema del repertorio…</option>${sel}</select>
+  <div class="row-btns" style="margin-top:2px"><button type="button" class="btn sm" data-act="run-seg" data-t="Hablar" data-dur="60">+ Hablar</button><button type="button" class="btn sm" data-act="run-seg" data-t="Acting" data-dur="120">+ Acting</button><button type="button" class="btn sm" data-act="run-seg" data-t="Cambio / afinar" data-dur="60">+ Cambio</button><button type="button" class="btn sm" data-act="run-seg" data-t="" data-dur="60">+ Otro momento</button>${nm?`<button type="button" class="btn sm ghost" data-act="run-all">Añadir los ${nm} montados</button>`:''}</div>
+  <span class="hint">La duración de cada tema es la misma que en el repertorio: si la cambias aquí, se cambia allí. Los momentos son solo de este concierto.</span>`}
+function runEdit(fn){if(!SH||SH.type!=='gig')return;const l=runOf(SH.draft).map(r=>Object.assign({},r));fn(l);SH.draft.run=l;SH.draft.setlist=l.filter(r=>r.song).map(r=>r.song);touch(true);drawSheet()}
 function vRepertorio(){
   const ss=arr('songs');const projs=[...new Set(ss.map(s=>s.project||'Sin proyecto'))];
   if(F.proj!=='all'&&!projs.includes(F.proj))F.proj='all';
@@ -1421,16 +1454,16 @@ function drawSheet(first){
     ${SH.isNew?'':`<div class="fld"><span class="lbl">Acciones vinculadas</span>${goalProg(Object.assign({},d,{id:SH.id})).its.sort(byDate).map(i=>card(i,{noGoal:1,caj:1})).join('')||'<span class="hint">Ninguna todavía.</span>'}<button type="button" class="btn sm" data-act="new-item" data-goal="${SH.id}" data-w>+ Acción</button></div>`}`;}
   else if(SH.type==='gig'){title='Concierto';
     const set=(d.setlist||[]).map(id=>get('songs',id)).filter(Boolean),rest=arr('songs').filter(s=>!(d.setlist||[]).includes(s.id)).sort((a,b)=>String(a.title).localeCompare(b.title));
-    body=`<textarea class="ta ttl-in" id="f-title" data-f="name" rows="1" placeholder="Nombre del concierto">${esc(d.name)}</textarea>
+    const rs=runStats(d),tabs=`<div class="seg run-tabs" role="group" aria-label="Secciones del concierto"><button type="button" data-act="gig-tab" data-v="datos" aria-pressed="${SH.tab!=='rep'}">Datos</button><button type="button" data-act="gig-tab" data-v="rep" aria-pressed="${SH.tab==='rep'}">Repertorio${rs.tot?' · '+fmtMin(rs.tot):''}</button></div>`;
+    body=`<textarea class="ta ttl-in" id="f-title" data-f="name" rows="1" placeholder="Nombre del concierto">${esc(d.name)}</textarea>${tabs}${SH.tab==='rep'?runH(d):`
     <div class="grid3"><div class="fld"><label for="f-date">Fecha</label><input class="in" type="date" id="f-date" data-f="date" value="${esc(d.date||'')}"></div><div class="fld"><label for="f-time">Hora</label><input class="in" id="f-time" data-f="time" value="${esc(d.time||'')}" placeholder="22:30"></div><div class="fld"><span class="lbl">Estado</span><select class="sel" id="f-status" data-f="status">${opts(GIGST,d.status||'tentativa')}</select></div></div>
     <div class="grid2"><div class="fld"><label for="f-venue">Sala o lugar</label><input class="in" id="f-venue" data-f="venue" value="${esc(d.venue||'')}"></div><div class="fld"><label for="f-city">Ciudad</label><input class="in" id="f-city" data-f="city" value="${esc(d.city||'')}"></div></div>
     <div class="fld"><label for="f-contact">Contacto (programación, técnico)</label><input class="in" id="f-contact" data-f="contact" value="${esc(d.contact||'')}"></div>
-    <div class="fld"><span class="lbl">Setlist (${set.length})</span><div class="checks">${set.map((s,i)=>`<div class="chk"><span class="mono" style="width:22px">${i+1}</span><span style="flex:1">${esc(s.title)}<span class="live ${s.live||'falta'}">${LIVE[s.live]||'Sin montar'}</span></span><button type="button" class="x" data-act="set-up" data-v="${i}" aria-label="Subir">↑</button><button type="button" class="x" data-act="set-down" data-v="${i}" aria-label="Bajar">↓</button><button type="button" class="x" data-act="set-del" data-v="${i}" aria-label="Quitar">×</button></div>`).join('')}
-      <select class="sel" id="f-addsong" data-act-change="set-add"><option value="">+ Añadir tema al setlist…</option>${rest.map(s=>`<option value="${s.id}">${esc(s.title)}${s.live!=='montado'?' (sin montar)':''}</option>`).join('')}</select></div></div>
+    <div class="fld"><span class="lbl">Repertorio</span><button type="button" class="btn sm" data-act="gig-tab" data-v="rep">${runStats(d).nS} temas${runStats(d).tot?' · ≈ '+fmtMin(runStats(d).tot):''} · ver y ordenar →</button></div>
     <div class="fld"><span class="lbl">Preparación</span>${checksH(d.checks)}</div>
     <div class="fld"><label for="f-note">Notas</label><textarea class="ta" id="f-note" data-f="note">${esc(d.note)}</textarea></div>
     <div class="fld"><span class="lbl">Rider, contratos, carteles</span>${filesH(d.files)}</div>
-    <div class="fld"><span class="lbl">Enlaces</span>${linksH(d.links)}</div>`;}
+    <div class="fld"><span class="lbl">Enlaces</span>${linksH(d.links)}</div>`}`;}
   else if(SH.type==='song'){title='Tema';
     body=`<textarea class="ta ttl-in" id="f-title" data-f="title" rows="1" placeholder="Título del tema">${esc(d.title)}</textarea>
     <div class="grid2"><div class="fld"><label for="f-project">Proyecto</label><input class="in" id="f-project" data-f="project" list="projs" value="${esc(d.project||'')}"><datalist id="projs">${[...new Set(arr('songs').map(s=>s.project).filter(Boolean))].map(p=>`<option value="${esc(p)}">`).join('')}</datalist></div><div class="fld"><label for="f-stage">Fase</label><select class="sel" id="f-stage" data-f="stage">${STAGES.map((l,k)=>`<option value="${k}"${k===(d.stage??0)?' selected':''}>${l}</option>`).join('')}</select></div></div>
@@ -1627,9 +1660,12 @@ const ACT={
   'chk-del':t=>{SH.draft.checks.splice(Number(t.dataset.v),1);touch();drawSheet()},
   'link-add':()=>addLink(),
   'link-del':t=>{SH.draft.links.splice(Number(t.dataset.v),1);touch();drawSheet()},
-  'set-up':t=>{const i=Number(t.dataset.v),l=SH.draft.setlist;if(i>0){[l[i-1],l[i]]=[l[i],l[i-1]];touch();drawSheet()}},
-  'set-down':t=>{const i=Number(t.dataset.v),l=SH.draft.setlist;if(i<l.length-1){[l[i+1],l[i]]=[l[i],l[i+1]];touch();drawSheet()}},
-  'set-del':t=>{SH.draft.setlist.splice(Number(t.dataset.v),1);touch();drawSheet()},
+  'gig-tab':t=>{if(!SH)return;SH.tab=t.dataset.v;drawSheet();const b=$('.sh-b');if(b)b.scrollTop=0},
+  'run-up':t=>{runEdit(l=>{const i=Number(t.dataset.v);if(i>0)[l[i-1],l[i]]=[l[i],l[i-1]]})},
+  'run-down':t=>{runEdit(l=>{const i=Number(t.dataset.v);if(i<l.length-1)[l[i+1],l[i]]=[l[i],l[i+1]]})},
+  'run-del':t=>{runEdit(l=>{l.splice(Number(t.dataset.v),1)})},
+  'run-seg':t=>{const id=uid('r');runEdit(l=>{l.push({id,t:t.dataset.t,dur:Number(t.dataset.dur)||0})});if(!t.dataset.t)setTimeout(()=>{const i=$('#rl-'+id);if(i)i.focus()},30)},
+  'run-all':()=>{if(!SH)return;const inR=new Set(runOf(SH.draft).map(r=>r.song).filter(Boolean));const add=arr('songs').filter(x=>x.live==='montado'&&!inR.has(x.id)).sort((a,b)=>String(a.project||'').localeCompare(String(b.project||''))||(a.order??99)-(b.order??99));runEdit(l=>{add.forEach(x=>l.push({id:uid('r'),song:x.id}))})},
   color:t=>{SH.draft.color=t.dataset.v;touch();drawSheet()},
   'sk-color':t=>{const s=S.stickers[t.dataset.id];if(s){write('stickers',t.dataset.id,Object.assign({},s,{color:t.dataset.v}));setTimeout(drawSheet,0)}},
   'sk-del':t=>{const id=t.dataset.id;removeDoc('stickers',id);arr('items').filter(i=>(i.stickers||[]).includes(id)).forEach(i=>write('items',i.id,Object.assign({},S.items[i.id],{stickers:i.stickers.filter(x=>x!==id)})));if(F.stk===id)F.stk=null;setTimeout(drawSheet,0)},
@@ -1683,6 +1719,7 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.id==='q-in'){qaPreview(t,$('#q-prev'));return}
   if(t.id==='f-lbl'&&SH&&SH.type==='link'){clearTimeout(t._t);const id=SH.id,idx=SH.draft.idx,v=t.value.trim();t._t=setTimeout(()=>{const c=S.cajones[id];if(!c||!c.links||!c.links[idx])return;const ls=c.links.map((x,i)=>i===idx?Object.assign({},x,{label:v}):x);write('cajones',id,Object.assign({},c,{links:ls}))},500);return}
   if(!SH||!$('#sheet').contains(t))return;
+  if(t.dataset.rl){const l=runOf(SH.draft).map(r=>Object.assign({},r)),r=l.find(x=>x.id===t.dataset.rl);if(r){r.t=t.value;SH.draft.run=l;SH.draft.setlist=l.filter(x=>x.song).map(x=>x.song);touch()}return}
   if(t.dataset.lot){const l=lotsOf(SH.draft).find(x=>x.id===t.dataset.lot);if(l){const f=t.dataset.lf;l[f]=(f==='made'||f==='sold')?Math.max(0,Math.floor(Number(t.value)||0)):t.value;touch()}return}
   if(t.dataset.ql!=null){const ln=Object.assign({},SH.draft.lines||{});const n=Math.max(0,Math.floor(Number(t.value)||0));if(n)ln[t.dataset.ql]=n;else delete ln[t.dataset.ql];SH.draft.lines=ln;touch();return}
   if(t.dataset.f){const f=t.dataset.f;let v=t.type==='checkbox'?t.checked:t.value;if(f==='stage')v=Number(v);if(f==='dur'){const q=parseDur(v);if(q===undefined)return;v=q||null}if(f==='qty')v=Math.max(1,Math.floor(Number(v))||1);if((f==='date'||f==='end'||f==='due'||f==='goal'||f==='song'||f==='gig'||f==='cajon')&&!v)v=null;
@@ -1695,19 +1732,20 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.chkt!=null){SH.draft.checks[Number(t.dataset.chkt)].t=t.value;touch();return}
   if(t.dataset.sk){const s=S.stickers[t.dataset.sk];clearTimeout(t._t);t._t=setTimeout(()=>{if(s&&t.value.trim())write('stickers',t.dataset.sk,Object.assign({},s,{label:t.value.trim()}))},600);return}
 });
-document.addEventListener('keydown',e=>{const t=e.target;if(t.id!=='pren')return;if(e.key==='Enter'){e.preventDefault();t.blur()}else if(e.key==='Escape'){t.dataset.cancel='1';t.blur()}});
+document.addEventListener('keydown',e=>{const t=e.target;if(t.dataset&&(t.dataset.rd||t.dataset.sdur)&&e.key==='Enter'){e.preventDefault();t.blur();return}if(t.id!=='pren')return;if(e.key==='Enter'){e.preventDefault();t.blur()}else if(e.key==='Escape'){t.dataset.cancel='1';t.blur()}});
 document.addEventListener('focusout',e=>{const t=e.target;if(!t||t.id!=='pren')return;const old=t.dataset.old,v=t.value.trim();
   if(t.dataset.cancel||!v||v===old){render();return}
   arr('songs').forEach(x=>{if((x.project||'Sin proyecto')===old){const o=S.songs[x.id];write('songs',x.id,Object.assign({},o,{project:v}))}});
   if(F.proj===old){F.proj=v;savePrefs()}toast('Proyecto renombrado a «'+v+'»')});
 document.addEventListener('change',async e=>{const t=e.target;
+  if(t.dataset&&t.dataset.rd&&SH&&SH.type==='gig'){const v=parseDur(t.value);const l=runOf(SH.draft).map(r=>Object.assign({},r)),r=l.find(x=>x.id===t.dataset.rd);if(!r)return;if(v===undefined){t.value=r.dur>0?fmtDur(r.dur):'';toast('Escribe la duración como 3:45');return}r.dur=v||0;SH.draft.run=l;SH.draft.setlist=l.filter(x=>x.song).map(x=>x.song);touch(true);setTimeout(drawSheet,0);return}
   if(t.dataset&&t.dataset.sdur){const s=S.songs[t.dataset.sdur];if(!s)return;const v=parseDur(t.value);if(v===undefined){t.value=s.dur>0?fmtDur(s.dur):'';toast('Escribe la duración como 3:45');return}
-    const o=Object.assign({},s);if(v)o.dur=v;else delete o.dur;if((o.dur||0)!==(s.dur||0))write('songs',t.dataset.sdur,o);else t.value=v?fmtDur(v):'';return}
+    const o=Object.assign({},s);if(v)o.dur=v;else delete o.dur;if((o.dur||0)!==(s.dur||0))write('songs',t.dataset.sdur,o);else t.value=v?fmtDur(v):'';if(SH&&SH.type==='gig')setTimeout(drawSheet,0);return}
   if(t.id==='chk-new'&&SH){const v=t.value.trim();t.value='';if(v){SH.draft.checks=(SH.draft.checks||[]).concat({t:v,d:false});touch(true);setTimeout(()=>{const nb=$('#chk-new');const box=nb&&nb.closest('.checks');if(SH&&box&&!nb.value)box.outerHTML=checksH(SH.draft.checks)},400)}return}
   if(t.id==='lk-url'&&SH&&t.value.trim()){addLink(true);return}
   if(t.closest&&t.closest('form.add-in')&&t.value.trim()){const f=t.closest('form');f.requestSubmit?f.requestSubmit():f.dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}));return}
   if(t.id==='f-cnx'&&t.value&&SH){SH.draft.links=(SH.draft.links||[]).concat({to:t.value,label:''});touch(true);drawSheet();return}
-  if(t.id==='f-addsong'&&t.value&&SH){SH.draft.setlist=(SH.draft.setlist||[]).concat(t.value);touch(true);drawSheet();return}
+  if(t.id==='f-addsong'&&t.value&&SH){const sid=t.value;runEdit(l=>{l.push({id:uid('r'),song:sid})});return}
   if(t.id==='f-up'&&SH){await uploadFiles(t);return}
   if(t.id==='imp'){await importJson(t);return}
 });
