@@ -1,6 +1,6 @@
 # La Cocina de Altillo
 
-App interna de ALTILLO para organizarnos: comanda del día, cajones, calendario y mapa del año, objetivos por plazo, conciertos (preparación, ensayos, setlist) y repertorio con audios.
+App interna de ALTILLO para organizarnos: comanda del día, cajones, calendario y mapa del año, objetivos por plazo, conciertos (preparación, ensayos, setlist) y repertorio con audios y merch (casetes, VHS, marcos NFC y etiquetas: mesa libre, stock por tirada, enlace a los diseños y comanda de envíos).
 
 Se publica en **https://altillomusica.com/cocina/** y se instala en el móvil como una app (icono propio, pantalla completa, funciona sin cobertura).
 
