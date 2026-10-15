@@ -1274,7 +1274,7 @@ function vConciertos(){
     const set=(g.setlist||[]).map(id=>get('songs',id)).filter(Boolean),miss=set.filter(s=>s.live!=='montado');
     const ens=arr('items').filter(i=>i.gig===g.id&&i.status!=='done').sort(byDate).slice(0,5);
     return `<article class="gig${past.includes(g)?' past':''}"><div class="gdate">${d?`<span>${DIA3[dow(d)]}</span><b>${d.getDate()}</b><span>${MES3[d.getMonth()]} ${String(d.getFullYear()).slice(2)}</span>${!past.includes(g)?`<em>${esc(fmtRel(diff(t,d)))}</em>`:''}`:'<b>?</b><span>sin fecha</span>'}</div>
-    <div class="gmain"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="st ${g.status}">${GIGST[g.status]||''}</span>${g.time?`<span class="chip">${esc(g.time)}</span>`:''}</div>
+    <div class="gmain"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="st ${g.status}">${GIGST[g.status]||''}</span>${g.kind==='colab'?'<span class="chip">✳ Colaboración</span>':''}${g.time?`<span class="chip">${esc(g.time)}</span>`:''}</div>
       <h3 data-act="gig" data-id="${g.id}">${esc(g.name)}</h3><span class="where">${esc([g.venue,g.city].filter(Boolean).join(' · ')||'Lugar por cerrar')}</span>
       ${g.note?`<p class="hint" style="margin:0">${esc(g.note)}</p>`:''}
       <div><span class="lbl">Preparación ${dn}/${ch.length}</span><div class="bar" style="--c:var(--c5);margin-top:4px"><i style="width:${ch.length?Math.round(dn/ch.length*100):0}%"></i></div></div>
@@ -1452,12 +1452,13 @@ function drawSheet(first){
     <label class="tgl"><input type="checkbox" id="f-done" data-f="done" ${d.done?'checked':''}> Conseguido</label>
     <div class="fld"><label for="f-note">Por qué y cómo sabremos que está hecho</label><textarea class="ta" id="f-note" data-f="note">${esc(d.note)}</textarea></div>
     ${SH.isNew?'':`<div class="fld"><span class="lbl">Acciones vinculadas</span>${goalProg(Object.assign({},d,{id:SH.id})).its.sort(byDate).map(i=>card(i,{noGoal:1,caj:1})).join('')||'<span class="hint">Ninguna todavía.</span>'}<button type="button" class="btn sm" data-act="new-item" data-goal="${SH.id}" data-w>+ Acción</button></div>`}`;}
-  else if(SH.type==='gig'){title='Concierto';
+  else if(SH.type==='gig'){title=d.kind==='colab'?'Colaboración':'Concierto';
     const set=(d.setlist||[]).map(id=>get('songs',id)).filter(Boolean),rest=arr('songs').filter(s=>!(d.setlist||[]).includes(s.id)).sort((a,b)=>String(a.title).localeCompare(b.title));
     const rs=runStats(d),tabs=`<div class="seg run-tabs" role="group" aria-label="Secciones del concierto"><button type="button" data-act="gig-tab" data-v="datos" aria-pressed="${SH.tab!=='rep'}">Datos</button><button type="button" data-act="gig-tab" data-v="rep" aria-pressed="${SH.tab==='rep'}">Repertorio${rs.tot?' · '+fmtMin(rs.tot):''}</button></div>`;
     body=`<textarea class="ta ttl-in" id="f-title" data-f="name" rows="1" placeholder="Nombre del concierto">${esc(d.name)}</textarea>${tabs}${SH.tab==='rep'?runH(d):`
     <div class="grid3"><div class="fld"><label for="f-date">Fecha</label><input class="in" type="date" id="f-date" data-f="date" value="${esc(d.date||'')}"></div><div class="fld"><label for="f-time">Hora</label><input class="in" id="f-time" data-f="time" value="${esc(d.time||'')}" placeholder="22:30"></div><div class="fld"><span class="lbl">Estado</span><select class="sel" id="f-status" data-f="status">${opts(GIGST,d.status||'tentativa')}</select></div></div>
     <div class="grid2"><div class="fld"><label for="f-venue">Sala o lugar</label><input class="in" id="f-venue" data-f="venue" value="${esc(d.venue||'')}"></div><div class="fld"><label for="f-city">Ciudad</label><input class="in" id="f-city" data-f="city" value="${esc(d.city||'')}"></div></div>
+    <div class="fld"><span class="lbl">Tipo</span>${segF('kind',{'':'Concierto de Altillo',colab:'Colaboración'},d.kind||'')}</div>
     <div class="fld"><label for="f-contact">Contacto (programación, técnico)</label><input class="in" id="f-contact" data-f="contact" value="${esc(d.contact||'')}"></div>
     <div class="fld"><span class="lbl">Repertorio</span><button type="button" class="btn sm" data-act="gig-tab" data-v="rep">${runStats(d).nS} temas${runStats(d).tot?' · ≈ '+fmtMin(runStats(d).tot):''} · ver y ordenar →</button></div>
     <div class="fld"><span class="lbl">Preparación</span>${checksH(d.checks)}</div>
