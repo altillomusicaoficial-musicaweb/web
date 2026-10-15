@@ -410,6 +410,10 @@ button.stk[aria-pressed="false"]{opacity:.45;transform:none;box-shadow:none}
 .song h3{margin:0;font:italic 1.55rem/1.05 var(--f-serif);cursor:pointer;overflow-wrap:anywhere}
 .song-h{display:flex;gap:9px;align-items:flex-start;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
 .trk{flex:none;min-width:28px;height:28px;padding:0 6px;border-radius:99px;background:var(--ink);color:var(--paper);font:600 .74rem/28px var(--f-mono);text-align:center}
+.pren{all:unset;cursor:text;display:inline-flex;align-items:baseline;gap:10px;border-radius:8px}
+.pren span{font:400 .95rem/1 var(--f-body);color:var(--ink-3);opacity:.5}
+.pren:hover span,.pren:focus-visible span{opacity:1;color:var(--red)}
+.pren-in{font:inherit;text-transform:uppercase;width:min(100%,560px);border:2px solid var(--rule);border-radius:10px;background:var(--card);color:var(--ink);padding:0 10px}
 .disc-w{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:20px;align-items:start}
 .disc-w .songs{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 .disc{position:sticky;top:78px;background:var(--card);border:2px solid var(--rule);border-radius:14px;padding:12px 12px 10px;box-shadow:4px 4px 0 var(--rule)}
@@ -1294,7 +1298,7 @@ function vRepertorio(){
   const shown=F.proj==='all'?projs:[F.proj];
   return vhd('El repertorio','Arrastra los temas por el título para fijar el orden del disco; a la derecha ves la lista y su duración',`<button class="btn red" data-act="new-song" data-w>+ Tema</button>`)+(ss.length?filt:'')+
    (ss.length?shown.map(p=>{const l=songsOf(p);
-     const pend=l.filter(s=>(s.stage??0)<6).length;return `<section class="proj" data-proj="${esc(p)}"><h2>${esc(p)}</h2><p>${l.length} temas · ${pend?pend+' sin publicar':'todo publicado'} · ${l.filter(s=>s.live==='montado').length} montados para directo</p><div class="disc-w"><div class="songs">${l.map(scard).join('')}</div>
+     const pend=l.filter(s=>(s.stage??0)<6).length;return `<section class="proj" data-proj="${esc(p)}"><h2><button class="pren" data-act="proj-ren" data-p="${esc(p)}" title="Pulsa para cambiar el nombre">${esc(p)}<span aria-hidden="true">✎</span></button></h2><p>${l.length} temas · ${pend?pend+' sin publicar':'todo publicado'} · ${l.filter(s=>s.live==='montado').length} montados para directo</p><div class="disc-w"><div class="songs">${l.map(scard).join('')}</div>
        <aside class="disc" aria-label="Orden del disco"><h3>Orden del disco</h3><p>Duración aproximada de cada tema</p><ol class="ord">${l.map((s,k)=>orow(s,k,l.length)).join('')}</ol><div class="ord-tot">${discTot(l)}</div></aside></div></section>`}).join('')
    :'<div class="empty" style="padding:40px">Sin temas todavía. Añade el primero.</div>');
 }
@@ -1592,6 +1596,7 @@ const ACT={
   stage:t=>{const s=S.songs[t.dataset.id];if(s)write('songs',t.dataset.id,Object.assign({},s,{stage:Number(t.dataset.v)}))},
   live:t=>{const s=S.songs[t.dataset.id];if(s)write('songs',t.dataset.id,Object.assign({},s,{live:t.dataset.v}))},
   proj:t=>{F.proj=t.dataset.v;savePrefs();render()},
+  'proj-ren':t=>{const h=t.closest('h2'),old=t.dataset.p;if(!h)return;h.innerHTML=`<input class="pren-in" id="pren" aria-label="Nombre del proyecto" autocomplete="off">`;const i=h.firstChild;i.value=old;i.dataset.old=old;i.focus();i.select()},
   'song-mv':t=>{const s=S.songs[t.dataset.id];if(!s)return;const l=songsOf(s.project||'Sin proyecto').map(x=>x.id),i=l.indexOf(t.dataset.id),j=i+Number(t.dataset.d);if(i<0||j<0||j>=l.length)return;[l[i],l[j]]=[l[j],l[i]];saveOrder(l)},
   'stk-filter':t=>{F.stk=t.dataset.v&&F.stk!==t.dataset.v?t.dataset.v:null;render()},
   'stk-manage':()=>openSheet('stickers',null,null,{},false),
@@ -1690,6 +1695,11 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.chkt!=null){SH.draft.checks[Number(t.dataset.chkt)].t=t.value;touch();return}
   if(t.dataset.sk){const s=S.stickers[t.dataset.sk];clearTimeout(t._t);t._t=setTimeout(()=>{if(s&&t.value.trim())write('stickers',t.dataset.sk,Object.assign({},s,{label:t.value.trim()}))},600);return}
 });
+document.addEventListener('keydown',e=>{const t=e.target;if(t.id!=='pren')return;if(e.key==='Enter'){e.preventDefault();t.blur()}else if(e.key==='Escape'){t.dataset.cancel='1';t.blur()}});
+document.addEventListener('focusout',e=>{const t=e.target;if(!t||t.id!=='pren')return;const old=t.dataset.old,v=t.value.trim();
+  if(t.dataset.cancel||!v||v===old){render();return}
+  arr('songs').forEach(x=>{if((x.project||'Sin proyecto')===old){const o=S.songs[x.id];write('songs',x.id,Object.assign({},o,{project:v}))}});
+  if(F.proj===old){F.proj=v;savePrefs()}toast('Proyecto renombrado a «'+v+'»')});
 document.addEventListener('change',async e=>{const t=e.target;
   if(t.dataset&&t.dataset.sdur){const s=S.songs[t.dataset.sdur];if(!s)return;const v=parseDur(t.value);if(v===undefined){t.value=s.dur>0?fmtDur(s.dur):'';toast('Escribe la duración como 3:45');return}
     const o=Object.assign({},s);if(v)o.dur=v;else delete o.dur;if((o.dur||0)!==(s.dur||0))write('songs',t.dataset.sdur,o);else t.value=v?fmtDur(v):'';return}
