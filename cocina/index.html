@@ -1424,7 +1424,13 @@ function filesH(list){
   const rows=(list||[]).map((f,i)=>{const conf=SH&&SH.confirm==='file'+i;return `<div class="file"><div class="file-h"><span>${esc(f.name)}</span><button type="button" class="btn sm ghost danger${conf?' go':''}" data-act="file-del" data-v="${i}">${conf?'¿Seguro? Borrar':'Quitar'}</button></div>${fileSlot(f)}</div>`}).join('');
   return `<div class="files">${rows}${connected()?`<label class="btn sm upl">Subir audio, vídeo, PDF o imagen<input type="file" id="f-up" multiple accept="audio/*,video/*,image/*,application/pdf,.m4a,.wav,.mp3,.aif,.aiff"></label><span class="hint" id="up-st">Audio mejor en .m4a. Máximo 20 MB por archivo.</span>`:`<span class="hint">Conecta el plan compartido en <a href="#ajustes">Ajustes</a> para subir archivos.</span>`}</div>`;}
 function linksH(list){return `<div class="checks">${(list||[]).map((l,i)=>`<div class="chk"><a href="${esc(l.url)}" target="_blank" rel="noopener" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.name||l.url)}</a><button type="button" class="x" data-act="link-del" data-v="${i}" aria-label="Quitar enlace">×</button></div>`).join('')}<div style="display:flex;gap:6px"><input class="in" id="lk-url" placeholder="Pega un enlace (Drive, Dropbox, WeTransfer…)" autocomplete="off"><button type="button" class="btn sm" data-act="link-add">Añadir</button></div></div>`}
-function sheetFoot(delLabel){const c=SH.confirm==='del';return `<div class="sh-f">${SH.isNew?'<span class="hint">Se guarda en cuanto escribas el título.</span>':`<button type="button" class="btn sm ghost danger${c?' go':''}" data-act="sh-del" data-w>${c?'¿Seguro? Eliminar':delLabel||'Eliminar'}</button>`}<button type="button" class="btn sm red" data-act="sheet-close">Listo</button></div>`}
+const unck=l=>(l||[]).map(c=>Object.assign({},c,{d:false}));
+const DUP={item:{col:'items',p:'i',f:'title',fix:d=>{d.status='todo';delete d.doneAt;d.created=Date.now();d.checks=unck(d.checks);d.files=[]}},
+  goal:{col:'goals',p:'g',f:'title',fix:d=>{d.done=false;d.files=[]}},
+  gig:{col:'gigs',p:'gig',f:'name',fix:d=>{d.status='tentativa';d.planned=false;d.checks=unck(d.checks);d.files=[]}},
+  song:{col:'songs',p:'s',f:'title',fix:d=>{d.stage=0;d.live='falta';d.files=[];d.order=arr('songs').filter(x=>(x.project||'')===(d.project||'')).reduce((m,x)=>Math.max(m,x.order??0),-1)+1}},
+  prod:{col:'prods',p:'pr',f:'name',fix:d=>{d.status='idea';d.lots=[];d.checks=unck(d.checks);d.order=arr('prods').length;if(d.pos)d.pos=Object.assign({},d.pos,{x:(d.pos.x||0)+34,y:(d.pos.y||0)+34})}}};
+function sheetFoot(delLabel){const c=SH.confirm==='del';return `<div class="sh-f">${SH.isNew?'<span class="hint">Se guarda en cuanto escribas el título.</span>':`<span style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm ghost danger${c?' go':''}" data-act="sh-del" data-w>${c?'¿Seguro? Eliminar':delLabel||'Eliminar'}</button>${DUP[SH.type]?'<button type="button" class="btn sm" data-act="sh-dup" data-w>Duplicar</button>':''}</span>`}<button type="button" class="btn sm red" data-act="sheet-close">Listo</button></div>`}
 function drawSheet(first){
   if(!SH)return;const el=$('#sheet'),d=SH.draft;
   const ae=document.activeElement,fid=ae&&el.contains(ae)&&ae.id?ae.id:null,fs=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null,top=$('.sh-b',el)?.scrollTop||0;
@@ -1683,6 +1689,7 @@ const ACT={
   me:t=>{CFG.me=t.dataset.v;saveCfg();F.who=CFG.me;savePrefs();render()},
   install:async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice}catch(e){}installEvt=null;render()},
   export:()=>exportJson(),
+  'sh-dup':()=>{if(!SH||SH.isNew||!DUP[SH.type])return;flushSheet();const T=DUP[SH.type],d=clone(SH.draft);delete d.id;d[T.f]=(String(d[T.f]||'').trim()||'Sin título')+' (copia)';T.fix(d);const id=uid(T.p),type=SH.type;write(T.col,id,d);openSheet(type,T.col,id,d,false);toast('Duplicado: estás viendo la copia')},
   'sh-del':()=>{if(SH.confirm!=='del'){SH.confirm='del';drawSheet();return}
     const{col,id}=SH,data=clone(S[col][id]);SH.dirty=false;
     if(col==='cajones'){cajList().filter(o=>(o.links||[]).some(l=>l.to===id)).forEach(o=>write('cajones',o.id,Object.assign({},S.cajones[o.id],{links:o.links.filter(l=>l.to!==id)})));arr('items').filter(i=>i.cajon===id).forEach(i=>write('items',i.id,Object.assign({},S.items[i.id],{cajon:null})))}
