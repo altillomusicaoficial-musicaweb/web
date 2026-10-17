@@ -512,9 +512,9 @@ video{height:auto;border-radius:8px}
 .syntax code{font:500 .8rem var(--f-mono);background:var(--card);border:1px solid var(--hair);border-radius:5px;padding:1px 6px;justify-self:start}
 
 /* ---------- redes ---------- */
-.live{display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--ink-3);margin:0 0 8px;grid-column:1/-1}
-.live i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2.4s infinite}
-.live.flash{color:var(--ink);animation:livefl 2.4s ease-out}
+.cowr{display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--ink-3);margin:0 0 8px;grid-column:1/-1}
+.cowr i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2.4s infinite}
+.cowr.flash{color:var(--ink);animation:livefl 2.4s ease-out}
 @keyframes livefl{0%{background:var(--note)}100%{background:transparent}}
 
 .vfam{display:grid;grid-template-columns:minmax(250px,330px) minmax(0,1fr);gap:16px;margin-bottom:18px;padding:14px;border:2px solid var(--rule);border-radius:16px;background:color-mix(in srgb,var(--card) 55%,var(--paper));box-shadow:4px 4px 0 var(--rule)}
@@ -554,6 +554,11 @@ button.chip{cursor:pointer}
 .ta.script{min-height:300px;line-height:1.5}
 .chk.shot{flex-wrap:wrap}
 .chk.shot input[type=text]{flex:1 1 150px}
+.lta{display:block;resize:none;overflow:hidden;font:inherit;line-height:1.3;white-space:pre-wrap;overflow-wrap:anywhere;min-height:1.9em}
+.run-r textarea.rl{flex:1;min-width:0;border:0;border-bottom:1.5px solid var(--hair);background:transparent;color:var(--ink);font:600 .92rem/1.3 var(--f-body);padding:3px 2px;outline:0}
+.chk.shot textarea.lta{flex:1 1 150px;min-width:0;border:0;border-bottom:1.5px solid transparent;background:transparent;color:var(--ink);font:inherit;padding:2px 2px;outline:0}
+.chk.shot textarea.lta:focus,.run-r textarea.rl:focus{border-bottom-color:var(--red)}
+.chk.shot textarea.shot-n{flex:1 1 110px}
 .chk.shot .shot-n{flex:1 1 110px;font-size:.84rem;color:var(--ink-2)}
 .vprog{height:8px;border:1.5px solid var(--rule);border-radius:99px;overflow:hidden;background:var(--card)}
 .vprog i{display:block;height:100%;background:var(--ok)}
@@ -1620,6 +1625,8 @@ function vInsp(){const rs=arr('refs').sort((a,b)=>(b.created||0)-(a.created||0))
    +(tg.length?`<div class="toolbar"><span class="lbl">Qué miramos</span><div class="rtags"><button class="chip" data-act="rfil" data-v="" aria-pressed="${!F.rtag}">Todo · ${rs.length}</button>${tg.map(([k,l])=>`<button class="chip" data-act="rfil" data-v="${k}" aria-pressed="${F.rtag===k}">${esc(l)} · ${rs.filter(r=>(r.tags||[]).includes(k)).length}</button>`).join('')}</div></div>`:'')
    +(shown.length?`<div class="rgrid">${shown.map(rcard).join('')}</div>`:'<div class="empty" style="padding:30px">Aún no hay referencias. Pega arriba el enlace de un reel que os guste y apunta qué os gusta de él: el gancho, el ritmo, los rótulos…</div>');}
 /* ---- hoja del vídeo ---- */
+function lGrow(el){if(!el)return;el.style.height='auto';el.style.height=el.scrollHeight+'px'}
+function lGrowAll(root){(root||document).querySelectorAll('textarea.lta').forEach(lGrow)}
 function lsCtl(k,i){return `<button type="button" class="x" data-act="ls-up" data-ls="${k}" data-v="${i}" aria-label="Subir">↑</button><button type="button" class="x" data-act="ls-down" data-ls="${k}" data-v="${i}" aria-label="Bajar">↓</button><button type="button" class="x" data-act="ls-del" data-ls="${k}" data-v="${i}" aria-label="Quitar">×</button>`}
 function lsEdit(k,fn){if(!SH)return;const l=(SH.draft[k]||[]).map(r=>Object.assign({},r));fn(l);SH.draft[k]=l;touch(true);drawSheet()}
 function lsAdd(k,rows){lsEdit(k,l=>{(rows||[{}]).forEach(r=>l.push(Object.assign({id:uid('x')},r)))});setTimeout(()=>{const e=$$('#sheet [data-ls="'+k+'"][data-lk="t"]'),x=e[e.length-1];if(x)x.focus()},0)}
@@ -1627,7 +1634,7 @@ function lsAdd(k,rows){lsEdit(k,l=>{(rows||[{}]).forEach(r=>l.push(Object.assign
 /* ---------- escribir a la vez: lo que cambia la otra persona entra solo en la ficha abierta ---------- */
 const LIVE_LAB={title:'el título',idea:'la idea',hook:'el gancho',script:'el guion',esc:'la escaleta',shots:'los planos',rot:'los rótulos',cap:'el texto de publicación',cta:'la llamada a la acción',audio:'el audio',note:'las notas',like:'lo que nos gusta',adapt:'cómo lo adaptamos',coverT:'la portada',coverN:'la portada',stage:'la fase',date:'la fecha',who:'quién lo hace',links:'los enlaces',checks:'los pasos',mc:'Metricool',tags:'las etiquetas'};
 const otherName=()=>({D:'Ariana',A:'David'}[CFG.me]||'La otra persona');
-function livePill(){if(!connected())return '';const l=SH&&SH.live;return `<div class="live" id="live-pill" aria-live="polite"><i></i><span>${l?esc(l):'En directo · si '+esc(otherName())+' escribe a la vez, sus cambios se unen solos a los tuyos'}</span></div>`}
+function livePill(){if(!connected())return '';const l=SH&&SH.live;return `<div class="cowr" id="live-pill" aria-live="polite"><i></i><span>${l?esc(l):'En directo · si '+esc(otherName())+' escribe a la vez, sus cambios se unen solos a los tuyos'}</span></div>`}
 function mapPos(o,n,pos){let p=0;while(p<o.length&&p<n.length&&o[p]===n[p])p++;let s=0;while(s<o.length-p&&s<n.length-p&&o[o.length-1-s]===n[n.length-1-s])s++;
   if(pos<=p)return pos;if(pos>=o.length-s)return pos+(n.length-o.length);return Math.min(n.length-s,p+(pos-p))}
 function liveMerge(){
@@ -1683,19 +1690,19 @@ function vTabGuion(d){
   ${String(d.script||'').trim()?'':`<div><button type="button" class="btn sm" data-act="script-tpl" data-w>Empezar con una estructura</button></div>`}
   <span class="hint">La voz cuenta unas 150 palabras por minuto de lo hablado. Cada imagen o plano entre [corchetes] suma 3 segundos, que es lo normal para que se entienda. Las palabras de los corchetes entran en el total.</span>`}
 function vTabEsc(d){const l=d.esc||[];let acc=0;
-  const rows=l.map((r,i)=>{const t0=fmtDur(acc);acc+=Number(r.dur)||0;return `<div class="run-r"><span class="t0">${t0}</span><span class="n">${i+1}</span><input class="rl" id="ls-esc-${r.id}-t" data-ls="esc" data-li="${r.id}" data-lk="t" value="${esc(r.t||'')}" placeholder="Qué pasa en esta escena" autocomplete="off"><input class="dur-in" id="ls-esc-${r.id}-d" data-ls="esc" data-li="${r.id}" data-lk="dur" data-ld="1" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="0:05" inputmode="numeric" autocomplete="off" aria-label="Duración">${lsCtl('esc',i)}</div>`}).join('');
+  const rows=l.map((r,i)=>{const t0=fmtDur(acc);acc+=Number(r.dur)||0;return `<div class="run-r"><span class="t0">${t0}</span><span class="n">${i+1}</span><textarea rows="1" class="rl lta" id="ls-esc-${r.id}-t" data-ls="esc" data-li="${r.id}" data-lk="t" placeholder="Qué pasa en esta escena" autocomplete="off">${esc(r.t||'')}</textarea><input class="dur-in" id="ls-esc-${r.id}-d" data-ls="esc" data-li="${r.id}" data-lk="dur" data-ld="1" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="0:05" inputmode="numeric" autocomplete="off" aria-label="Duración">${lsCtl('esc',i)}</div>`}).join('');
   const dd=d.durT>0?acc-d.durT:0;
   return `<div class="run-sum"><b>${l.length?fmtDur(acc):'—'}</b><span>${l.length} ${l.length===1?'escena':'escenas'}${d.durT>0?` · objetivo ${fmtDur(d.durT)}${l.length?(dd>0?` · te pasas ${fmtDur(dd)}`:dd<0?` · sobran ${fmtDur(-dd)}`:' · clavado'):''}`:''}</span></div>
   <div class="run">${rows||'<div class="empty" style="padding:12px">La escaleta es el orden de las escenas con su duración. Añade la primera o empieza por una estructura.</div>'}</div>
   <div class="row-btns"><button type="button" class="btn sm" data-act="ls-add" data-ls="esc" data-w>+ Escena</button>${l.length?'':`<button type="button" class="btn sm" data-act="esc-tpl" data-w>Gancho · desarrollo · cierre</button>`}</div>`}
 function vTabPlanos(d){const l=d.shots||[],dn=l.filter(x=>x.d).length;
-  const rows=l.map((r,i)=>`<div class="chk shot${r.d?' d':''}"><input type="checkbox" data-ls="shots" data-li="${r.id}" data-lchk="1" ${r.d?'checked':''} aria-label="Grabado"><input type="text" id="ls-shots-${r.id}-t" data-ls="shots" data-li="${r.id}" data-lk="t" value="${esc(r.t||'')}" placeholder="Plano (qué se ve)" autocomplete="off"><input type="text" class="shot-n" id="ls-shots-${r.id}-n" data-ls="shots" data-li="${r.id}" data-lk="n" value="${esc(r.n||'')}" placeholder="Dónde / con qué" autocomplete="off">${lsCtl('shots',i)}</div>`).join('');
+  const rows=l.map((r,i)=>`<div class="chk shot${r.d?' d':''}"><input type="checkbox" data-ls="shots" data-li="${r.id}" data-lchk="1" ${r.d?'checked':''} aria-label="Grabado"><textarea rows="1" class="lta" id="ls-shots-${r.id}-t" data-ls="shots" data-li="${r.id}" data-lk="t" placeholder="Plano (qué se ve)" autocomplete="off">${esc(r.t||'')}</textarea><textarea rows="1" class="lta shot-n" id="ls-shots-${r.id}-n" data-ls="shots" data-li="${r.id}" data-lk="n" placeholder="Dónde / con qué" autocomplete="off">${esc(r.n||'')}</textarea>${lsCtl('shots',i)}</div>`).join('');
   return `<div class="run-sum"><b>${l.length?dn+'/'+l.length:'—'}</b><span>${l.length?(dn===l.length?'todos grabados':(l.length-dn)+' por grabar'):'planos a grabar'}</span></div>
   ${l.length?`<div class="vprog"><i style="width:${Math.round(dn/l.length*100)}%"></i></div>`:''}
   <div class="checks">${rows||'<div class="empty" style="padding:12px">Lista de todo lo que hay que tener grabado. Marca cada plano cuando lo tengáis.</div>'}</div>
   <div class="row-btns"><button type="button" class="btn sm" data-act="ls-add" data-ls="shots" data-w>+ Plano</button><button type="button" class="btn sm" data-act="shots-base" data-w>Añadir planos habituales</button></div>`}
 function vTabRot(d){const l=d.rot||[];
-  const rows=l.map((r,i)=>`<div class="run-r"><span class="n">${i+1}</span><input class="dur-in" id="ls-rot-${r.id}-a" data-ls="rot" data-li="${r.id}" data-lk="at" value="${esc(r.at||'')}" placeholder="0:05" autocomplete="off" aria-label="Cuándo sale"><input class="rl" id="ls-rot-${r.id}-t" data-ls="rot" data-li="${r.id}" data-lk="t" value="${esc(r.t||'')}" placeholder="Texto que sale en pantalla" autocomplete="off">${lsCtl('rot',i)}</div>`).join('');
+  const rows=l.map((r,i)=>`<div class="run-r"><span class="n">${i+1}</span><input class="dur-in" id="ls-rot-${r.id}-a" data-ls="rot" data-li="${r.id}" data-lk="at" value="${esc(r.at||'')}" placeholder="0:05" autocomplete="off" aria-label="Cuándo sale"><textarea rows="1" class="rl lta" id="ls-rot-${r.id}-t" data-ls="rot" data-li="${r.id}" data-lk="t" placeholder="Texto que sale en pantalla" autocomplete="off">${esc(r.t||'')}</textarea>${lsCtl('rot',i)}</div>`).join('');
   return `<div class="run">${rows||'<div class="empty" style="padding:12px">Los rótulos son el texto que sale en pantalla: títulos, nombres, frases clave y la llamada a la acción. Apunta cuándo sale cada uno.</div>'}</div>
   <div class="row-btns"><button type="button" class="btn sm" data-act="ls-add" data-ls="rot" data-w>+ Rótulo</button><button type="button" class="btn sm" data-act="rot-base" data-w>Añadir rótulos habituales</button></div>
   <span class="hint">Cuándo = el segundo en el que entra (0:05). Los rótulos largos se leen peor: máximo dos líneas.</span>`}
@@ -1928,6 +1935,7 @@ function drawSheet(first){
     <p class="hint">Ejemplo: <code>Reel de Perra con el ensayo @ariana #redes en 5 días</code></p>`;}
   el.innerHTML=`<div class="sh-h"><h2 id="sh-title">${title}</h2><button type="button" data-act="sheet-close">Cerrar</button></div><div class="sh-b">${body}</div>${foot}`;
   const tt=$('#f-title.ttl-in',el);if(tt){tt.style.height='auto';tt.style.height=tt.scrollHeight+'px'}
+  lGrowAll(el);
   $('.sh-b',el).scrollTop=top;
   if(first){const f=$('#f-title',el)||$('#q-in',el);if(f&&(SH.isNew||SH.type==='quick'))setTimeout(()=>f.focus(),30);}
   else if(fid){const f=document.getElementById(fid);if(f){f.focus();if(fs)try{f.setSelectionRange(fs[0],fs[1])}catch(e){}}}
@@ -2148,6 +2156,7 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.rl){const l=runOf(SH.draft).map(r=>Object.assign({},r)),r=l.find(x=>x.id===t.dataset.rl);if(r){r.t=t.value;SH.draft.run=l;SH.draft.setlist=l.filter(x=>x.song).map(x=>x.song);touch()}return}
   if(t.dataset.lot){const l=lotsOf(SH.draft).find(x=>x.id===t.dataset.lot);if(l){const f=t.dataset.lf;l[f]=(f==='made'||f==='sold')?Math.max(0,Math.floor(Number(t.value)||0)):t.value;touch()}return}
   if(t.dataset.ql!=null){const ln=Object.assign({},SH.draft.lines||{});const n=Math.max(0,Math.floor(Number(t.value)||0));if(n)ln[t.dataset.ql]=n;else delete ln[t.dataset.ql];SH.draft.lines=ln;touch();return}
+  if(t.classList&&t.classList.contains('lta'))lGrow(t);
   if(t.dataset.ls&&t.dataset.li){const k=t.dataset.ls,l=(SH.draft[k]||[]).map(r=>Object.assign({},r)),r=l.find(x=>x.id===t.dataset.li);if(!r)return;
     if(t.dataset.lchk){r.d=t.checked;SH.draft[k]=l;touch(true);drawSheet();return}
     if(t.dataset.ld)return;r[t.dataset.lk]=t.value;SH.draft[k]=l;touch();return}
@@ -2163,7 +2172,7 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.chkt!=null){SH.draft.checks[Number(t.dataset.chkt)].t=t.value;touch();return}
   if(t.dataset.sk){const s=S.stickers[t.dataset.sk];clearTimeout(t._t);t._t=setTimeout(()=>{if(s&&t.value.trim())write('stickers',t.dataset.sk,Object.assign({},s,{label:t.value.trim()}))},600);return}
 });
-document.addEventListener('keydown',e=>{const t=e.target;if(t.dataset&&t.dataset.ls&&t.dataset.lk==='t'&&e.key==='Enter'&&SH&&SH.type==='video'){e.preventDefault();lsAdd(t.dataset.ls);return}if(t.dataset&&(t.dataset.rd||t.dataset.sdur||t.dataset.ld)&&e.key==='Enter'){e.preventDefault();t.blur();return}if(t.id!=='pren')return;if(e.key==='Enter'){e.preventDefault();t.blur()}else if(e.key==='Escape'){t.dataset.cancel='1';t.blur()}});
+document.addEventListener('keydown',e=>{const t=e.target;if(t.dataset&&t.dataset.ls&&t.dataset.lk==='n'&&e.key==='Enter'){e.preventDefault();return}if(t.dataset&&t.dataset.ls&&t.dataset.lk==='t'&&e.key==='Enter'&&SH&&SH.type==='video'){e.preventDefault();lsAdd(t.dataset.ls);return}if(t.dataset&&(t.dataset.rd||t.dataset.sdur||t.dataset.ld)&&e.key==='Enter'){e.preventDefault();t.blur();return}if(t.id!=='pren')return;if(e.key==='Enter'){e.preventDefault();t.blur()}else if(e.key==='Escape'){t.dataset.cancel='1';t.blur()}});
 document.addEventListener('focusout',e=>{const t=e.target;if(!t||t.id!=='pren')return;const old=t.dataset.old,v=t.value.trim();
   if(t.dataset.cancel||!v||v===old){render();return}
   arr('songs').forEach(x=>{if((x.project||'Sin proyecto')===old){const o=S.songs[x.id];write('songs',x.id,Object.assign({},o,{project:v}))}});
