@@ -836,7 +836,7 @@ function boot(){
   if(!cached&&connected())READY=false;
   if(!F.whoSet&&CFG.me){F.who=CFG.me}
   COLS.forEach(c=>loaded.add(c));
-  banner();setSync();render();
+  banner();setSync();render();setTimeout(restoreDraft,1500);
   if(connected())sync();
   setInterval(()=>{if(document.visibilityState==='visible')sync()},40000);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')sync()});
@@ -1661,10 +1661,16 @@ function rescueTitle(){/* un vídeo o referencia nuevos con contenido pero sin t
   const used=SH.type==='video'?(d.esc||[]).length||(d.shots||[]).some(r=>r.t)||(d.rot||[]).length||d.coverUrl||(d.links||[]).length||(d.files||[]).length||(d.refs||[]).length:(d.tags||[]).length||(d.files||[]).length;
   if(!x&&!used)return;d.title=x?x.split(' ').slice(0,8).join(' ').slice(0,70):(SH.type==='video'?'Vídeo sin título':'Referencia sin título');SH.dirty=true;
   toast('Guardado como «'+d.title+'». Ponle el título que quieras cuando te venga bien.')}
-function closeSheet(){commitTyped();rescueTitle();flushSheet();SH=null;$('#sheet').hidden=true;$('#scrim').hidden=true;$('#sheet').innerHTML='';}
-function touch(now){if(!SH)return;if(SH.type==='venta'&&SH.isNew)return;SH.dirty=true;clearTimeout(shT);if(now)flushSheet();else shT=setTimeout(flushSheet,500);}
+function closeSheet(){commitTyped();rescueTitle();flushSheet();if(SH&&SH.isNew&&!SH.dirty)dropDraft();SH=null;$('#sheet').hidden=true;$('#scrim').hidden=true;$('#sheet').innerHTML='';}
+const DRAFT_KEY='altillo-cocina-draft';
+function saveDraft(){try{if(SH&&SH.isNew&&SH.col&&SH.draft)localStorage.setItem(DRAFT_KEY,JSON.stringify({type:SH.type,col:SH.col,id:SH.id,draft:SH.draft,at:Date.now()}))}catch(e){}}
+function dropDraft(){try{localStorage.removeItem(DRAFT_KEY)}catch(e){}}
+function restoreDraft(){let d;try{d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null')}catch(e){}
+  if(!d||!d.col||!S[d.col]||S[d.col][d.id]||SH){if(d&&d.col&&S[d.col]&&S[d.col][d.id])dropDraft();return}
+  toast('Había algo escrito sin guardar.','Recuperar',()=>{if(!SH)openSheet(d.type,d.col,d.id,d.draft,true)});dropDraft();}
+function touch(now){if(!SH)return;if(SH.type==='venta'&&SH.isNew)return;SH.dirty=true;saveDraft();clearTimeout(shT);if(now)flushSheet();else shT=setTimeout(flushSheet,500);}
 function flushSheet(){clearTimeout(shT);if(!SH||!SH.dirty||!SH.col)return;const t=SH.draft.title??SH.draft.name??SH.draft.label;if(SH.isNew&&SH.type!=='venta'&&!String(t||'').trim())return;
-  if(SH.draft.status==='done'&&!SH.draft.doneAt)SH.draft.doneAt=iso(today());write(SH.col,SH.id,SH.draft);SH.isNew=false;SH.dirty=false;}
+  if(SH.draft.status==='done'&&!SH.draft.doneAt)SH.draft.doneAt=iso(today());write(SH.col,SH.id,SH.draft);SH.isNew=false;SH.dirty=false;dropDraft();}
 function opts(map,val,empty){return (empty!=null?`<option value="">${esc(empty)}</option>`:'')+Object.entries(map).map(([k,l])=>`<option value="${esc(k)}"${k===val?' selected':''}>${esc(l)}</option>`).join('')}
 function segF(f,map,val){return `<div class="seg" role="group">${Object.entries(map).map(([k,l])=>`<button type="button" data-act="seg" data-f="${f}" data-v="${k}" aria-pressed="${k===(val||'')}">${esc(l)}</button>`).join('')}</div>`}
 function checksH(list){return `<div class="checks">${(list||[]).map((c,i)=>`<div class="chk${c.d?' d':''}"><input type="checkbox" data-chk="${i}" ${c.d?'checked':''} aria-label="Hecho"><input type="text" id="chk-${i}" data-chkt="${i}" value="${esc(c.t)}" aria-label="Paso"><button type="button" class="x" data-act="chk-del" data-v="${i}" aria-label="Quitar">×</button></div>`).join('')}<input class="in" id="chk-new" placeholder="+ Añadir paso y pulsa Enter" autocomplete="off"></div>`}
