@@ -1476,6 +1476,7 @@ const SHOTS_BASE=['Plano general del sitio','Plano medio hablando a cámara','Pr
 const ESC_TPL=[['Gancho',3],['Presentación',7],['Desarrollo',20],['Cierre y llamada a la acción',5]];
 const ROT_TPL=['Título de apertura','Nombre y @ de quien habla','Dato o frase clave','Llamada a la acción final'];
 const SCRIPT_TPL='GANCHO (0–3 s)\n\n\nDESARROLLO\n\n\nGIRO O SORPRESA\n\n\nCIERRE Y LLAMADA A LA ACCIÓN\n';
+const wcTxt=t=>{const n=nWords(t);return n?`${n} ${n===1?'palabra':'palabras'} · ≈ ${fmtDur(Math.round(n/2.5))} de lectura en voz alta`:'Sin texto todavía'};
 const nWords=s=>(String(s||'').replace(/\[[^\]]*\]/g,' ').match(/[\p{L}\p{N}'’-]+/gu)||[]).length;
 const vList=()=>arr('videos');
 const vKids=id=>vList().filter(v=>v.parent===id).sort((a,b)=>(a.date||'9999')<(b.date||'9999')?-1:(a.date||'9999')>(b.date||'9999')?1:(a.created||0)-(b.created||0));
@@ -1537,19 +1538,19 @@ function vTabRes(d){const prs=vList().filter(v=>v.role==='principal'&&v.id!==SH.
     <div class="fld"><label for="f-vdur">Duración objetivo</label><input class="in" id="f-vdur" data-f="durT" value="${d.durT>0?esc(fmtDur(d.durT)):''}" placeholder="0:30" inputmode="numeric" autocomplete="off"></div></div>
   <div class="grid2"><div class="fld"><span class="lbl">Quién lo lleva</span>${segF('who',{D:'David',A:'Ariana',DA:'Los dos','':'Sin asignar'},d.who||'')}</div>
     <div class="fld"><label for="f-vsong">Tema</label><select class="sel" id="f-vsong" data-f="song">${opts(Object.fromEntries(arr('songs').sort((a,b)=>String(a.title).localeCompare(b.title)).map(s=>[s.id,s.title])),d.song,'—')}</select></div></div>
-  <div class="fld"><label for="f-videa">La idea: de qué va y por qué funcionaría</label><textarea class="ta" id="f-videa" data-f="idea" placeholder="Una o dos frases.">${esc(d.idea)}</textarea></div>
+  <div class="fld"><label for="f-videa">La idea: de qué va y por qué funcionaría</label><textarea class="ta" id="f-videa" data-f="idea" placeholder="Una o dos frases.">${esc(d.idea)}</textarea><span class="hint wc" id="idea-wc">${wcTxt(d.idea)}</span></div>
   <div class="fld"><label for="f-vhook">Gancho: lo que pasa en los 3 primeros segundos</label><input class="in" id="f-vhook" data-f="hook" value="${esc(d.hook||'')}" placeholder="La frase o la imagen que te hace quedarte" autocomplete="off"></div>
   <div class="fld"><span class="lbl">Inspiración de este vídeo</span>
     ${refs.length?`<div class="checks">${refs.map(r=>`<div class="chk"><button type="button" class="rlk" data-act="ref" data-id="${r.id}">${esc(r.title||r.url||'(sin título)')}</button><button type="button" class="x" data-act="vref-del" data-v="${r.id}" aria-label="Quitar">×</button></div>`).join('')}</div>`:''}
     <select class="sel" id="f-addref" aria-label="Añadir inspiración"><option value="">${free.length?'+ Añadir una referencia guardada…':'No quedan referencias por añadir (créalas en Inspiración)'}</option>${free.map(r=>`<option value="${r.id}">${esc(r.title||r.url||'(sin título)')}</option>`).join('')}</select></div>
   ${SH.isNew?'':`${d.role==='principal'?`<div class="fld"><span class="lbl">Sale de este vídeo (${kids.length})</span>${kids.map(k=>vcard(k)).join('')}<div class="row-btns">${['gancho','explicacion','teaser','detras'].map(r=>`<button type="button" class="btn sm" data-act="new-video" data-role="${r}" data-parent="${SH.id}" data-w>+ ${VROLE_S[r]}</button>`).join('')}</div></div>`:''}
   <div class="fld"><span class="lbl">Tareas de producción</span>${tasks.map(i=>card(i,{noGoal:1})).join('')||'<span class="hint">Ninguna todavía.</span>'}<div class="row-btns"><button type="button" class="btn sm" data-act="vid-plan" data-w>Crear tareas de producción</button><button type="button" class="btn sm" data-act="new-item" data-video="${SH.id}" data-cajon="${(cajByKey('redes')||{}).id||''}" data-song="${d.song||''}">+ Tarea</button></div><span class="hint">Con fecha de publicación, crea guion, grabación, edición, rótulos, revisión y publicación, cada uno en su día. Las fechas pasadas se omiten.</span></div>`}`}
-function scCount(){if(!SH)return;const n=nWords(SH.draft.script),a=$('#sc-n'),b=$('#sc-t');if(a)a.textContent=n;if(b)b.textContent='palabras · ≈ '+fmtDur(Math.round(n/2.5))+' hablado'+(SH.draft.durT>0?' · objetivo '+fmtDur(SH.draft.durT):'')}
+function scCount(){if(!SH)return;const n=nWords(SH.draft.script),a=$('#sc-n'),b=$('#sc-t');if(a)a.textContent=n;if(b)b.textContent='palabras · ≈ '+fmtDur(Math.round(n/2.5))+' de lectura en voz alta'+(SH.draft.durT>0?' · objetivo '+fmtDur(SH.draft.durT):'')}
 function vTabGuion(d){const n=nWords(d.script);
   return `<div class="fld"><label for="f-script">Guion · lo que se dice; entre [corchetes] lo que se ve</label><textarea class="ta script" id="f-script" data-f="script" placeholder="Tal y como lo vas a decir a cámara…">${esc(d.script)}</textarea></div>
-  <div class="run-sum"><b id="sc-n">${n}</b><span id="sc-t">palabras · ≈ ${fmtDur(Math.round(n/2.5))} hablado${d.durT>0?' · objetivo '+fmtDur(d.durT):''}</span></div>
+  <div class="run-sum"><b id="sc-n">${n}</b><span id="sc-t">palabras · ≈ ${fmtDur(Math.round(n/2.5))} de lectura en voz alta${d.durT>0?' · objetivo '+fmtDur(d.durT):''}</span></div>
   ${String(d.script||'').trim()?'':`<div><button type="button" class="btn sm" data-act="script-tpl" data-w>Empezar con una estructura</button></div>`}
-  <span class="hint">El tiempo hablado cuenta unas 150 palabras por minuto y no cuenta lo que va entre corchetes.</span>`}
+  <span class="hint">El tiempo de lectura en voz alta cuenta unas 150 palabras por minuto y no incluye lo que va entre corchetes.</span>`}
 function vTabEsc(d){const l=d.esc||[];let acc=0;
   const rows=l.map((r,i)=>{const t0=fmtDur(acc);acc+=Number(r.dur)||0;return `<div class="run-r"><span class="t0">${t0}</span><span class="n">${i+1}</span><input class="rl" id="ls-esc-${r.id}-t" data-ls="esc" data-li="${r.id}" data-lk="t" value="${esc(r.t||'')}" placeholder="Qué pasa en esta escena" autocomplete="off"><input class="dur-in" id="ls-esc-${r.id}-d" data-ls="esc" data-li="${r.id}" data-lk="dur" data-ld="1" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="0:05" inputmode="numeric" autocomplete="off" aria-label="Duración">${lsCtl('esc',i)}</div>`}).join('');
   const dd=d.durT>0?acc-d.durT:0;
@@ -1576,7 +1577,7 @@ const MCST={no:'Pendiente',prog:'Programado',pub:'Publicado'};
 function vTabPub(d){return `<div class="fld"><span class="lbl">Metricool</span><div class="mc-box"><div class="grid2"><div class="fld"><label for="f-mctime">Hora de publicación</label><input class="in" id="f-mctime" data-f="mcTime" value="${esc(d.mcTime||'')}" placeholder="18:30" inputmode="numeric" autocomplete="off"></div><div class="fld"><span class="lbl">Estado</span>${segF('mc',MCST,d.mc||'no')}</div></div>
     <div class="row-btns"><button type="button" class="btn sm" data-act="mc-copy">Copiar texto y hashtags</button><a class="btn sm" data-open href="https://app.metricool.com/planner" target="_blank" rel="noopener">Abrir Metricool ↗</a></div>
     <span class="hint">Copia el texto, súbelo en el planificador de Metricool con el vídeo y marca aquí «Programado». Fecha: ${d.date?esc(fmtD(d.date,1)):'sin poner (en Resumen)'}.</span></div></div>
-  <div class="fld"><label for="f-cap">Texto de la publicación</label><textarea class="ta" id="f-cap" data-f="cap" placeholder="Lo que escribiréis debajo del vídeo">${esc(d.cap)}</textarea></div>
+  <div class="fld"><label for="f-cap">Texto de la publicación</label><textarea class="ta" id="f-cap" data-f="cap" placeholder="Lo que escribiréis debajo del vídeo">${esc(d.cap)}</textarea><span class="hint wc" id="cap-wc">${wcTxt(d.cap)} · ${String(d.cap||'').length} de 2.200 caracteres</span></div>
   <div class="grid2"><div class="fld"><label for="f-tags">Hashtags</label><input class="in" id="f-tags" data-f="tags" value="${esc(d.tags||'')}" autocomplete="off"></div><div class="fld"><label for="f-cta">Llamada a la acción</label><input class="in" id="f-cta" data-f="cta" value="${esc(d.cta||'')}" autocomplete="off" placeholder="Guarda, comparte, apúntate…"></div></div>
   <div class="fld"><label for="f-aud">Audio o música</label><input class="in" id="f-aud" data-f="audio" value="${esc(d.audio||'')}" autocomplete="off" placeholder="Original, o el audio de…"></div>
   <div class="fld"><span class="lbl">Antes de publicar</span>${checksH(d.checks)}</div>
@@ -2023,7 +2024,7 @@ document.addEventListener('input',e=>{const t=e.target;
     SH.draft[f]=v;if(SH.type==='goal'&&(f==='start'||f==='due')&&SH.draft.start&&SH.draft.due&&SH.draft.start>SH.draft.due){if(f==='start')SH.draft.due=v;else SH.draft.start=v;touch(true);drawSheet();return}
     if(t.classList.contains('ttl-in')){t.style.height='auto';t.style.height=t.scrollHeight+'px'}
     if(SH.type==='release'){drawSheet();return}
-    if(SH.type==='video'){if(f==='role'){if(v==='principal')SH.draft.parent=null;touch(true);drawSheet();return}if(f==='coverOk'){touch(true);drawSheet();return}if(f==='script'||f==='durT')scCount()}
+    if(SH.type==='video'){if(f==='role'){if(v==='principal')SH.draft.parent=null;touch(true);drawSheet();return}if(f==='coverOk'){touch(true);drawSheet();return}if(f==='script'||f==='durT')scCount();if(f==='idea'){const e=$('#idea-wc');if(e)e.textContent=wcTxt(v)}if(f==='cap'){const e=$('#cap-wc');if(e)e.textContent=wcTxt(v)+' · '+String(v).length+' de 2.200 caracteres'}}
     if(SH.type==='venta'&&f==='prod'){const pp=S.prods[v],l=pp&&(lotsOf(pp).find(x=>(Number(x.made)||0)-soldOf(x)>0)||lotsOf(pp)[0]);SH.draft.lot=l?l.id:null;touch();drawSheet();return}
     touch(t.type==='checkbox'||t.tagName==='SELECT'||t.type==='date');
     if(f==='period'&&SH.isNew){SH.draft.due=periodDue(v);drawSheet()}return}
