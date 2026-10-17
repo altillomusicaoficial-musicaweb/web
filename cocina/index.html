@@ -439,7 +439,8 @@ button.stk[aria-pressed="false"]{opacity:.45;transform:none;box-shadow:none}
 .ord-tot small{display:block;text-transform:none;letter-spacing:0;color:var(--ink-3);font-size:.68rem}
 .run-sum{display:flex;gap:6px 16px;align-items:baseline;flex-wrap:wrap;padding:10px 12px;border:2px solid var(--rule);border-radius:12px;background:var(--card)}
 .run-sum b{font:400 1.9rem/1 var(--f-disp);text-transform:uppercase}
-.run-sum span{font:500 .72rem var(--f-mono);color:var(--ink-2)}
+.run-sum span{font:500 .72rem var(--f-mono);color:var(--ink-2);line-height:1.5}
+.run-sum span strong{color:var(--ink)}
 .run{display:flex;flex-direction:column;gap:6px}
 .run-r{display:flex;align-items:center;gap:6px;padding:5px 6px;border:1.5px solid var(--hair);border-radius:10px;background:var(--paper);min-width:0}
 .run-r.mo{border-style:dashed;background:color-mix(in srgb,var(--note) 45%,var(--paper))}
@@ -1569,7 +1570,12 @@ const SHOTS_BASE=['Plano general del sitio','Plano medio hablando a cámara','Pr
 const ESC_TPL=[['Gancho',3],['Presentación',7],['Desarrollo',20],['Cierre y llamada a la acción',5]];
 const ROT_TPL=['Título de apertura','Nombre y @ de quien habla','Dato o frase clave','Llamada a la acción final'];
 const SCRIPT_TPL='GANCHO (0–3 s)\n\n\nDESARROLLO\n\n\nGIRO O SORPRESA\n\n\nCIERRE Y LLAMADA A LA ACCIÓN\n';
-const wcTxt=t=>{const n=nWords(t);return n?`${n} ${n===1?'palabra':'palabras'} · ≈ ${fmtDur(Math.round(n/2.5))} de lectura en voz alta`:'Sin texto todavía'};
+const wcTxt=t=>{const n=nAll(t);return n?`${n} ${n===1?'palabra':'palabras'} · ≈ ${fmtDur(Math.round(nWords(t)/2.5)+nImg(t)*IMG_S)} (voz en alto + ${IMG_S} s por imagen [ ])`:'Sin texto todavía'};
+const IMG_S=3;/* lo normal para que se entienda una imagen: unos 3 segundos */
+const nAll=s=>(String(s||'').match(/[\p{L}\p{N}'’-]+/gu)||[]).length;
+const nImg=s=>(String(s||'').match(/\[[^\]]+\]/g)||[]).filter(x=>/[\p{L}\p{N}]/u.test(x)).length;
+function scStat(t,durT){const a=nAll(t),w=nWords(t),im=nImg(t),v=Math.round(w/2.5),is=im*IMG_S;
+  return `<b id="sc-n">${a}</b><span id="sc-t">${a===1?'palabra':'palabras'} en total (${w} habladas, ${a-w} en corchetes)<br>Voz ≈ ${fmtDur(v)} · ${im} ${im===1?'imagen':'imágenes'} [ ] × ${IMG_S} s ≈ ${fmtDur(is)} · <strong>duración estimada ≈ ${fmtDur(v+is)}</strong>${durT>0?' · objetivo '+fmtDur(durT):''}</span>`}
 const nWords=s=>(String(s||'').replace(/\[[^\]]*\]/g,' ').match(/[\p{L}\p{N}'’-]+/gu)||[]).length;
 const vList=()=>arr('videos');
 const vKids=id=>vList().filter(v=>v.parent===id).sort((a,b)=>(a.date||'9999')<(b.date||'9999')?-1:(a.date||'9999')>(b.date||'9999')?1:(a.created||0)-(b.created||0));
@@ -1670,12 +1676,12 @@ function vTabRes(d){const prs=vList().filter(v=>v.role==='principal'&&v.id!==SH.
     <select class="sel" id="f-addref" aria-label="Añadir inspiración"><option value="">${free.length?'+ Añadir una referencia guardada…':'No quedan referencias por añadir (créalas en Inspiración)'}</option>${free.map(r=>`<option value="${r.id}">${esc(r.title||r.url||'(sin título)')}</option>`).join('')}</select></div>
   ${SH.isNew?'':`${d.role==='principal'?`<div class="fld"><span class="lbl">Sale de este vídeo (${kids.length})</span>${kids.map(k=>vcard(k)).join('')}<div class="row-btns">${['gancho','explicacion','teaser','detras'].map(r=>`<button type="button" class="btn sm" data-act="new-video" data-role="${r}" data-parent="${SH.id}" data-w>+ ${VROLE_S[r]}</button>`).join('')}</div></div>`:''}
   <div class="fld"><span class="lbl">Tareas de producción</span>${tasks.map(i=>card(i,{noGoal:1})).join('')||'<span class="hint">Ninguna todavía.</span>'}<div class="row-btns"><button type="button" class="btn sm" data-act="vid-plan" data-w>Crear tareas de producción</button><button type="button" class="btn sm" data-act="new-item" data-video="${SH.id}" data-cajon="${(cajByKey('redes')||{}).id||''}" data-song="${d.song||''}">+ Tarea</button></div><span class="hint">Con fecha de publicación, crea guion, grabación, edición, rótulos, revisión y publicación, cada uno en su día. Las fechas pasadas se omiten.</span></div>`}`}
-function scCount(){if(!SH)return;const n=nWords(SH.draft.script),a=$('#sc-n'),b=$('#sc-t');if(a)a.textContent=n;if(b)b.textContent='palabras · ≈ '+fmtDur(Math.round(n/2.5))+' de lectura en voz alta'+(SH.draft.durT>0?' · objetivo '+fmtDur(SH.draft.durT):'')}
-function vTabGuion(d){const n=nWords(d.script);
+function scCount(){if(!SH)return;const b=$('.run-sum:has(#sc-n)');if(b)b.innerHTML=scStat(SH.draft.script,SH.draft.durT)}
+function vTabGuion(d){
   return `<div class="fld"><label for="f-script">Guion · lo que se dice; entre [corchetes] lo que se ve</label><textarea class="ta script" id="f-script" data-f="script" placeholder="Tal y como lo vas a decir a cámara…">${esc(d.script)}</textarea></div>
-  <div class="run-sum"><b id="sc-n">${n}</b><span id="sc-t">palabras · ≈ ${fmtDur(Math.round(n/2.5))} de lectura en voz alta${d.durT>0?' · objetivo '+fmtDur(d.durT):''}</span></div>
+  <div class="run-sum">${scStat(d.script,d.durT)}</div>
   ${String(d.script||'').trim()?'':`<div><button type="button" class="btn sm" data-act="script-tpl" data-w>Empezar con una estructura</button></div>`}
-  <span class="hint">El tiempo de lectura en voz alta cuenta unas 150 palabras por minuto y no incluye lo que va entre corchetes.</span>`}
+  <span class="hint">La voz cuenta unas 150 palabras por minuto de lo hablado. Cada imagen o plano entre [corchetes] suma 3 segundos, que es lo normal para que se entienda. Las palabras de los corchetes entran en el total.</span>`}
 function vTabEsc(d){const l=d.esc||[];let acc=0;
   const rows=l.map((r,i)=>{const t0=fmtDur(acc);acc+=Number(r.dur)||0;return `<div class="run-r"><span class="t0">${t0}</span><span class="n">${i+1}</span><input class="rl" id="ls-esc-${r.id}-t" data-ls="esc" data-li="${r.id}" data-lk="t" value="${esc(r.t||'')}" placeholder="Qué pasa en esta escena" autocomplete="off"><input class="dur-in" id="ls-esc-${r.id}-d" data-ls="esc" data-li="${r.id}" data-lk="dur" data-ld="1" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="0:05" inputmode="numeric" autocomplete="off" aria-label="Duración">${lsCtl('esc',i)}</div>`}).join('');
   const dd=d.durT>0?acc-d.durT:0;
