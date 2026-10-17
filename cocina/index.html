@@ -511,6 +511,11 @@ video{height:auto;border-radius:8px}
 .syntax code{font:500 .8rem var(--f-mono);background:var(--card);border:1px solid var(--hair);border-radius:5px;padding:1px 6px;justify-self:start}
 
 /* ---------- redes ---------- */
+.live{display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--ink-3);margin:0 0 8px;grid-column:1/-1}
+.live i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2.4s infinite}
+.live.flash{color:var(--ink);animation:livefl 2.4s ease-out}
+@keyframes livefl{0%{background:var(--note)}100%{background:transparent}}
+
 .vfam{display:grid;grid-template-columns:minmax(250px,330px) minmax(0,1fr);gap:16px;margin-bottom:18px;padding:14px;border:2px solid var(--rule);border-radius:16px;background:color-mix(in srgb,var(--card) 55%,var(--paper));box-shadow:4px 4px 0 var(--rule)}
 .vfam.loose{grid-template-columns:minmax(0,1fr);box-shadow:none;border-style:dashed}
 .vfam-k{min-width:0}
@@ -764,39 +769,125 @@ const whoOk=i=>F.who==='all'||String(i.who||'').includes(F.who);
 const byDate=(a,b)=>(a.date||'9999')<(b.date||'9999')?-1:(a.date||'9999')>(b.date||'9999')?1:(b.hito?1:0)-(a.hito?1:0);
 const stkOk=i=>!F.stk||(i.stickers||[]).includes(F.stk);
 
+/* ---------- fusión de textos (para escribir a la vez, sin pisarse) ---------- */
+const tok=s=>String(s??'').match(/\s+|[\p{L}\p{N}_]+|[^\s\p{L}\p{N}_]/gu)||[];
+function diffHunks(a,b){/* Myers: devuelve los tramos [aS,aE) de a que pasan a ser [bS,bE) de b */
+  let p=0;const n0=a.length,m0=b.length;while(p<n0&&p<m0&&a[p]===b[p])p++;
+  let q=0;while(q<n0-p&&q<m0-p&&a[n0-1-q]===b[m0-1-q])q++;
+  const A=a.slice(p,n0-q),B=b.slice(p,m0-q),n=A.length,m=B.length;
+  if(!n&&!m)return[];
+  if(!n||!m)return[{aS:p,aE:p+n,bS:p,bE:p+m}];
+  const max=n+m,off=max+1,V=new Int32Array(2*max+3);V[off+1]=0;const trace=[];let found=-1;
+  for(let d=0;d<=max&&found<0;d++){
+    if(d>2500){return[{aS:p,aE:p+n,bS:p,bE:p+m}]}
+    trace.push(V.slice(off-d-1,off+d+2));
+    for(let k=-d;k<=d;k+=2){
+      let x=(k===-d||(k!==d&&V[off+k-1]<V[off+k+1]))?V[off+k+1]:V[off+k-1]+1,y=x-k;
+      while(x<n&&y<m&&A[x]===B[y]){x++;y++}
+      V[off+k]=x;if(x>=n&&y>=m){found=d;break}}}
+  /* reconstruir tramos a partir del camino: marcamos qué tokens de A y B están emparejados */
+  const mA=new Uint8Array(n),mB=new Uint8Array(m);
+  {let x2=n,y2=m;for(let d=found;d>0;d--){const v=trace[d],o=d+1,k=x2-y2;const pk=(k===-d||(k!==d&&v[o+k-1]<v[o+k+1]))?k+1:k-1;const px=v[o+pk],py=px-pk;
+      const sx=pk===k+1?px:px+1,sy=sx-k; /* inicio de la diagonal */
+      for(let i=sx,j=sy;i<x2&&j<y2;i++,j++){mA[i]=1;mB[j]=1}
+      x2=px;y2=py}
+   for(let i=0;i<x2&&i<y2;i++){mA[i]=1;mB[i]=1}}
+  const out=[];let i=0,j=0;
+  while(i<n||j<m){
+    if(i<n&&j<m&&mA[i]&&mB[j]){i++;j++;continue}
+    const s1=i,s2=j;while(i<n&&!mA[i])i++;while(j<m&&!mB[j])j++;
+    if(i===s1&&j===s2){i++;j++;continue}
+    out.push({aS:p+s1,aE:p+i,bS:p+s2,bE:p+j});
+  }
+  return out}
+function merge3(base,mine,theirs){
+  base=String(base??'');mine=String(mine??'');theirs=String(theirs??'');
+  if(mine===theirs)return mine;if(mine===base)return theirs;if(theirs===base)return mine;
+  const B=tok(base),M=tok(mine),T=tok(theirs),hm=diffHunks(B,M),ht=diffHunks(B,T);
+  const all=hm.map(h=>({s:'m',h})).concat(ht.map(h=>({s:'t',h}))).sort((a,b)=>a.h.aS-b.h.aS||a.h.aE-b.h.aE);
+  const cl=[];
+  all.forEach(e=>{const c=cl[cl.length-1];
+    if(c&&(e.h.aS<c.e||(e.h.aS===c.e&&e.h.aS===e.h.aE&&c.ins&&c.s!==e.s&&c.hs.every(x=>x.h.aS===x.h.aE&&x.h.aS===e.h.aS)))){c.e=Math.max(c.e,e.h.aE);c.hs.push(e);c.ins=c.hs.every(x=>x.h.aS===x.h.aE)}
+    else cl.push({b:e.h.aS,e:e.h.aE,hs:[e],ins:e.h.aS===e.h.aE})});
+  const reg=(c,side,src)=>{let o='',pos=c.b;c.hs.filter(x=>x.s===side).forEach(x=>{o+=B.slice(pos,x.h.aS).join('')+src.slice(x.h.bS,x.h.bE).join('');pos=x.h.aE});return o+B.slice(pos,c.e).join('')};
+  let out='',pos=0;
+  cl.forEach(c=>{out+=B.slice(pos,c.b).join('');
+    const rb=B.slice(c.b,c.e).join(''),rm=reg(c,'m',M),rt=reg(c,'t',T);
+    if(rm===rt)out+=rm;else if(rm===rb)out+=rt;else if(rt===rb)out+=rm;
+    else if(!rm.trim()&&!rt.trim())out+=[rm,rt].sort()[1];else if(!rm.trim())out+=rt;else if(!rt.trim())out+=rm;
+    else{const x=[rm,rt].sort();out+=c.ins?x[0]+x[1]:x[0]+' '+x[1]}
+    pos=c.e});
+  return out+B.slice(pos).join('')}
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const rowKey=r=>r&&typeof r==='object'?(r.id??r.t??r.url??JSON.stringify(r)):r;
+function mergeRows(base,mine,theirs){
+  const bm=new Map((base||[]).map(r=>[rowKey(r),r])),mm=new Map((mine||[]).map(r=>[rowKey(r),r])),tm=new Map((theirs||[]).map(r=>[rowKey(r),r]));
+  const seq=l=>(l||[]).map(rowKey).join('\u0001');
+  const first=seq(mine)!==seq(base)&&seq(theirs)===seq(base)?mine:(theirs||[]),other=first===mine?(theirs||[]):(mine||[]);
+  const keep=k=>{const b=bm.get(k),m=mm.get(k),t=tm.get(k);
+    if(m===undefined&&t===undefined)return undefined;
+    if(m===undefined)return b!==undefined&&same(b,t)?undefined:t;  /* lo borró uno: se borra solo si el otro no lo tocó */
+    if(t===undefined)return b!==undefined&&same(b,m)?undefined:m;
+    if(b===undefined)return mergeField(undefined,m,t);
+    return mergeField(b,m,t)};
+  const keys=[];(first||[]).forEach(r=>keys.push(rowKey(r)));
+  (other||[]).forEach((r,i,arr)=>{const k=rowKey(r);if(keys.includes(k))return;let at=keys.length;for(let j=i-1;j>=0;j--){const pk=rowKey(arr[j]),ix=keys.indexOf(pk);if(ix>=0){at=ix+1;break}}keys.splice(at,0,k)});
+  /* filas que solo estaban en la base y ya no están en ninguno de los dos: fuera */
+  const res=[];keys.forEach(k=>{const v=keep(k);if(v!==undefined)res.push(v)});return res}
+function mergeField(b,m,t){
+  if(same(m,t))return m;if(same(m,b))return t;if(same(t,b))return m;
+  if(typeof m==='string'&&typeof t==='string')return merge3(typeof b==='string'?b:'',m,t);
+  if(Array.isArray(m)&&Array.isArray(t))return mergeRows(Array.isArray(b)?b:[],m,t);
+  if(m&&t&&typeof m==='object'&&typeof t==='object'&&!Array.isArray(m)&&!Array.isArray(t))return mergeDoc(b&&typeof b==='object'?b:{},m,t);
+  return m}
+function mergeDoc(b,m,t){b=b||{};m=m||{};t=t||{};const o={};
+  new Set([...Object.keys(b),...Object.keys(m),...Object.keys(t)]).forEach(k=>{if(k==='id')return;
+    if(k==='_u'||k==='_by'){return}
+    const v=mergeField(b[k],m[k],t[k]);if(v!==undefined)o[k]=v});
+  o._u=Math.max(m._u||0,t._u||0)||Date.now();if(m._by||t._by)o._by=m._by||t._by;return o}
+
 /* ---------- almacenamiento: primero en el móvil, sincronizado con un repo privado de GitHub ---------- */
 const CFG_KEY='altillo-cocina-cfg',CACHE_KEY='altillo-cocina-cache',PEND_KEY='altillo-cocina-pend',FILE='cocina.json';
 let CFG={repo:'altillomusicaoficial-musicaweb/altillo-cocina-datos',token:'',me:''};
 try{Object.assign(CFG,JSON.parse(localStorage.getItem(CFG_KEY)||'{}'))}catch(e){}
 const saveCfg=()=>{try{localStorage.setItem(CFG_KEY,JSON.stringify(CFG))}catch(e){}};
+const BASE_KEY='altillo-cocina-base',MCOLS=['videos','refs'];
+let BASE={},ETAG=null,CF=null;
 let P={},remoteSha=null,lastSync=null,syncing=false,syncErr=null,pushT=0,READY=true;
 const connected=()=>!!(CFG.token&&CFG.repo);
 const pendN=()=>Object.keys(P).length;
-function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({S,sha:remoteSha,at:lastSync}));localStorage.setItem(PEND_KEY,JSON.stringify(P))}catch(e){toast('Este móvil no deja guardar más datos en local.')}}
-function write(col,id,data){const o=clone(data);delete o.id;o._u=Date.now();S[col]=Object.assign({},S[col],{[id]:o});P[col+'/'+id]=o;saveCache();render();schedulePush();}
+function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({S,sha:remoteSha,at:lastSync}));localStorage.setItem(PEND_KEY,JSON.stringify(P));localStorage.setItem(BASE_KEY,JSON.stringify(BASE))}catch(e){toast('Este móvil no deja guardar más datos en local.')}}
+function write(col,id,data,base){const o=clone(data);delete o.id;o._u=Date.now();
+  if(MCOLS.includes(col)){if(CFG.me)o._by=CFG.me;const k=col+'/'+id;if(!(k in BASE))BASE[k]=base!==undefined?(base?clone(base):null):(S[col][id]?clone(S[col][id]):null)}
+  S[col]=Object.assign({},S[col],{[id]:o});P[col+'/'+id]=o;saveCache();render();schedulePush();}
 function removeDoc(col,id){const s=Object.assign({},S[col]);delete s[id];S[col]=s;P[col+'/'+id]=null;saveCache();render();schedulePush();}
-function schedulePush(){setSync();if(!connected())return;clearTimeout(pushT);pushT=setTimeout(sync,1200);}
+function schedulePush(){setSync();if(!connected())return;clearTimeout(pushT);pushT=setTimeout(sync,SH&&MCOLS.includes(SH.col)?2000:1200);}
 const bytesB64=b=>{let bin='';for(let i=0;i<b.length;i+=0x8000)bin+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(bin)};
 const b64enc=s=>bytesB64(new TextEncoder().encode(s));
 const b64dec=s=>{const bin=atob(String(s).replace(/\s/g,''));const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b)};
-function gh(path,o={}){const h={'Authorization':'Bearer '+CFG.token,'Accept':o.accept||'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};if(o.body)h['Content-Type']='application/json';
+function gh(path,o={}){const h={'Authorization':'Bearer '+CFG.token,'Accept':o.accept||'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};if(o.body)h['Content-Type']='application/json';if(o.inm)h['If-None-Match']=o.inm;
   return fetch('https://api.github.com'+path,{method:o.method||'GET',headers:h,body:o.body,cache:'no-store'});}
 const cpath=p=>'/repos/'+CFG.repo+'/contents/'+p.split('/').map(encodeURIComponent).join('/');
 function httpErr(r){const m={401:'La clave no vale o ha caducado. Revísala en Ajustes.',403:'La clave no tiene permiso de escritura en el repo de datos, o GitHub ha frenado las peticiones un rato.',404:'No encuentro el repo de datos. Revisa el nombre y que la clave tenga acceso a él.'}[r.status]||('GitHub respondió con un error '+r.status+'.');const e=new Error(m);e.status=r.status;return e}
-async function pullRemote(){const r=await gh(cpath(FILE));if(r.status===404)return{sha:null,data:null};if(!r.ok)throw httpErr(r);const j=await r.json();let txt;
+async function pullRemote(cond){const r=await gh(cpath(FILE),{inm:cond&&ETAG||undefined});if(r.status===304)return{nm:true};if(r.status===404){ETAG=null;return{sha:null,data:null}}if(!r.ok)throw httpErr(r);ETAG=r.headers.get('etag');const j=await r.json();let txt;
   if(j.content&&j.encoding==='base64')txt=b64dec(j.content);else{const r2=await gh(cpath(FILE),{accept:'application/vnd.github.raw+json'});if(!r2.ok)throw httpErr(r2);txt=await r2.text()}
   try{return{sha:j.sha,data:JSON.parse(txt)}}catch(e){throw new Error('El archivo de datos está dañado. Restaura la versión anterior desde el historial del repo.')}}
 function compose(base){const o={};/* conserva también colecciones que esta versión no conoce, para no borrar datos de versiones más nuevas */Object.keys(base||{}).forEach(c=>{if(base[c]&&typeof base[c]==='object')o[c]=Object.assign({},base[c])});COLS.forEach(c=>{o[c]=Object.assign({},o[c]||{},base[c]||{})});Object.entries(P).forEach(([k,v])=>{const i=k.indexOf('/'),c=k.slice(0,i),id=k.slice(i+1);if(!o[c])o[c]={};if(v===null)delete o[c][id];else o[c][id]=v});return o;}
-async function sync(){
+async function sync(live){
   if(!connected()||syncing)return;
   if(!navigator.onLine){syncErr='offline';READY=true;setSync();render();return}
-  syncing=true;setSync();
+  syncing=true;if(!live)setSync();let chg=true;
   try{
     let ok=false;
     for(let a=0;a<4&&!ok;a++){
-      const{sha,data}=await pullRemote();
+      const pr=await pullRemote(live&&!pendN());
+      if(pr.nm){chg=false;ok=true;break}
+      const{sha,data}=pr;
       if(!data){COLS.forEach(c=>Object.entries(S[c]).forEach(([id,d])=>{if(!((c+'/'+id) in P))P[c+'/'+id]=d}))}
       const remote=(data&&data.cols)||{},keys=Object.keys(P);
+      /* si la otra persona ha tocado la misma ficha mientras tanto, se fusionan los campos en vez de pisarse */
+      keys.forEach(k=>{const i=k.indexOf('/'),c=k.slice(0,i),id=k.slice(i+1);if(!MCOLS.includes(c)||!P[k])return;const r=remote[c]&&remote[c][id],b=BASE[k];
+        if(r&&b&&!same(r,b))P[k]=mergeDoc(b,P[k],r);if(r)BASE[k]=clone(r)});
       if(!keys.length){remoteSha=sha;S=compose(remote);ok=true;break}
       const sent=Object.assign({},P),base=compose(remote);
       const body={message:'Cocina · '+(WHO[CFG.me]||'cambios')+' · '+keys.length+(keys.length>1?' cambios':' cambio'),
@@ -806,13 +897,13 @@ async function sync(){
       if(r.status===409||r.status===422){await new Promise(z=>setTimeout(z,400+Math.random()*700));continue}
       if(!r.ok)throw httpErr(r);
       const j=await r.json();remoteSha=j.content&&j.content.sha;
-      keys.forEach(k=>{if(P[k]===sent[k])delete P[k]});
-      S=compose(base);ok=true;
+      keys.forEach(k=>{if(P[k]===sent[k]){delete P[k];delete BASE[k]}else if(k in BASE)BASE[k]=sent[k]?clone(sent[k]):null});
+      ETAG=null;S=compose(base);ok=true;
     }
     if(!ok)throw new Error('Otra persona estaba guardando a la vez. Se reintentará enseguida.');
     lastSync=Date.now();syncErr=null;saveCache();
   }catch(e){syncErr=(e&&e.message)||'No se pudo sincronizar.';if(e&&(e.status===401||e.status===404||e.status===403))toast(syncErr)}
-  finally{syncing=false;READY=true;setSync();render();banner();if(pendN()&&syncErr&&!/^La clave|^No encuentro/.test(syncErr)){clearTimeout(pushT);pushT=setTimeout(sync,15000)}}
+  finally{syncing=false;READY=true;setSync();if(chg)render();banner();liveMerge();if(pendN()&&syncErr&&!/^La clave|^No encuentro/.test(syncErr)){clearTimeout(pushT);pushT=setTimeout(sync,15000)}else if(pendN()&&!syncErr){clearTimeout(pushT);pushT=setTimeout(sync,900)}}
 }
 function setSync(){const el=$('#sync');if(!el)return;let cls='ok',txt='al día';
   if(!connected()){cls='off';txt='solo este móvil'}
@@ -832,6 +923,7 @@ function boot(){
   let cached=false;
   try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');if(c&&c.S){S=Object.assign(S,c.S);remoteSha=c.sha||null;lastSync=c.at||null;cached=true}}catch(e){}
   try{P=JSON.parse(localStorage.getItem(PEND_KEY)||'{}')||{}}catch(e){P={}}
+  try{BASE=JSON.parse(localStorage.getItem(BASE_KEY)||'{}')||{}}catch(e){BASE={}}
   if(!cached&&!connected()){DEF_CAJ.forEach(([k,n,c],i)=>S.cajones['caj-'+k]={key:k,name:n,color:c,order:i});DEF_STK.forEach(([k,n,c])=>S.stickers['stk-'+k]={label:n,color:c});}
   if(!cached&&connected())READY=false;
   if(!F.whoSet&&CFG.me){F.who=CFG.me}
@@ -839,6 +931,7 @@ function boot(){
   banner();setSync();render();setTimeout(restoreDraft,1500);
   if(connected())sync();
   setInterval(()=>{if(document.visibilityState==='visible')sync()},40000);
+  setInterval(()=>{if(SH&&MCOLS.includes(SH.col)&&document.visibilityState==='visible'&&connected()&&!syncing&&!pendN())sync(true)},4000);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')sync()});
   window.addEventListener('online',()=>{syncErr=null;sync()});
   window.addEventListener('offline',()=>{syncErr='offline';setSync()});
@@ -1524,11 +1617,43 @@ function vInsp(){const rs=arr('refs').sort((a,b)=>(b.created||0)-(a.created||0))
 function lsCtl(k,i){return `<button type="button" class="x" data-act="ls-up" data-ls="${k}" data-v="${i}" aria-label="Subir">↑</button><button type="button" class="x" data-act="ls-down" data-ls="${k}" data-v="${i}" aria-label="Bajar">↓</button><button type="button" class="x" data-act="ls-del" data-ls="${k}" data-v="${i}" aria-label="Quitar">×</button>`}
 function lsEdit(k,fn){if(!SH)return;const l=(SH.draft[k]||[]).map(r=>Object.assign({},r));fn(l);SH.draft[k]=l;touch(true);drawSheet()}
 function lsAdd(k,rows){lsEdit(k,l=>{(rows||[{}]).forEach(r=>l.push(Object.assign({id:uid('x')},r)))});setTimeout(()=>{const e=$$('#sheet [data-ls="'+k+'"][data-lk="t"]'),x=e[e.length-1];if(x)x.focus()},0)}
+
+/* ---------- escribir a la vez: lo que cambia la otra persona entra solo en la ficha abierta ---------- */
+const LIVE_LAB={title:'el título',idea:'la idea',hook:'el gancho',script:'el guion',esc:'la escaleta',shots:'los planos',rot:'los rótulos',cap:'el texto de publicación',cta:'la llamada a la acción',audio:'el audio',note:'las notas',like:'lo que nos gusta',adapt:'cómo lo adaptamos',coverT:'la portada',coverN:'la portada',stage:'la fase',date:'la fecha',who:'quién lo hace',links:'los enlaces',checks:'los pasos',mc:'Metricool',tags:'las etiquetas'};
+const otherName=()=>({D:'Ariana',A:'David'}[CFG.me]||'La otra persona');
+function livePill(){if(!connected())return '';const l=SH&&SH.live;return `<div class="live" id="live-pill" aria-live="polite"><i></i><span>${l?esc(l):'En directo · si '+esc(otherName())+' escribe a la vez, sus cambios se unen solos a los tuyos'}</span></div>`}
+function mapPos(o,n,pos){let p=0;while(p<o.length&&p<n.length&&o[p]===n[p])p++;let s=0;while(s<o.length-p&&s<n.length-p&&o[o.length-1-s]===n[n.length-1-s])s++;
+  if(pos<=p)return pos;if(pos>=o.length-s)return pos+(n.length-o.length);return Math.min(n.length-s,p+(pos-p))}
+function liveMerge(){
+  if(!SH||!SH.col||!MCOLS.includes(SH.col)||!SH.base)return;
+  const cur=S[SH.col][SH.id];if(!cur||same(cur,SH.base))return;
+  const before=SH.draft,m=mergeDoc(SH.base,before,cur);m.id=SH.id;
+  SH.base=clone(cur);
+  const keys=[...new Set([...Object.keys(before),...Object.keys(m)])].filter(k=>!['id','_u','_by'].includes(k)&&!same(before[k],m[k]));
+  SH.draft=m;if(!keys.length)return;
+  const el=$('#sheet'),ae=document.activeElement;let redraw=false;
+  keys.forEach(k=>{const nv=m[k],dom=el.querySelector(`[data-f="${k}"]`);
+    if(dom&&(typeof nv==='string'||nv==null)&&(dom.tagName==='TEXTAREA'||(dom.tagName==='INPUT'&&dom.type!=='checkbox'&&dom.type!=='date'))){
+      const ov=dom.value,v=nv??'';if(ov===v)return;const foc=document.activeElement===dom,s=dom.selectionStart,e=dom.selectionEnd,st=dom.scrollTop;dom.value=v;dom.scrollTop=st;
+      if(foc)try{dom.setSelectionRange(mapPos(ov,v,s),mapPos(ov,v,e))}catch(x){}
+      if(dom.classList.contains('ttl-in')){dom.style.height='auto';dom.style.height=dom.scrollHeight+'px'}}
+    else if(typeof nv!=='string'||k==='script'||k==='coverT'||k==='coverN')redraw=true});
+  if(redraw){if(ae&&el.contains(ae)&&ae.id){let v=null;const ds=ae.dataset;
+      if(ds.f&&typeof m[ds.f]==='string')v=m[ds.f];else if(ds.ls&&ds.li){const r=(m[ds.ls]||[]).find(x=>x.id===ds.li);if(r&&typeof r[ds.lk]==='string')v=r[ds.lk]}
+      if(v!=null&&ae.selectionStart!=null)CF={id:ae.id,pos:[mapPos(ae.value,v,ae.selectionStart),mapPos(ae.value,v,ae.selectionEnd)]}}
+    drawSheet()}
+  else{scCount();const a=$('#idea-wc');if(a)a.textContent=wcTxt(m.idea);const b=$('#cap-wc');if(b)b.textContent=wcTxt(m.cap)+' · '+String(m.cap||'').length+' de 2.200 caracteres'}
+  const labs=[...new Set(keys.map(k=>LIVE_LAB[k]).filter(Boolean))];
+  const quien=cur._by&&cur._by!==CFG.me?(WHO[cur._by]||'Alguien'):otherName();
+  SH.live='↻ '+quien+' ha cambiado '+(labs.length?labs.slice(0,3).join(', '):'la ficha')+' · ya está unido a lo tuyo';
+  const pl=$('#live-pill span');if(pl)pl.textContent=SH.live;
+  const pe=$('#live-pill');if(pe){pe.classList.remove('flash');void pe.offsetWidth;pe.classList.add('flash')}
+}
 function videoSheet(d){const tab=SH.tab||'res',pr=vProg(d),mark={guion:0,esc:1,planos:2,rot:3,port:4};
   const T=[['res','Resumen'],['guion','Guion'],['esc','Escaleta'],['planos','Planos'],['rot','Rótulos'],['port','Portada'],['pub','Publicar']];
   const tabs=`<div class="vtabs" role="group" aria-label="Partes del vídeo">${T.map(([k,l])=>`<button type="button" data-act="v-tab" data-v="${k}" aria-pressed="${tab===k}">${l}${mark[k]!=null&&pr[mark[k]][1]?' ✓':''}</button>`).join('')}</div>`;
   const f={res:vTabRes,guion:vTabGuion,esc:vTabEsc,planos:vTabPlanos,rot:vTabRot,port:vTabPort,pub:vTabPub}[tab]||vTabRes;
-  return `<textarea class="ta ttl-in" id="f-title" data-f="title" rows="1" placeholder="Título de trabajo del vídeo">${esc(d.title)}</textarea>${tabs}${f(d)}`}
+  return `${livePill()}<textarea class="ta ttl-in" id="f-title" data-f="title" rows="1" placeholder="Título de trabajo del vídeo">${esc(d.title)}</textarea>${tabs}${f(d)}`}
 function vTabRes(d){const prs=vList().filter(v=>v.role==='principal'&&v.id!==SH.id),kids=SH.isNew?[]:vKids(SH.id),par=get('videos',d.parent),refs=(d.refs||[]).map(id=>get('refs',id)).filter(Boolean),free=arr('refs').filter(r=>!(d.refs||[]).includes(r.id));
   const tasks=SH.isNew?[]:arr('items').filter(i=>i.video===SH.id).sort(byDate);
   return `<div class="grid2"><div class="fld"><label for="f-vrole">Tipo de vídeo</label><select class="sel" id="f-vrole" data-f="role">${opts(VROLE,d.role||'principal')}</select></div><div class="fld"><label for="f-vfmt">Formato</label><select class="sel" id="f-vfmt" data-f="fmt">${opts(VFMT,d.fmt||'reel')}</select></div></div>
@@ -1585,7 +1710,7 @@ function vTabPub(d){return `<div class="fld"><span class="lbl">Metricool</span><
   <div class="fld"><span class="lbl">Archivos: vídeo final, portada, audio</span>${filesH(d.files)}</div>
   <div class="fld"><label for="f-note">Notas</label><textarea class="ta" id="f-note" data-f="note">${esc(d.note)}</textarea></div>`}
 function refSheet(d){const vs=SH.isNew?[]:vList().filter(v=>(v.refs||[]).includes(SH.id)),free=vList().filter(v=>!(v.refs||[]).includes(SH.id));
-  return `<textarea class="ta ttl-in" id="f-title" data-f="title" rows="1" placeholder="Qué es (p. ej. Reel con el gancho de…)">${esc(d.title)}</textarea>
+  return `${livePill()}<textarea class="ta ttl-in" id="f-title" data-f="title" rows="1" placeholder="Qué es (p. ej. Reel con el gancho de…)">${esc(d.title)}</textarea>
   <div class="fld"><label for="f-rurl">Enlace</label><div style="display:flex;gap:6px"><input class="in" id="f-rurl" data-f="url" type="url" inputmode="url" value="${esc(d.url||'')}" placeholder="https://www.instagram.com/reel/…">${d.url?`<a class="btn sm" data-open href="${esc(d.url)}" target="_blank" rel="noopener">Abrir ↗</a>`:''}</div></div>
   <div class="grid2"><div class="fld"><label for="f-rplat">Dónde está</label><select class="sel" id="f-rplat" data-f="plat">${opts(RPLAT,d.plat||'instagram')}</select></div><div class="fld"><label for="f-rauth">Quién lo hace</label><input class="in" id="f-rauth" data-f="author" value="${esc(d.author||'')}" placeholder="@cuenta" autocomplete="off"></div></div>
   <div class="fld"><span class="lbl">Qué miramos</span><div class="rtags">${Object.entries(RTAGS).map(([k,l])=>`<button type="button" class="chip" data-act="rtag" data-v="${k}" aria-pressed="${(d.tags||[]).includes(k)}">${esc(l)}</button>`).join('')}</div></div>
@@ -1654,7 +1779,7 @@ async function importJson(input){const f=input.files[0];if(!f)return;let j;try{j
 
 /* ---------- hoja lateral (edición) ---------- */
 let SH=null, shT=0;
-function openSheet(type,col,id,draft,isNew){flushSheet();SH={type,col,id,draft:clone(draft),isNew:!!isNew,dirty:false,confirm:null};$('#scrim').hidden=false;$('#sheet').hidden=false;drawSheet(true);}
+function openSheet(type,col,id,draft,isNew){flushSheet();SH={type,col,id,draft:clone(draft),isNew:!!isNew,dirty:false,confirm:null,base:(col&&MCOLS.includes(col)&&S[col]&&S[col][id])?clone(S[col][id]):null};$('#scrim').hidden=false;$('#sheet').hidden=false;drawSheet(true);}
 function commitTyped(){if(!SH||!SH.draft||!(SH.type==='item'||SH.type==='gig'||SH.type==='prod'||SH.type==='video'))return;const c=$('#chk-new'),v=c&&c.value.trim();if(v){SH.draft.checks=(SH.draft.checks||[]).concat({t:v,d:false});c.value='';SH.dirty=true}const l=$('#lk-url');if(l&&l.value.trim()&&(SH.type==='item'||SH.type==='video'))addLink(true)}
 function rescueTitle(){/* un vídeo o referencia nuevos con contenido pero sin título no se pierden: se guardan con un título provisional */
   if(!SH||!SH.isNew||!(SH.type==='video'||SH.type==='ref'))return;const d=SH.draft;if(String(d.title||'').trim())return;
@@ -1671,7 +1796,7 @@ function restoreDraft(){let d;try{d=JSON.parse(localStorage.getItem(DRAFT_KEY)||
   toast('Había algo escrito sin guardar.','Recuperar',()=>{if(!SH)openSheet(d.type,d.col,d.id,d.draft,true)});dropDraft();}
 function touch(now){if(!SH)return;if(SH.type==='venta'&&SH.isNew)return;SH.dirty=true;saveDraft();clearTimeout(shT);if(now)flushSheet();else shT=setTimeout(flushSheet,500);}
 function flushSheet(){clearTimeout(shT);if(!SH||!SH.dirty||!SH.col)return;const t=SH.draft.title??SH.draft.name??SH.draft.label;if(SH.isNew&&SH.type!=='venta'&&!String(t||'').trim())return;
-  if(SH.draft.status==='done'&&!SH.draft.doneAt)SH.draft.doneAt=iso(today());write(SH.col,SH.id,SH.draft);SH.isNew=false;SH.dirty=false;dropDraft();}
+  if(SH.draft.status==='done'&&!SH.draft.doneAt)SH.draft.doneAt=iso(today());write(SH.col,SH.id,SH.draft,SH.base);if(MCOLS.includes(SH.col))SH.base=clone(S[SH.col][SH.id]);SH.isNew=false;SH.dirty=false;dropDraft();}
 function opts(map,val,empty){return (empty!=null?`<option value="">${esc(empty)}</option>`:'')+Object.entries(map).map(([k,l])=>`<option value="${esc(k)}"${k===val?' selected':''}>${esc(l)}</option>`).join('')}
 function segF(f,map,val){return `<div class="seg" role="group">${Object.entries(map).map(([k,l])=>`<button type="button" data-act="seg" data-f="${f}" data-v="${k}" aria-pressed="${k===(val||'')}">${esc(l)}</button>`).join('')}</div>`}
 function checksH(list){return `<div class="checks">${(list||[]).map((c,i)=>`<div class="chk${c.d?' d':''}"><input type="checkbox" data-chk="${i}" ${c.d?'checked':''} aria-label="Hecho"><input type="text" id="chk-${i}" data-chkt="${i}" value="${esc(c.t)}" aria-label="Paso"><button type="button" class="x" data-act="chk-del" data-v="${i}" aria-label="Quitar">×</button></div>`).join('')}<input class="in" id="chk-new" placeholder="+ Añadir paso y pulsa Enter" autocomplete="off"></div>`}
@@ -1690,7 +1815,7 @@ DUP.ref={col:'refs',p:'rf',f:'title',fix:d=>{d.files=[];d.created=Date.now()}};
 function sheetFoot(delLabel){const c=SH.confirm==='del';return `<div class="sh-f">${SH.isNew?'<span class="hint">Se guarda en cuanto escribas el título.</span>':`<span style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm ghost danger${c?' go':''}" data-act="sh-del" data-w>${c?'¿Seguro? Eliminar':delLabel||'Eliminar'}</button>${DUP[SH.type]?'<button type="button" class="btn sm" data-act="sh-dup" data-w>Duplicar</button>':''}</span>`}<button type="button" class="btn sm red" data-act="sheet-close">Listo</button></div>`}
 function drawSheet(first){
   if(!SH)return;const el=$('#sheet'),d=SH.draft;
-  const ae=document.activeElement,fid=ae&&el.contains(ae)&&ae.id?ae.id:null,fs=fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null,top=$('.sh-b',el)?.scrollTop||0;
+  const ae=document.activeElement,fid=ae&&el.contains(ae)&&ae.id?ae.id:null,fs=CF&&CF.id===fid?CF.pos:(fid&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null),top=$('.sh-b',el)?.scrollTop||0;CF=null;
   let title='',body='',foot=sheetFoot();
   if(SH.type==='item'){title=d.kind==='nota'?'Nota':'Tarea';
     body=`<textarea class="ta ttl-in" id="f-title" data-f="title" rows="1" placeholder="¿Qué hay que hacer?">${esc(d.title)}</textarea>
