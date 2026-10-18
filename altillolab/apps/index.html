@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caja de herramientas · AltilloLAB</title>
+<meta name="description" content="Las apps del Laboratorio Altillo: Coetus, Revisión de canciones, Armonía con conejo, Biblioteca y Música con la cámara.">
+<link rel="stylesheet" href="marca.css">
+<style>
+/* Layout: cabecera grande y una rejilla de fichas tipo carta, una por herramienta, con su concepto y su estado. */
+.herramientas{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:clamp(16px,2.5vw,28px);margin-top:10px}
+.herr{position:relative;display:grid;gap:10px;align-content:start;background:var(--papel);border:1.5px solid var(--tinta);box-shadow:6px 6px 0 var(--tinta);padding:22px 20px 20px;text-decoration:none;color:inherit;transition:transform .18s}
+a.herr:hover{transform:translate(-3px,-3px) rotate(-.6deg);box-shadow:9px 9px 0 var(--tinta)}
+.herr .num{font:400 3.6rem/1 var(--display);color:var(--tomate)}
+.herr h2{font-size:clamp(2rem,4vw,2.6rem)}
+.herr p{font-size:.9rem}
+.herr .conceptos{display:flex;gap:6px;flex-wrap:wrap}
+.herr .conceptos span{font:700 .64rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border:1.5px solid var(--tinta)}
+.herr .estado{position:absolute;top:16px;right:14px}
+.herr.obras{background:repeating-linear-gradient(-45deg,var(--papel) 0 14px,var(--crema-2) 14px 28px)}
+.herr .abrir{font:700 .78rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--tomate)}
+.ar{background:#E8694F33}.de{background:#F5B70044}.co{background:#d4261a22}
+</style>
+</head>
+<body>
+<header class="lab-bar">
+  <div class="wrap">
+    <a class="lab-logo" href="../index.html">Altillo<span class="lab">LAB</span><span class="script">· herramientas</span></a>
+    <a class="lab-volver" href="../index.html#recursos">← Volver al altillo</a>
+  </div>
+</header>
+<main class="wrap">
+  <section class="lab-hero">
+    <span class="cinta">Caja de herramientas</span>
+    <h1 class="display">Herramientas<span class="script">para seguir creando cuando acabe el curso</span></h1>
+    <p>Apps hechas en el altillo para sacar canciones de oído, entender la armonía, revisar tus grabaciones y jugar con el cuerpo. Todo funciona en el navegador, también en el móvil, y lo que guardes se queda en tu dispositivo.</p>
+  </section>
+
+  <div class="herramientas">
+    <a class="herr" href="coetus/index.html">
+      <span class="num">01</span>
+      <h2 class="display">Coetus</h2>
+      <p>Escucha un tema, marca el minuto exacto y apunta el ritmo, la melodía o la armonía con notación de verdad, encima de la grabación.</p>
+      <div class="conceptos"><span class="ar">Arraigo</span><span class="de">Deseo</span><span class="co">Contradicción</span></div>
+      <span class="abrir">Abrir →</span>
+    </a>
+    <a class="herr" href="revision/index.html">
+      <span class="num">02</span>
+      <h2 class="display">Revisión</h2>
+      <p>Sube cada versión de tu canción y deja apuntes en el minuto que quieras cambiar. Márcalos como hechos y lleva los pendientes a la siguiente versión.</p>
+      <div class="conceptos"><span>Desde la primera maqueta</span><span>Ensayo general</span></div>
+      <span class="abrir">Abrir →</span>
+    </a>
+    <a class="herr" href="armonia/index.html">
+      <span class="num">03</span>
+      <h2 class="display">Armonía</h2>
+      <p>Círculo de quintas, escalas y los acordes que salen de cada una, con un conejo que salta por las notas. Básico, medio y avanzado.</p>
+      <div class="conceptos"><span class="ar">Básico · Arraigo</span><span class="de">Medio · Deseo</span><span class="co">Avanzado · Contradicción</span></div>
+      <span class="abrir">Abrir →</span>
+    </a>
+    <div class="herr obras" aria-disabled="true">
+      <span class="cinta estado">Próximamente</span>
+      <span class="num">04</span>
+      <h2 class="display">Biblioteca</h2>
+      <p>Referencias literarias y un botón que saca un fragmento al azar para tirar del hilo. Escritura no creativa, al estilo Goldsmith.</p>
+      <div class="conceptos"><span class="co">Contradicción</span></div>
+    </div>
+    <a class="herr obras" href="camara/index.html">
+      <span class="cinta estado">En obras</span>
+      <span class="num">05</span>
+      <h2 class="display">Cámara</h2>
+      <p>Música con el móvil y la cámara: te mueves y cada zona de la imagen suena. La está montando David; aquí está el esqueleto.</p>
+      <div class="conceptos"><span class="de">Deseo</span></div>
+      <span class="abrir">Ver el esqueleto →</span>
+    </a>
+  </div>
+
+  <footer class="lab-pie"><p>AltilloLAB · Ariana y David. Las apps no piden cuenta ni guardan nada fuera de tu navegador.</p></footer>
+</main>
+</body>
+</html>

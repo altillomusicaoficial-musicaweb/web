@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Revisión de canciones · AltilloLAB</title>
+<meta name="description" content="Sube las versiones de tus canciones y apunta los cambios en el minuto exacto.">
+<link rel="stylesheet" href="../marca.css">
+<style>
+/* Layout: chips de canciones arriba; debajo la canción elegida con pestañas de versión, reproductor con forma de onda y apuntes numerados. */
+.canciones{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 24px}
+.chip{min-height:40px;padding:.45em 1em;border:1.5px solid var(--tinta);background:var(--papel);cursor:pointer;font:700 .78rem/1 var(--mono);letter-spacing:.05em;text-transform:uppercase}
+.chip[aria-pressed="true"]{background:var(--tinta);color:var(--crema)}
+.chip.nueva{border-style:dashed;background:transparent}
+.cab-cancion{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cab-cancion h2{font-size:clamp(2.4rem,7vw,4.4rem);margin-top:.25em}
+.acciones{display:flex;gap:6px;flex-wrap:wrap}
+.versiones{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 14px}
+.ver{min-height:38px;padding:.4em .9em;border:1.5px solid var(--tinta);background:#fffaf0;cursor:pointer;font:700 .78rem/1 var(--mono)}
+.ver[aria-pressed="true"]{background:var(--tomate);border-color:var(--tomate);color:#fff4e4}
+.ver .actual{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--mostaza);margin-left:6px;vertical-align:middle}
+.ver.nueva{border-style:dashed;background:transparent}
+.fichas{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.ficha{border:1.5px solid var(--tinta);padding:8px 12px;background:#fffaf0;min-width:120px}
+.ficha b{display:block;font-size:1rem;margin-top:2px}
+.reproductor{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.play{width:56px;height:56px;border-radius:50%;border:0;background:var(--tomate);color:#fff4e4;font-size:1.3rem;cursor:pointer;flex:none;display:grid;place-items:center;transition:transform .15s}
+.play:hover{transform:scale(1.06) rotate(-4deg)}
+.tiempo{font:700 1.15rem var(--mono)}
+.tiempo span{opacity:.55;font-weight:400}
+.vol{margin-left:auto;display:flex;align-items:center;gap:6px}
+.vol input{accent-color:var(--tomate);width:110px}
+.onda{position:relative;margin:30px 0 14px;height:96px;background:var(--crema-2);border:1.5px solid var(--tinta);cursor:pointer;touch-action:none}
+.onda canvas{display:block;width:100%;height:100%}
+.onda .cursor{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--tomate);pointer-events:none;left:0}
+.pin{position:absolute;top:-26px;transform:translateX(-50%);width:24px;height:24px;border-radius:50%;border:1.5px solid var(--tinta);color:#fff;font:700 .68rem/1 var(--mono);display:grid;place-items:center;cursor:pointer;padding:0}
+.pin.hecho{opacity:.35}
+.pin:hover{transform:translateX(-50%) scale(1.15)}
+.subir{display:grid;place-items:center;text-align:center;gap:10px;border:2px dashed var(--tinta);padding:34px 16px;background:#fffaf0;cursor:pointer}
+.subir.encima{background:var(--mostaza)}
+.subir .script{font-size:1.6rem}
+.form-apunte{display:grid;grid-template-columns:auto minmax(130px,180px) 1fr auto;gap:8px;align-items:start;border:1.5px dashed var(--tomate);padding:12px;margin:10px 0;background:#fffaf0}
+.form-apunte .t{font:700 1.1rem var(--mono);color:var(--tomate);padding-top:8px}
+@media (max-width:700px){.form-apunte{grid-template-columns:auto 1fr}.form-apunte textarea{grid-column:1/-1}.form-apunte .btns{grid-column:1/-1}}
+.apuntes{list-style:none;padding:0;display:grid;gap:8px;margin-top:8px}
+.apunte{display:grid;grid-template-columns:auto auto auto 1fr auto;gap:10px;align-items:center;border:1.5px solid var(--tinta);background:#fffaf0;padding:8px 10px}
+.apunte.hecho .texto{text-decoration:line-through;opacity:.55}
+.apunte .n{width:28px;height:28px;border-radius:50%;color:#fff;display:grid;place-items:center;font:700 .75rem var(--mono)}
+.apunte .min{font:700 1rem var(--mono);background:none;border:0;cursor:pointer;padding:4px;text-decoration:underline;text-decoration-color:var(--linea)}
+.apunte .cat{justify-self:start;font:700 .68rem/1 var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:5px 7px;border:1.5px solid currentColor}
+.apunte .texto{word-break:break-word}
+.apunte .derecha{display:flex;gap:6px;align-items:center}
+.apunte input[type=checkbox]{width:22px;height:22px;accent-color:var(--tomate)}
+@media (max-width:700px){.apunte{grid-template-columns:auto auto 1fr}.apunte .texto{grid-column:1/-1}.apunte .derecha{grid-column:1/-1;justify-content:flex-end}}
+.barra-apuntes{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px}
+.barra-apuntes h3{font-size:1.9rem}
+.filtros{display:flex;gap:6px;flex-wrap:wrap}
+.copia{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px;padding-top:18px;border-top:1.5px dashed var(--linea);align-items:center}
+.aviso{font-size:.82rem;max-width:70ch}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(120px);visibility:hidden;background:var(--tinta);color:var(--crema);padding:12px 18px;font:700 .8rem var(--mono);transition:transform .3s;z-index:100;max-width:calc(100vw - 32px)}
+.toast.ver-toast{transform:translateX(-50%) translateY(0);visibility:visible}
+.portada{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end}
+.portada svg{width:150px;height:auto}
+@media (max-width:640px){.portada{grid-template-columns:1fr}.portada svg{display:none}}
+.modal{position:fixed;inset:0;background:rgba(23,20,15,.55);display:none;place-items:center;z-index:200;padding:16px}
+.modal.abierto{display:grid}
+.modal .carta{width:min(440px,100%);display:grid;gap:12px}
+.modal p{font-family:var(--serif);font-style:italic;font-size:1.4rem;line-height:1.15}
+.modal .btns{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header class="lab-bar">
+  <div class="wrap">
+    <a class="lab-logo" href="../../index.html">Altillo<span class="lab">LAB</span><span class="script">· revisión</span></a>
+    <a class="lab-volver" id="volver" href="../index.html">← Herramientas</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="lab-hero portada">
+    <div>
+      <span class="cinta">Herramienta 02</span>
+      <h1 class="display">Revisión<span class="script">de tus canciones, versión a versión</span></h1>
+      <p>Sube cada grabación como una versión nueva. Para en el minuto que quieras cambiar y deja un apunte. Cuando lo arregles, márcalo como hecho.</p>
+    </div>
+    <svg viewBox="0 0 120 120" aria-hidden="true"><rect x="8" y="22" width="104" height="70" rx="6" fill="#17140f"/><rect x="18" y="32" width="84" height="30" rx="3" fill="#ede5d0"/><circle cx="40" cy="47" r="10" fill="#d4261a"/><circle cx="80" cy="47" r="10" fill="#d4261a"/><path d="M40 47h40" stroke="#17140f" stroke-width="3"/><rect x="30" y="70" width="60" height="14" fill="#F5B700"/><text x="60" y="81" text-anchor="middle" font-family="Courier Prime,monospace" font-weight="700" font-size="9" fill="#17140f">v1 · v2 · v3</text></svg>
+  </section>
+
+  <nav class="canciones" id="canciones" aria-label="Tus canciones"></nav>
+  <section id="vista"></section>
+
+  <footer class="lab-pie">
+    <p class="aviso"><b>Dónde se guarda:</b> los audios y los apuntes se quedan en este navegador, en este dispositivo. No se suben a ningún sitio. Para pasarlos a otro dispositivo o no perderlos, usa «Exportar apuntes» (guarda los apuntes; los audios los vuelves a subir).</p>
+    <div class="copia">
+      <button class="btn contorno sm" id="exportar">Exportar apuntes</button>
+      <label class="btn contorno sm" for="importar">Importar apuntes</label>
+      <input type="file" id="importar" accept="application/json,.json" hidden>
+    </div>
+  </footer>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<audio id="audio" preload="metadata"></audio>
+<div class="modal" id="modal" role="dialog" aria-modal="true"><form class="carta" id="modalForm"><p id="modalTxt"></p><input class="txt" id="modalIn"><div class="btns"><button type="button" class="btn contorno sm" id="modalNo">Cancelar</button><button class="btn sm" id="modalSi">Aceptar</button></div></form></div>
+
+<script>
+/* ---------- categorías de apunte (colores de la marca) ---------- */
+const CATS = [
+  {id:'voz',     label:'Voz',              color:'#d4261a'},
+  {id:'letra',   label:'Letra',            color:'#E8694F'},
+  {id:'arreglo', label:'Arreglo',          color:'#1B2845'},
+  {id:'ritmo',   label:'Ritmo / Batería',  color:'#b38600'},
+  {id:'mezcla',  label:'Mezcla / Máster',  color:'#17140f'},
+  {id:'general', label:'General',          color:'#7a6e58'}
+];
+const cat = id => CATS.find(c => c.id === id) || CATS[CATS.length-1];
+
+/* ---------- almacenamiento: IndexedDB (meta + audios) ---------- */
+let db = null;
+function abrirDB(){
+  return new Promise(res => {
+    try{
+      const r = indexedDB.open('altillolab-revision', 1);
+      r.onupgradeneeded = () => { r.result.createObjectStore('meta'); r.result.createObjectStore('audios'); };
+      r.onsuccess = () => { db = r.result; res(); };
+      r.onerror = () => res();
+    }catch(e){ res(); }
+  });
+}
+function idb(store, modo, fn){
+  return new Promise(res => {
+    if(!db) return res(undefined);
+    try{
+      const tx = db.transaction(store, modo); const s = tx.objectStore(store);
+      const req = fn(s); tx.oncomplete = () => res(req && req.result); tx.onerror = () => res(undefined);
+    }catch(e){ res(undefined); }
+  });
+}
+const guardarMeta = () => idb('meta','readwrite', s => s.put(estado, 'estado'));
+const leerMeta = () => idb('meta','readonly', s => s.get('estado'));
+const guardarAudio = (id, blob) => idb('audios','readwrite', s => s.put(blob, id));
+const leerAudio = id => idb('audios','readonly', s => s.get(id));
+const borrarAudio = id => idb('audios','readwrite', s => s.delete(id));
+
+/* ---------- estado ---------- */
+let estado = { canciones:[], sel:null };
+let ui = { verSel:{}, nuevoApunte:null, editando:null, filtro:'todos', renombrar:false };
+const uid = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4);
+const hoy = () => new Date().toISOString().slice(0,10);
+const fmt = s => { s = Math.max(0, Math.floor(s||0)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = s => document.querySelector(s);
+const audio = $('#audio');
+let urlActual = null, audioCargado = null;
+
+/* diálogos propios (prompt/confirm no siempre funcionan dentro de iframes) */
+function dialogo(texto, valor){
+  return new Promise(res => {
+    const m = $('#modal'), inp = $('#modalIn');
+    $('#modalTxt').textContent = texto; inp.hidden = valor === undefined; inp.value = valor ?? '';
+    m.classList.add('abierto'); (valor === undefined ? $('#modalSi') : inp).focus();
+    const cerrar = r => { m.classList.remove('abierto'); $('#modalForm').onsubmit = null; $('#modalNo').onclick = null; res(r); };
+    $('#modalForm').onsubmit = e => { e.preventDefault(); cerrar(valor === undefined ? true : inp.value); };
+    $('#modalNo').onclick = () => cerrar(valor === undefined ? false : null);
+  });
+}
+const pedir = (t, v='') => dialogo(t, v);
+const confirmar = t => dialogo(t);
+
+function cancionSel(){ return estado.canciones.find(c => c.id === estado.sel) || null; }
+function versionSel(c){
+  if(!c) return null;
+  const id = ui.verSel[c.id] || c.actualId;
+  return c.versiones.find(v => v.id === id) || c.versiones[c.versiones.length-1] || null;
+}
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('ver-toast'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('ver-toast'), 2400); }
+
+/* ---------- forma de onda real (picos calculados una vez y guardados) ---------- */
+async function calcularPicos(blob, n = 400){
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AC();
+    const buf = await ctx.decodeAudioData(await blob.arrayBuffer());
+    const data = buf.getChannelData(0), paso = Math.floor(data.length / n), picos = [];
+    for(let i = 0; i < n; i++){
+      let max = 0;
+      for(let j = i*paso; j < (i+1)*paso; j += 16){ const v = Math.abs(data[j]); if(v > max) max = v; }
+      picos.push(+max.toFixed(3));
+    }
+    const top = Math.max(...picos) || 1;
+    ctx.close && ctx.close();
+    return { picos: picos.map(p => +(p/top).toFixed(3)), duracion: buf.duration };
+  }catch(e){ return { picos:null, duracion:0 }; }
+}
+function pintarOnda(canvas, picos, progreso){
+  const dpr = window.devicePixelRatio || 1, w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  const g = canvas.getContext('2d'); g.scale(dpr,dpr); g.clearRect(0,0,w,h);
+  const lista = picos || Array.from({length:200}, (_,i) => .25 + .2*Math.abs(Math.sin(i*1.7)));
+  const ancho = w / lista.length;
+  lista.forEach((p,i) => {
+    const alto = Math.max(2, p*(h-14));
+    g.fillStyle = (i/lista.length) <= progreso ? '#d4261a' : '#17140f';
+    g.globalAlpha = (i/lista.length) <= progreso ? 1 : .55;
+    g.fillRect(i*ancho + ancho*.18, (h-alto)/2, Math.max(1, ancho*.64), alto);
+  });
+}
+
+/* ---------- render ---------- */
+function render(){
+  const nav = $('#canciones');
+  nav.innerHTML = estado.canciones.map(c => `<button class="chip" aria-pressed="${c.id===estado.sel}" data-cancion="${c.id}">${esc(c.titulo)}</button>`).join('')
+    + `<button class="chip nueva" id="nuevaCancion">+ Nueva canción</button>`;
+  const c = cancionSel(), vista = $('#vista');
+  if(!c){
+    vista.innerHTML = `<div class="carta"><p class="vacio">Aún no hay canciones. Crea la primera y sube su primera versión.</p><button class="btn" data-accion="nueva">+ Nueva canción</button></div>`;
+    return;
+  }
+  const v = versionSel(c);
+  const apuntes = v ? [...v.notas].sort((a,b) => a.t - b.t) : [];
+  const visibles = apuntes.filter(a => ui.filtro === 'todos' || (ui.filtro === 'pendientes' ? !a.hecho : a.cat === ui.filtro));
+  const pendientes = apuntes.filter(a => !a.hecho).length;
+
+  vista.innerHTML = `
+  <article class="carta">
+    <div class="cab-cancion">
+      <div>
+        <p class="label rojo">Canción</p>
+        ${ui.renombrar
+          ? `<div style="display:flex;gap:6px;margin-top:6px"><input class="txt" id="nuevoTitulo" value="${esc(c.titulo)}" aria-label="Título"><button class="btn sm" data-accion="guardar-titulo">Guardar</button></div>`
+          : `<h2 class="display">${esc(c.titulo)}</h2>`}
+      </div>
+      <div class="acciones">
+        <button class="icono" title="Renombrar canción" aria-label="Renombrar canción" data-accion="renombrar">✎</button>
+        <button class="icono" title="Borrar canción" aria-label="Borrar canción" data-accion="borrar-cancion">🗑</button>
+      </div>
+    </div>
+
+    <div class="versiones" role="tablist" aria-label="Versiones">
+      ${c.versiones.map(x => `<button class="ver" role="tab" aria-pressed="${v && x.id===v.id}" data-version="${x.id}">${esc(x.nombre)}${x.id===c.actualId?'<span class="actual" title="Versión actual"></span>':''}</button>`).join('')}
+      <label class="ver nueva" for="subirVersion">+ Nueva versión</label>
+    </div>
+    <input type="file" id="subirVersion" accept="audio/*" hidden>
+
+    ${!v ? `
+      <label class="subir" for="subirVersion" id="zonaSubir">
+        <span class="damero"></span>
+        <span class="script">Arrastra aquí tu grabación</span>
+        <span class="label">o toca para elegir un audio (mp3, wav, m4a…)</span>
+      </label>` : `
+    <div class="fichas">
+      <div class="ficha"><span class="label">Versión</span><b>${esc(v.nombre)}${v.id===c.actualId?' · actual':''}</b></div>
+      <div class="ficha"><span class="label">Fecha</span><b>${esc(v.fecha)}</b></div>
+      <div class="ficha"><span class="label">Pendientes</span><b>${pendientes} de ${apuntes.length}</b></div>
+    </div>
+    <div class="acciones" style="margin-bottom:18px">
+      ${v.id!==c.actualId ? `<button class="btn contorno sm" data-accion="hacer-actual">★ Marcar como actual</button>` : ''}
+      <button class="btn contorno sm" data-accion="renombrar-version">✎ Renombrar versión</button>
+      <button class="btn contorno sm" data-accion="traer-pendientes" ${c.versiones.indexOf(v)===0?'disabled':''}>↧ Traer pendientes de la anterior</button>
+      <button class="btn contorno sm" data-accion="borrar-version">🗑 Borrar versión</button>
+    </div>
+
+    <div class="reproductor">
+      <button class="play" id="play" aria-label="Reproducir">▶</button>
+      <p class="tiempo"><b id="tAhora">0:00</b> <span>/ <span id="tTotal">${fmt(v.duracion)}</span></span></p>
+      <label class="vol label">Vol <input type="range" id="vol" min="0" max="1" step=".01" value="${audio.volume}"></label>
+    </div>
+    <div class="onda" id="onda" aria-label="Forma de onda: toca para saltar a ese momento">
+      <canvas id="canvas"></canvas>
+      <div class="cursor" id="cursor"></div>
+      ${apuntes.map((a,i) => `<button class="pin ${a.hecho?'hecho':''}" style="left:${v.duracion? (a.t/v.duracion*100):0}%;background:${cat(a.cat).color}" data-saltar="${a.t}" title="${esc(fmt(a.t)+' · '+cat(a.cat).label+': '+a.texto)}">${i+1}</button>`).join('')}
+    </div>
+    <p id="faltaAudio" class="aviso" hidden>Este audio no está en este dispositivo. <label class="btn sm" for="resubir">Volver a subirlo</label><input type="file" id="resubir" accept="audio/*" hidden></p>
+
+    ${ui.nuevoApunte ? formApunte(ui.nuevoApunte, 'nuevo') : `<button class="btn" data-accion="anadir">+ Apunte en el minuto actual</button>`}
+
+    <div class="barra-apuntes">
+      <h3 class="display">Apuntes</h3>
+      <div class="filtros">
+        ${[['todos','Todos'],['pendientes','Pendientes'],...CATS.map(c=>[c.id,c.label])].map(([id,l]) => `<button class="chip" style="min-height:32px;font-size:.68rem" aria-pressed="${ui.filtro===id}" data-filtro="${id}">${l}</button>`).join('')}
+      </div>
+    </div>
+    ${visibles.length ? `<ol class="apuntes">${visibles.map(a => {
+        const i = apuntes.indexOf(a), k = cat(a.cat);
+        if(ui.editando === a.id) return `<li>${formApunte(a,'editar')}</li>`;
+        return `<li class="apunte ${a.hecho?'hecho':''}">
+          <span class="n" style="background:${k.color}">${i+1}</span>
+          <button class="min" data-saltar="${a.t}" title="Ir a ${fmt(a.t)}">${fmt(a.t)}</button>
+          <span class="cat" style="color:${k.color}">${k.label}</span>
+          <span class="texto">${esc(a.texto)}</span>
+          <span class="derecha">
+            <input type="checkbox" ${a.hecho?'checked':''} data-hecho="${a.id}" title="Hecho" aria-label="Marcar como hecho">
+            <button class="icono" data-editar="${a.id}" title="Editar" aria-label="Editar">✎</button>
+            <button class="icono" data-borrar="${a.id}" title="Borrar" aria-label="Borrar">🗑</button>
+          </span></li>`;
+      }).join('')}</ol>`
+      : `<p class="vacio">${apuntes.length ? 'Nada con este filtro.' : 'Aún no hay apuntes. Dale al play, para donde quieras cambiar algo y toca «+ Apunte».'}</p>`}
+
+    <div class="copia">
+      <button class="btn contorno sm" data-accion="copiar">⧉ Copiar apuntes pendientes</button>
+      <span class="aviso">Para mandarlos por WhatsApp o pegarlos en tu cuaderno.</span>
+    </div>`}
+  </article>`;
+
+  if(v) prepararReproductor(c, v);
+  else prepararSubida();
+}
+
+function formApunte(a, modo){
+  return `<div class="form-apunte">
+    <span class="t">${fmt(a.t)}</span>
+    <select class="txt" id="fCat" aria-label="Tipo de apunte">${CATS.map(k => `<option value="${k.id}" ${k.id===a.cat?'selected':''}>${k.label}</option>`).join('')}</select>
+    <textarea class="txt" id="fTexto" placeholder="Ej.: subir la voz en «estamos», la caja entra tarde…" aria-label="Apunte">${esc(a.texto||'')}</textarea>
+    <span class="btns" style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn sm" data-accion="${modo==='nuevo'?'guardar-apunte':'guardar-edicion'}">Guardar</button>
+      <button class="btn contorno sm" data-accion="cancelar">Cancelar</button>
+    </span>
+  </div>`;
+}
+
+/* ---------- reproductor ---------- */
+async function prepararReproductor(c, v){
+  const canvas = $('#canvas'), onda = $('#onda');
+  const progreso = () => v.duracion ? audio.currentTime / v.duracion : 0;
+  const repintar = () => { pintarOnda(canvas, v.picos, audioCargado === v.audioId ? progreso() : 0); $('#cursor').style.left = (audioCargado === v.audioId ? progreso()*100 : 0) + '%'; };
+  repintar();
+  if(audioCargado !== v.audioId){
+    audio.pause();
+    const blob = await leerAudio(v.audioId);
+    if(urlActual){ URL.revokeObjectURL(urlActual); urlActual = null; }
+    if(blob){ urlActual = URL.createObjectURL(blob); audio.src = urlActual; audioCargado = v.audioId; }
+    else { audio.removeAttribute('src'); audioCargado = null; const f = $('#faltaAudio'); if(f) f.hidden = false; }
+  }
+  $('#play').textContent = audio.paused ? '▶' : '❚❚';
+  $('#tAhora').textContent = fmt(audioCargado === v.audioId ? audio.currentTime : 0);
+  onda.onpointerdown = e => {
+    if(e.target.closest('.pin') || !v.duracion || audioCargado !== v.audioId) return;
+    const r = onda.getBoundingClientRect();
+    audio.currentTime = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * v.duracion;
+  };
+  window.onresize = repintar;
+  pintarOnda.repintar = repintar;
+}
+audio.addEventListener('timeupdate', () => {
+  const t = $('#tAhora'); if(t) t.textContent = fmt(audio.currentTime);
+  pintarOnda.repintar && pintarOnda.repintar();
+  if(ui.nuevoApunte && audio.paused === false){ /* el minuto del apunte nuevo se fija al abrirlo */ }
+});
+audio.addEventListener('play', () => { const b = $('#play'); if(b) b.textContent = '❚❚'; });
+audio.addEventListener('pause', () => { const b = $('#play'); if(b) b.textContent = '▶'; });
+audio.addEventListener('ended', () => { const b = $('#play'); if(b) b.textContent = '▶'; });
+
+/* ---------- subir audio ---------- */
+function prepararSubida(){
+  const z = $('#zonaSubir'); if(!z) return;
+  z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('encima'); });
+  z.addEventListener('dragleave', () => z.classList.remove('encima'));
+  z.addEventListener('drop', e => { e.preventDefault(); z.classList.remove('encima'); const f = e.dataTransfer.files[0]; if(f) nuevaVersion(f); });
+}
+async function nuevaVersion(file){
+  const c = cancionSel(); if(!c || !file) return;
+  if(!/^audio\//.test(file.type) && !/\.(mp3|wav|m4a|aac|ogg|flac|aif|aiff)$/i.test(file.name)){ toast('Ese archivo no parece un audio'); return; }
+  toast('Leyendo el audio…');
+  const audioId = uid();
+  await guardarAudio(audioId, file);
+  const { picos, duracion } = await calcularPicos(file);
+  const n = c.versiones.length + 1;
+  const v = { id:uid(), nombre:'v' + n, archivo:file.name, fecha:hoy(), audioId, duracion, picos, notas:[] };
+  c.versiones.push(v); c.actualId = v.id; ui.verSel[c.id] = v.id;
+  await guardarMeta(); render(); toast(`Subida la ${v.nombre} de «${c.titulo}»`);
+}
+async function resubir(file){
+  const c = cancionSel(), v = versionSel(c); if(!v || !file) return;
+  await guardarAudio(v.audioId, file);
+  if(!v.picos){ const r = await calcularPicos(file); v.picos = r.picos; v.duracion = r.duracion || v.duracion; await guardarMeta(); }
+  audioCargado = null; render();
+}
+
+/* ---------- acciones ---------- */
+document.addEventListener('click', async e => {
+  const t = e.target.closest('button,[data-accion]'); if(!t) return;
+  const c = cancionSel(), v = versionSel(c);
+  if(t.id === 'nuevaCancion' || t.dataset.accion === 'nueva'){
+    const titulo = (await pedir('¿Cómo se llama la canción?', '') || '').trim(); if(!titulo) return;
+    const nueva = { id:uid(), titulo, versiones:[], actualId:null };
+    estado.canciones.push(nueva); estado.sel = nueva.id; ui.renombrar = false; ui.nuevoApunte = null;
+    await guardarMeta(); render(); return;
+  }
+  if(t.dataset.cancion){ estado.sel = t.dataset.cancion; ui.nuevoApunte = null; ui.editando = null; ui.renombrar = false; await guardarMeta(); render(); return; }
+  if(t.dataset.version){ ui.verSel[c.id] = t.dataset.version; ui.nuevoApunte = null; ui.editando = null; render(); return; }
+  if(t.dataset.filtro){ ui.filtro = t.dataset.filtro; render(); return; }
+  if(t.dataset.saltar !== undefined){ if(audioCargado){ audio.currentTime = +t.dataset.saltar; audio.play().catch(()=>{}); } return; }
+  if(t.dataset.editar){ ui.editando = t.dataset.editar; ui.nuevoApunte = null; render(); $('#fTexto')?.focus(); return; }
+  if(t.dataset.borrar){ if(!await confirmar('¿Borrar este apunte?')) return; v.notas = v.notas.filter(a => a.id !== t.dataset.borrar); await guardarMeta(); render(); return; }
+  if(t.id === 'play'){ if(!audioCargado) return; audio.paused ? audio.play().catch(()=>{}) : audio.pause(); return; }
+  switch(t.dataset.accion){
+    case 'renombrar': ui.renombrar = true; render(); $('#nuevoTitulo')?.focus(); break;
+    case 'guardar-titulo': { const val = $('#nuevoTitulo').value.trim(); if(val) c.titulo = val; ui.renombrar = false; await guardarMeta(); render(); break; }
+    case 'borrar-cancion':
+      if(!await confirmar(`¿Borrar «${c.titulo}» con todas sus versiones y apuntes?`)) return;
+      for(const x of c.versiones) await borrarAudio(x.audioId);
+      estado.canciones = estado.canciones.filter(x => x.id !== c.id); estado.sel = estado.canciones[0]?.id || null;
+      audio.pause(); audioCargado = null; await guardarMeta(); render(); break;
+    case 'hacer-actual': c.actualId = v.id; await guardarMeta(); render(); toast(`${v.nombre} es ahora la versión actual`); break;
+    case 'renombrar-version': { const n = (await pedir('Nombre de la versión (p. ej. «Maqueta voz», «Pre-mix v2»)', v.nombre) || '').trim(); if(n){ v.nombre = n; await guardarMeta(); render(); } break; }
+    case 'borrar-version':
+      if(!await confirmar(`¿Borrar la versión «${v.nombre}» y sus apuntes?`)) return;
+      await borrarAudio(v.audioId); c.versiones = c.versiones.filter(x => x.id !== v.id);
+      if(c.actualId === v.id) c.actualId = c.versiones[c.versiones.length-1]?.id || null;
+      delete ui.verSel[c.id]; audio.pause(); audioCargado = null; await guardarMeta(); render(); break;
+    case 'traer-pendientes': {
+      const prev = c.versiones[c.versiones.indexOf(v)-1]; if(!prev) return;
+      const pend = prev.notas.filter(a => !a.hecho && !v.notas.some(b => b.origen === a.id));
+      if(!pend.length){ toast('La versión anterior no tiene pendientes nuevos'); return; }
+      pend.forEach(a => v.notas.push({ ...a, id:uid(), origen:a.id, fecha:hoy(), texto:a.texto + ` (de ${prev.nombre})` }));
+      await guardarMeta(); render(); toast(`${pend.length} apuntes traídos de ${prev.nombre}`); break;
+    }
+    case 'anadir':
+      if(!audioCargado){ toast('Sube o vuelve a subir el audio primero'); return; }
+      audio.pause(); ui.nuevoApunte = { t: Math.round(audio.currentTime*10)/10, cat:'general', texto:'' }; ui.editando = null; render(); $('#fTexto')?.focus(); break;
+    case 'guardar-apunte': {
+      const texto = $('#fTexto').value.trim(); if(!texto){ $('#fTexto').focus(); return; }
+      v.notas.push({ id:uid(), t:ui.nuevoApunte.t, cat:$('#fCat').value, texto, hecho:false, fecha:hoy() });
+      ui.nuevoApunte = null; await guardarMeta(); render(); break;
+    }
+    case 'guardar-edicion': {
+      const a = v.notas.find(x => x.id === ui.editando); const texto = $('#fTexto').value.trim();
+      if(a && texto){ a.texto = texto; a.cat = $('#fCat').value; }
+      ui.editando = null; await guardarMeta(); render(); break;
+    }
+    case 'cancelar': ui.nuevoApunte = null; ui.editando = null; render(); break;
+    case 'copiar': {
+      const pend = [...v.notas].filter(a => !a.hecho).sort((a,b) => a.t - b.t);
+      const txt = `${c.titulo} · ${v.nombre} (${v.fecha})\n` + (pend.length ? pend.map(a => `${fmt(a.t)} [${cat(a.cat).label}] ${a.texto}`).join('\n') : 'Sin pendientes ✓');
+      try{ await navigator.clipboard.writeText(txt); toast('Apuntes copiados'); }catch(err){ await pedir('Copia el texto:', txt); }
+      break;
+    }
+  }
+});
+document.addEventListener('change', async e => {
+  const t = e.target;
+  if(t.id === 'subirVersion'){ await nuevaVersion(t.files[0]); t.value = ''; }
+  if(t.id === 'resubir'){ await resubir(t.files[0]); t.value = ''; }
+  if(t.id === 'vol'){ audio.volume = +t.value; }
+  if(t.dataset.hecho){ const v = versionSel(cancionSel()); const a = v.notas.find(x => x.id === t.dataset.hecho); a.hecho = t.checked; await guardarMeta(); render(); }
+  if(t.id === 'importar' && t.files[0]){
+    try{
+      const datos = JSON.parse(await t.files[0].text());
+      if(!Array.isArray(datos.canciones)) throw 0;
+      if(!await confirmar('Esto añade las canciones del archivo a las que ya tienes. ¿Seguimos?')) return;
+      datos.canciones.forEach(c => { if(!estado.canciones.some(x => x.id === c.id)) estado.canciones.push(c); });
+      estado.sel = estado.sel || estado.canciones[0]?.id || null; await guardarMeta(); render(); toast('Apuntes importados. Vuelve a subir los audios para escucharlos.');
+    }catch(err){ toast('Ese archivo no es una exportación de Revisión'); }
+    t.value = '';
+  }
+});
+document.addEventListener('input', e => { if(e.target.id === 'vol') audio.volume = +e.target.value; });
+document.addEventListener('keydown', e => {
+  if(e.code === 'Space' && !/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName) && audioCargado){ e.preventDefault(); audio.paused ? audio.play().catch(()=>{}) : audio.pause(); }
+  if(e.key === 'Enter' && (e.metaKey || e.ctrlKey) && document.activeElement.id === 'fTexto'){ document.querySelector('[data-accion="guardar-apunte"],[data-accion="guardar-edicion"]')?.click(); }
+});
+$('#exportar').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify({ app:'altillolab-revision', exportado:new Date().toISOString(), canciones:estado.canciones }, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `revision-apuntes-${hoy()}.json`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+/* volver a la sesión de la que vienes (?desde=sesion.html#s3) */
+try{ const d = new URLSearchParams(location.search).get('desde'); if(d && /^[\w.#-]+$/.test(d)){ const v = $('#volver'); v.href = '../../' + d; v.textContent = '← Volver a la sesión'; } }catch(e){}
+
+(async () => {
+  await abrirDB();
+  const guardado = await leerMeta();
+  if(guardado && Array.isArray(guardado.canciones)) estado = guardado;
+  if(!db) toast('Este navegador no deja guardar: lo que hagas se perderá al cerrar');
+  render();
+})();
+</script>
+</body>
+</html>
