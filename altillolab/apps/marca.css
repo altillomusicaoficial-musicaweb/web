@@ -1,0 +1,66 @@
+/* Marca común de las herramientas de AltilloLAB.
+   Mismos tokens que la landing (altillolab/index.html): crema/tomate/tinta, Anton + Instrument Serif + Courier Prime.
+   Cada app la carga con <link rel="stylesheet" href="../marca.css">. */
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap");
+
+:root{
+  --crema:#ede5d0; --crema-2:#e4dbc3; --papel:#f4eedd; --tomate:#d4261a; --tomate-osc:#9e1810;
+  --tinta:#17140f; --linea:#b6aa92; --mostaza:#F5B700; --coral:#E8694F; --azul:#1B2845;
+  --display:"Anton", Impact, "Arial Narrow", sans-serif;
+  --serif:"Instrument Serif", Georgia, "Times New Roman", serif;
+  --mono:"Courier Prime", "Courier New", Courier, monospace;
+  --gl:max(16px, env(safe-area-inset-left, 0px));
+  --gr:max(16px, env(safe-area-inset-right, 0px));
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--crema);color:var(--tinta);font:400 1rem/1.5 var(--mono);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.12;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+h1,h2,h3,h4,p,ul,ol,figure{margin:0}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--tomate);outline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:var(--gl);padding-right:var(--gr)}
+
+.display{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.9;letter-spacing:-.005em}
+.script{font-family:var(--serif);font-style:italic;font-weight:400;line-height:1.05;letter-spacing:-.01em;text-transform:none}
+.label{font:700 .74rem/1.35 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.rojo{color:var(--tomate)}
+.damero{display:inline-block;width:22px;height:22px;flex:none;background:conic-gradient(var(--tomate) 25%,transparent 0 50%,var(--tomate) 0 75%,transparent 0) 0 0/11px 11px}
+.cinta{display:inline-block;font:700 .7rem/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;background:var(--mostaza);color:var(--tinta);padding:5px 8px;transform:rotate(-2deg);white-space:nowrap}
+
+/* botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;min-height:44px;padding:.7em 1.2em;border:1.5px solid var(--tomate);background:var(--tomate);color:#fff4e4;font:700 .8rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:background .2s,color .2s,transform .2s;border-radius:0}
+.btn:hover{background:var(--tinta);border-color:var(--tinta);color:var(--crema);transform:rotate(-1deg)}
+.btn.contorno{background:transparent;color:var(--tinta);border-color:var(--tinta)}
+.btn.contorno:hover{background:var(--tinta);color:var(--crema)}
+.btn.sm{min-height:34px;padding:.5em .8em;font-size:.7rem}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.icono{display:inline-grid;place-items:center;width:34px;height:34px;border:1.5px solid var(--tinta);background:var(--papel);cursor:pointer;font-size:.95rem;flex:none}
+.icono:hover{background:var(--tinta);color:var(--crema)}
+
+/* cabecera común: «AltilloLAB · herramienta» */
+.lab-bar{position:sticky;top:0;z-index:50;background:var(--crema);border-bottom:1.5px solid var(--tinta);padding-top:env(safe-area-inset-top,0px)}
+.lab-bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px}
+.lab-logo{display:flex;align-items:baseline;gap:8px;text-decoration:none;color:var(--tomate);font-family:var(--display);font-size:1.6rem;text-transform:uppercase;line-height:1;white-space:nowrap}
+.lab-logo .lab{color:var(--tinta)}
+.lab-logo .script{font-size:1.15rem;color:var(--tinta)}
+.lab-volver{font:700 .72rem/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border-bottom:2px solid transparent;padding:8px 0;white-space:nowrap}
+.lab-volver:hover{color:var(--tomate);border-bottom-color:var(--tomate)}
+@media (max-width:520px){.lab-logo .script{display:none}}
+
+/* cabecera de la herramienta */
+.lab-hero{padding:clamp(28px,5vw,60px) 0 clamp(18px,3vw,30px)}
+.lab-hero h1{font-size:clamp(3rem,11vw,7.5rem);color:var(--tomate)}
+.lab-hero h1 .script{color:var(--tinta);font-size:.62em;display:block;margin-top:.1em}
+.lab-hero p{max-width:60ch;margin-top:14px}
+
+/* tarjetas tipo carta */
+.carta{background:var(--papel);border:1.5px solid var(--tinta);box-shadow:6px 6px 0 var(--tinta);padding:clamp(16px,3vw,28px)}
+.campo{display:grid;gap:6px}
+.campo input,.campo select,.campo textarea,input.txt,select.txt,textarea.txt{width:100%;min-height:42px;padding:.55em .7em;border:1.5px solid var(--tinta);background:#fffaf0;border-radius:0}
+textarea.txt{min-height:70px;resize:vertical}
+.vacio{font-family:var(--serif);font-style:italic;font-size:1.3rem;color:#6d6352;padding:18px 0}
+.lab-pie{border-top:1.5px solid var(--tinta);margin-top:60px;padding:22px 0 40px;font-size:.8rem}

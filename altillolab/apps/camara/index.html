@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Música con la cámara · AltilloLAB</title>
+<meta name="description" content="Esqueleto de la app para hacer música moviéndote delante de la cámara del móvil. En obras.">
+<link rel="stylesheet" href="../marca.css">
+<style>
+/* Layout: aviso de obras arriba; vista de cámara con una rejilla de zonas encima; debajo, el mapa de zonas → sonidos.
+   ESQUELETO: la detección de movimiento es básica y el motor de sonido es un marcador de posición para la app de David. */
+.obras{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--tinta);color:var(--crema);padding:14px 16px;margin-bottom:24px}
+.obras .damero{background:conic-gradient(var(--mostaza) 25%,transparent 0 50%,var(--mostaza) 0 75%,transparent 0) 0 0/11px 11px}
+.escena{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(16px,3vw,32px);align-items:start}
+@media (max-width:820px){.escena{grid-template-columns:1fr}}
+.visor{position:relative;aspect-ratio:3/4;max-height:72vh;width:100%;background:var(--tinta);border:1.5px solid var(--tinta);box-shadow:6px 6px 0 var(--tinta);overflow:hidden}
+@media (min-width:821px){.visor{aspect-ratio:4/3}}
+.visor video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.rejilla{position:absolute;inset:0;display:grid}
+.zona{border:1.5px dashed rgba(237,229,208,.45);display:grid;place-items:end start;padding:8px;transition:background .12s}
+.zona span{font:700 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--crema);background:rgba(23,20,15,.6);padding:3px 6px}
+.zona.activa{background:rgba(212,38,26,.45)}
+.apagado{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--crema);padding:20px;gap:12px;align-content:center}
+.apagado[hidden]{display:none}
+.apagado .script{font-size:clamp(1.6rem,4vw,2.4rem)}
+.mapa{display:grid;gap:8px}
+.mapa li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;border:1.5px solid var(--tinta);background:#fffaf0;padding:8px 10px;list-style:none}
+.mapa .n{width:28px;height:28px;display:grid;place-items:center;background:var(--tomate);color:#fff4e4;font:700 .8rem var(--mono)}
+.mapa select{min-height:36px;border:1.5px solid var(--tinta);background:var(--papel)}
+.ajustes{display:grid;gap:12px;margin-top:16px}
+.ajustes label{display:grid;gap:4px}
+.ajustes input[type=range]{accent-color:var(--tomate)}
+.pendiente{margin-top:clamp(32px,5vw,56px)}
+.pendiente h2{font-size:clamp(2rem,5vw,3rem);margin-bottom:12px}
+.pendiente ul{padding-left:1.2em;display:grid;gap:6px;max-width:70ch}
+</style>
+</head>
+<body>
+<header class="lab-bar">
+  <div class="wrap">
+    <a class="lab-logo" href="../../index.html">Altillo<span class="lab">LAB</span><span class="script">· cámara</span></a>
+    <a class="lab-volver" id="volver" href="../index.html">← Herramientas</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="lab-hero">
+    <span class="cinta">Herramienta 05 · en obras</span>
+    <h1 class="display">Cuerpo<span class="script">y cámara: la música sale del movimiento</span></h1>
+    <p>Pon el móvil delante, enciende la cámara y muévete: cada zona de la imagen dispara un sonido. David está montando la versión de verdad; esto es el esqueleto para ir viendo cómo encaja en el laboratorio.</p>
+  </section>
+
+  <div class="obras" role="note"><span class="damero"></span><p><b>Esqueleto.</b> La cámara y las zonas funcionan; los sonidos son provisionales hasta que llegue el motor de David.</p></div>
+
+  <div class="escena">
+    <div class="visor" id="visor">
+      <video id="video" playsinline muted></video>
+      <div class="rejilla" id="rejilla"></div>
+      <div class="apagado" id="apagado">
+        <p class="script">La cámara está apagada</p>
+        <button class="btn" id="encender">● Encender cámara</button>
+        <p class="label" id="errorCam" hidden></p>
+      </div>
+    </div>
+
+    <aside>
+      <p class="label rojo">Zonas y sonidos</p>
+      <ol class="mapa" id="mapa" style="padding:0;margin-top:10px"></ol>
+      <div class="ajustes carta">
+        <label class="label">Rejilla
+          <select class="txt" id="tamano"><option value="2x2">2 × 2 (4 zonas)</option><option value="3x2" selected>3 × 2 (6 zonas)</option><option value="3x3">3 × 3 (9 zonas)</option></select>
+        </label>
+        <label class="label">Sensibilidad <input type="range" id="sensibilidad" min="5" max="60" value="22"></label>
+        <button class="btn contorno sm" id="apagar" disabled>■ Apagar cámara</button>
+      </div>
+    </aside>
+  </div>
+
+  <section class="pendiente">
+    <h2 class="display">Lo que falta (para David)</h2>
+    <ul>
+      <li>Conectar aquí el motor de sonido de la app nueva: la función <code>sonar(zona)</code> es el único punto de enganche.</li>
+      <li>Bancos de sonidos propios (palmas, cajón, pandero, voces de Ariana) en lugar de los tonos provisionales.</li>
+      <li>Grabar lo que suena para llevarlo a Revisión como una versión más.</li>
+      <li>Probarla en clase en el bloque de Deseo: el cuerpo como instrumento.</li>
+    </ul>
+  </section>
+
+  <footer class="lab-pie"><p>La imagen de la cámara no sale del móvil: se procesa aquí mismo y no se guarda.</p></footer>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const SONIDOS = [
+  {id:'do',  nombre:'Do (tono)',   midi:60}, {id:'mi', nombre:'Mi (tono)', midi:64}, {id:'sol', nombre:'Sol (tono)', midi:67},
+  {id:'la',  nombre:'La (tono)',   midi:69}, {id:'do2', nombre:'Do agudo', midi:72}, {id:'bombo', nombre:'Golpe grave', midi:36},
+  {id:'re',  nombre:'Re (tono)',   midi:62}, {id:'si', nombre:'Si (tono)', midi:71}, {id:'fa', nombre:'Fa (tono)', midi:65}
+];
+let filas = 2, cols = 3, asignacion = [], stream = null, bucle = null, ac = null;
+const ultimo = [];
+
+function construirRejilla(){
+  const [c,f] = $('#tamano').value.split('x').map(Number); cols = c; filas = f;
+  const n = c*f; asignacion = Array.from({length:n}, (_,i) => asignacion[i] ?? SONIDOS[i % SONIDOS.length].id);
+  const r = $('#rejilla'); r.style.gridTemplateColumns = `repeat(${c},1fr)`; r.style.gridTemplateRows = `repeat(${f},1fr)`;
+  r.innerHTML = asignacion.map((_,i) => `<div class="zona" data-z="${i}"><span>${i+1}</span></div>`).join('');
+  $('#mapa').innerHTML = asignacion.map((id,i) => `<li><span class="n">${i+1}</span><span>Zona ${i+1}</span><select data-zona="${i}" aria-label="Sonido de la zona ${i+1}">${SONIDOS.map(s => `<option value="${s.id}" ${s.id===id?'selected':''}>${s.nombre}</option>`).join('')}</select></li>`).join('');
+}
+
+/* ---- PUNTO DE ENGANCHE para el motor de David: recibe el número de zona ---- */
+function sonar(zona){
+  const s = SONIDOS.find(x => x.id === asignacion[zona]); if(!s) return;
+  const ahora = performance.now(); if(ultimo[zona] && ahora - ultimo[zona] < 250) return; ultimo[zona] = ahora;
+  if(!ac){ const A = window.AudioContext || window.webkitAudioContext; ac = new A(); }
+  const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+  o.type = s.midi < 48 ? 'sine' : 'triangle'; o.frequency.value = 440 * Math.pow(2, (s.midi-69)/12);
+  if(s.midi < 48) o.frequency.exponentialRampToValueAtTime(40, t+.25);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.25, t+.01); g.gain.exponentialRampToValueAtTime(.0001, t+.45);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+.5);
+}
+
+/* ---- detección de movimiento básica: diferencia entre fotogramas por zona ---- */
+const lienzo = document.createElement('canvas'), g = lienzo.getContext('2d', {willReadFrequently:true});
+let anterior = null;
+function analizar(){
+  const v = $('#video'); if(!v.videoWidth){ bucle = requestAnimationFrame(analizar); return; }
+  const W = 96, H = Math.round(96 * v.videoHeight / v.videoWidth); lienzo.width = W; lienzo.height = H;
+  g.save(); g.scale(-1,1); g.drawImage(v, -W, 0, W, H); g.restore();
+  const datos = g.getImageData(0,0,W,H).data;
+  if(anterior){
+    const umbral = 70 - +$('#sensibilidad').value, suma = new Array(cols*filas).fill(0), cuenta = new Array(cols*filas).fill(0);
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+      const i = (y*W+x)*4, d = Math.abs(datos[i]-anterior[i]) + Math.abs(datos[i+1]-anterior[i+1]) + Math.abs(datos[i+2]-anterior[i+2]);
+      const z = Math.min(filas-1, Math.floor(y/H*filas))*cols + Math.min(cols-1, Math.floor(x/W*cols));
+      cuenta[z]++; if(d > umbral*3) suma[z]++;
+    }
+    document.querySelectorAll('.zona').forEach((el,z) => { const act = suma[z]/cuenta[z] > .08; el.classList.toggle('activa', act); if(act) sonar(z); });
+  }
+  anterior = datos;
+  bucle = requestAnimationFrame(analizar);
+}
+
+$('#encender').addEventListener('click', async () => {
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}, audio:false});
+    const v = $('#video'); v.srcObject = stream; await v.play();
+    $('#apagado').hidden = true; $('#apagar').disabled = false; anterior = null; analizar();
+  }catch(e){ const er = $('#errorCam'); er.hidden = false; er.textContent = 'No hay permiso para usar la cámara o este dispositivo no tiene.'; }
+});
+$('#apagar').addEventListener('click', () => {
+  cancelAnimationFrame(bucle); stream && stream.getTracks().forEach(t => t.stop()); stream = null;
+  $('#apagado').hidden = false; $('#apagar').disabled = true; document.querySelectorAll('.zona').forEach(z => z.classList.remove('activa'));
+});
+$('#tamano').addEventListener('change', () => { asignacion = []; construirRejilla(); });
+document.addEventListener('change', e => { if(e.target.dataset.zona) asignacion[+e.target.dataset.zona] = e.target.value; });
+try{ const d = new URLSearchParams(location.search).get('desde'); if(d && /^[\w.#-]+$/.test(d)){ const v = $('#volver'); v.href = '../../' + d; v.textContent = '← Volver a la sesión'; } }catch(e){}
+construirRejilla();
+</script>
+</body>
+</html>

@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Laboratorio Altillo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Laboratorio Altillo: curso grupal de composición y producción musical en Madrid, con Ariana y David de Altillo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: la identidad de altillomusica.com (Anton + Instrument Serif cursiva + Courier, crema/tomate/tinta, damero, cintas)
+   montada en paneles redondeados que se solapan al bajar; los trastos del altillo flotan con parallax. */
+:root{
+  --crema:#ede5d0; --crema-2:#e4dbc3; --papel:#f4eedd; --tomate:#d4261a; --tomate-osc:#9e1810;
+  --tinta:#17140f; --linea:#b6aa92; --mostaza:#F5B700; --coral:#E8694F;
+  --display:"Anton", Impact, "Arial Narrow", sans-serif;
+  --serif:"Instrument Serif", Georgia, "Times New Roman", serif;
+  --mono:"Courier Prime", "Courier New", Courier, monospace;
+  --gl:max(18px, env(safe-area-inset-left, 0px));
+  --gr:max(18px, env(safe-area-inset-right, 0px));
+  --r:clamp(28px,5vw,64px);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--tinta);color:var(--tinta);font:400 1rem/1.55 var(--mono);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.14;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+h1,h2,h3,p,ul{margin:0}
+a{color:inherit}
+img{display:block;max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--tomate);outline-offset:4px}
+.wrap{max-width:1360px;margin:0 auto;padding-left:var(--gl);padding-right:var(--gr)}
+.display{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.88;letter-spacing:-.005em}
+.script{font-family:var(--serif);font-style:italic;font-weight:400;line-height:1.02;letter-spacing:-.015em}
+.label{font:700 .78rem/1.35 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.rojo{color:var(--tomate)}
+.provisional{display:inline-block;font:700 .7rem/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;background:var(--mostaza);color:var(--tinta);padding:5px 7px;transform:rotate(-2deg);vertical-align:middle;white-space:nowrap}
+.damero{display:inline-block;width:26px;height:26px;flex:none;background:conic-gradient(var(--tomate) 25%,transparent 0 50%,var(--tomate) 0 75%,transparent 0) 0 0/13px 13px}
+.damero.crema{background:conic-gradient(var(--crema) 25%,transparent 0 50%,var(--crema) 0 75%,transparent 0) 0 0/13px 13px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6em;min-height:48px;padding:.85em 1.5em;border:1.5px solid var(--tomate);background:var(--tomate);color:#fff4e4;font:700 .85rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.btn:hover{background:var(--tinta);border-color:var(--tinta);color:var(--crema);transform:rotate(-1deg)}
+.btn.contorno{background:transparent;color:inherit;border-color:currentColor}
+.btn.contorno:hover{background:var(--tinta);color:var(--crema);border-color:var(--tinta)}
+.btn.crema{background:var(--crema);color:var(--tomate);border-color:var(--crema)}
+.btn.sm{min-height:38px;padding:.6em 1em;font-size:.75rem}
+
+/* nav, como en la web de Altillo */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;background:var(--crema);border-bottom:1.5px solid var(--tinta)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:61;background:var(--crema)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:62px}
+.nav-logo{font-size:1.9rem;color:var(--tomate);text-decoration:none;display:flex;align-items:baseline;gap:6px}
+.nav-logo .script{font-size:1.35rem;color:var(--tinta);text-transform:none}
+.nav ul{display:flex;flex-wrap:wrap;list-style:none;padding:0;gap:0 18px}
+.nav li+li::before{content:"/";margin-right:18px;color:var(--linea)}
+.nav ul a{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;display:inline-block;padding:10px 2px;border-bottom:2px solid transparent}
+.nav ul a:hover{color:var(--tomate);border-bottom-color:var(--tomate)}
+
+/* paneles redondeados que se solapan */
+.panel{position:relative;border-radius:var(--r) var(--r) 0 0;margin-top:calc(var(--r) * -1);overflow:hidden;isolation:isolate}
+.panel > .wrap{padding-block:calc(var(--r) + clamp(48px,7vw,104px)) clamp(80px,10vw,150px)}
+.pc{background:var(--crema)} .pc2{background:var(--crema-2)} .pp{background:var(--papel)}
+.pt{background:var(--tinta);color:var(--crema)} .pr{background:var(--tomate);color:var(--crema)}
+.cab{display:flex;align-items:baseline;gap:14px;margin-bottom:1rem}
+.cab .num{color:var(--tomate)}
+.pr .cab .num{color:var(--crema)}
+.pt .cab .num{color:var(--tomate)}
+
+/* hero */
+.hero{background:var(--crema);border-radius:0;margin-top:0;overflow:hidden}
+.hero > .wrap{padding-block:clamp(26px,4vw,52px) calc(var(--r) + clamp(40px,6vw,80px))}
+.hero .grid{display:grid;grid-template-columns:minmax(110px,1fr) minmax(0,7fr) minmax(110px,1fr);gap:clamp(12px,2vw,32px);align-items:end}
+.lado{font:700 .78rem/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;display:flex;flex-direction:column;gap:14px;padding-bottom:20px;position:relative;z-index:2}
+.lado.der{text-align:right;align-items:flex-end}
+.lado hr{width:100%;border:0;border-top:1px solid var(--linea);margin:0}
+.hero h1{color:var(--tomate);text-align:center;position:relative;z-index:2}
+.hero h1 .l1{display:block;font-size:clamp(2.6rem,8vw,7.6rem)}
+.hero h1 .l2{display:block;font-size:clamp(3.4rem,13vw,13rem);line-height:.8;white-space:nowrap}
+.hero h1 .lab{color:var(--tinta)}
+.hero h1 .m{display:inline-block;overflow:hidden;vertical-align:bottom;padding-top:.04em}
+.hero h1 .m > span{display:inline-block;animation:sube .9s cubic-bezier(.2,.8,.2,1) both}
+.hero h1 .l2 .m > span{animation-delay:.18s}
+@keyframes sube{from{transform:translateY(105%) rotate(4deg)}}
+.lema{display:flex;align-items:center;gap:18px;margin-top:clamp(10px,1.4vw,22px);font-size:clamp(1.4rem,3vw,2.8rem);white-space:nowrap;position:relative;z-index:2}
+.lema::before,.lema::after{content:"";flex:1;height:1.5px;background:var(--tinta);transform-origin:center;animation:raya 1s .5s ease-out both}
+@keyframes raya{from{transform:scaleX(0)}}
+.hero .bajada{max-width:52ch;margin:26px auto 0;text-align:center;position:relative;z-index:2}
+.hero .acciones{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:26px;position:relative;z-index:2}
+.trasto{position:absolute;z-index:1;pointer-events:none;will-change:transform}
+.trasto img{filter:drop-shadow(3px 8px 3px rgba(50,29,13,.18));animation:flota 6s ease-in-out infinite}
+.trasto.b img{animation-duration:7.5s;animation-delay:-2s}
+.trasto.c img{animation-duration:5.2s;animation-delay:-1s}
+@keyframes flota{0%,100%{transform:translateY(0) rotate(var(--g,0deg))}50%{transform:translateY(-14px) rotate(calc(var(--g,0deg) + 3deg))}}
+.h-sillon{width:clamp(110px,15vw,230px);left:1%;top:44%;--g:-8deg}
+.h-flores{width:clamp(130px,18vw,280px);right:-2%;top:6%;--g:12deg}
+.h-cerdita{width:clamp(70px,8vw,130px);right:8%;bottom:calc(var(--r) + 10px);--g:6deg}
+
+/* te sobra */
+.sobra{text-align:center}
+.sobra .t1{font-size:clamp(4rem,12vw,11rem)}
+.sobra .palabra{display:block;font-size:clamp(3.4rem,10vw,9rem);color:var(--tomate);min-height:1.05em;margin-top:.1em}
+.sobra .palabra span{display:inline-block;position:relative}
+.sobra .palabra span.cambia{animation:gira .5s ease-out}
+.sobra .palabra span::after{content:"";position:absolute;left:-5%;right:-5%;top:48%;height:.1em;background:var(--crema);border-radius:.05em;transform:rotate(-4deg);transform-origin:left center}
+.sobra .palabra span.cambia::after{animation:tachar .45s cubic-bezier(.6,0,.3,1) .45s backwards}
+@keyframes tachar{from{transform:rotate(-4deg) scaleX(0)}to{transform:rotate(-4deg) scaleX(1)}}
+@keyframes gira{from{transform:rotateX(80deg) translateY(.25em)}}
+.sobra .falta{margin-top:30px;font-size:clamp(1.6rem,3.2vw,2.8rem)}
+.sobra .falta b{font-family:var(--display);font-weight:400;font-style:normal;text-transform:uppercase;color:var(--tomate)}
+
+/* cinta */
+.cinta{background:var(--tomate);color:var(--crema);border-block:1.5px solid var(--tinta);overflow:hidden;padding:14px 0 calc(14px + var(--r));font:400 clamp(1.4rem,2.6vw,2.2rem)/1 var(--display);text-transform:uppercase;position:relative;z-index:5}
+.cinta.inv{background:var(--tinta)}
+.cinta .pista{display:flex;width:max-content;animation:cinta 30s linear infinite}
+.cinta.inv .pista{animation-name:cinta-inv}
+.cinta span{padding:0 clamp(18px,3vw,40px);white-space:nowrap}
+.cinta i{font:italic 400 .85em var(--serif);text-transform:none;color:var(--mostaza)}
+@keyframes cinta{to{transform:translateX(-50%)}}
+@keyframes cinta-inv{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+
+/* manifiesto */
+.manif .l{font:400 clamp(2.4rem,6.4vw,6rem)/.92 var(--display);text-transform:uppercase;color:var(--tinta);opacity:.16;transition:opacity .5s, color .5s;max-width:17ch}
+.manif .l.on{opacity:1}
+.manif .l em{font:italic 400 1.05em var(--serif);text-transform:none;color:var(--tomate)}
+.manif .lines{display:grid;gap:8px}
+.manif .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,.35fr);gap:30px;align-items:end}
+.manif .nota{font-size:1.6rem;line-height:1.1;color:var(--tomate);transform:rotate(-3deg)}
+.manif .trasto{position:relative}
+
+/* la carta del lab */
+.quees h2{font-size:clamp(3.6rem,10vw,9rem)}
+.quees .sub{font-size:clamp(1.5rem,2.6vw,2.4rem);margin-top:.4rem;color:var(--crema)}
+.carta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(24px,5vw,80px);margin-top:clamp(32px,5vw,64px);list-style:none;padding:0}
+.carta li{display:grid;grid-template-columns:3em 1fr;gap:4px 12px;padding:18px 0;border-bottom:1px dotted rgba(237,229,208,.6);min-width:0}
+.carta li:nth-child(-n+2){border-top:1px dotted rgba(237,229,208,.6)}
+.carta .n{font-weight:700;grid-row:span 3}
+.carta .plato{display:flex;align-items:baseline;gap:10px;font:400 clamp(1.6rem,2.6vw,2.3rem)/1 var(--display);text-transform:uppercase}
+.carta .plato .puntos{flex:1;border-bottom:1.5px dotted rgba(237,229,208,.6);transform:translateY(-.3em);min-width:20px}
+.carta .plato small{font:italic 400 1.1rem var(--serif);text-transform:none;white-space:nowrap}
+.carta p{max-width:46ch}
+
+/* temario */
+.temario h2{font-size:clamp(4.4rem,15vw,14rem);color:var(--tomate)}
+.temario .lema-t{font-size:clamp(1.4rem,2.6vw,2.4rem);margin-top:.3rem}
+.concepto{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,5vw,80px);align-items:center;padding-block:clamp(48px,7vw,96px);border-top:1.5px solid var(--tinta)}
+.concepto:first-of-type{margin-top:clamp(36px,5vw,64px)}
+.concepto.inv .txt{order:2}
+.concepto .txt{min-width:0;overflow-wrap:anywhere}
+.concepto .eti{display:flex;align-items:center;gap:12px}
+.concepto h3{font-size:clamp(3.6rem,9vw,8rem);margin-top:.15em}
+.concepto .gancho{font-size:clamp(1.5rem,2.4vw,2.2rem);color:var(--tomate);margin-top:.3em}
+.concepto p.t{margin-top:16px;max-width:44ch}
+.concepto ul{list-style:none;padding:0;margin-top:20px;max-width:46ch}
+.concepto li{display:flex;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px dotted var(--linea)}
+.concepto li:first-child{border-top:1px dotted var(--linea)}
+.concepto li b{flex:none;color:var(--tomate)}
+.concepto li .puntos{flex:1;border-bottom:1.5px dotted var(--linea);transform:translateY(-.3em)}
+.escena{position:relative;aspect-ratio:1/1;max-width:520px;width:100%;justify-self:center}
+.escena .fondo{position:absolute;inset:10%;border:1.5px solid var(--tinta);box-shadow:8px 8px 0 var(--tomate);transform:rotate(-3deg);display:grid;place-items:center;overflow:hidden}
+.escena .fondo span{font:400 clamp(4.6rem,11vw,10rem)/.8 var(--display);text-transform:uppercase;color:rgba(23,20,15,.09);transform:rotate(-10deg)}
+.escena .pieza{position:absolute;inset:6% 8% 4%;display:grid;place-items:center}
+.escena .pieza img{max-height:100%;width:auto;filter:drop-shadow(4px 10px 4px rgba(50,29,13,.22));animation:flota 6.5s ease-in-out infinite}
+.escena .sello{position:absolute;right:2%;bottom:6%;font:italic 400 1.3rem/1.05 var(--serif);color:var(--tomate);text-transform:uppercase;text-align:right;transform:rotate(-6deg);background:var(--crema);padding:6px 10px;border:1.5px solid var(--tomate)}
+.f-deseo{background:var(--mostaza)} .f-arraigo{background:var(--coral)} .f-contra{background:var(--crema-2)} .f-muestra{background:var(--tomate)}
+.f-muestra span{color:rgba(237,229,208,.18)!important}
+
+/* método */
+.metodo h2{font-size:clamp(3rem,8vw,7.4rem);max-width:13ch}
+.metodo h2 .script{text-transform:none;color:var(--tomate);font-size:1.08em}
+.fases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:clamp(32px,5vw,60px);border:1.5px solid var(--crema)}
+.fase{padding:22px;border-right:1.5px solid var(--crema);min-width:0;transition:background .3s,color .3s}
+.fase:last-child{border-right:0}
+.fase:hover{background:var(--crema);color:var(--tinta)}
+.fase .n{font:400 clamp(4rem,7vw,6rem)/.8 var(--display);color:var(--tomate)}
+.fase h3{font:400 1.9rem/1 var(--display);text-transform:uppercase;margin-top:10px}
+.fase p{margin-top:8px;font-size:.95rem}
+.cana{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(20px,4vw,60px);align-items:center;margin-top:clamp(48px,7vw,90px)}
+.cana blockquote{margin:0;font-size:clamp(3rem,7vw,6.6rem)}
+.cana blockquote .script{text-transform:none;color:var(--tomate)}
+.cana p{max-width:46ch;border-left:1.5px solid var(--crema);padding-left:clamp(18px,3vw,40px)}
+
+/* para quién */
+.quien h2{font-size:clamp(3.6rem,10vw,9rem)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,3vw,40px);margin-top:clamp(28px,4vw,50px)}
+.lista{border:1.5px solid var(--tinta);padding:clamp(20px,3vw,34px);background:var(--crema);min-width:0}
+.lista.si{box-shadow:8px 8px 0 var(--tomate);transform:rotate(-1deg)}
+.lista.no{transform:rotate(1deg)}
+.lista h3{font-size:clamp(2rem,3vw,2.8rem);color:var(--tomate);margin-bottom:12px}
+.lista ul{list-style:none;padding:0}
+.lista li{padding:10px 0 10px 30px;position:relative;border-bottom:1px dotted var(--linea)}
+.lista li::before{position:absolute;left:0;font-weight:700;color:var(--tomate)}
+.lista.si li::before{content:"✳"}
+.lista.no li::before{content:"✕";color:var(--tinta)}
+.lista .nota{display:block;font-size:1.4rem;color:var(--tomate);margin-top:14px;line-height:1.1}
+
+/* crew */
+.crew h2{font-size:clamp(2.4rem,5.6vw,5.4rem);max-width:20ch}
+.chiste{margin:clamp(20px,3vw,36px) 0 0;max-width:820px}
+.chiste svg{display:block;width:100%;height:auto;overflow:hidden}
+.chiste figcaption{font-size:clamp(1.2rem,2vw,1.6rem);margin-top:8px;color:var(--crema)}
+.monitor rect{fill:var(--tinta)}
+.monitor .rejilla{stroke:rgba(237,229,208,.12);stroke-width:1;fill:none}
+.monitor .linea{fill:none;stroke:var(--mostaza);stroke-width:3;stroke-linejoin:round;stroke-dasharray:1600;stroke-dashoffset:1600;animation:latir 4s linear infinite}
+.monitor .bpm{font:700 13px var(--mono);fill:var(--mostaza);letter-spacing:.08em}
+@keyframes latir{0%{stroke-dashoffset:1600}80%,100%{stroke-dashoffset:0}}
+.carretera rect{fill:var(--tinta)}
+.carretera .borde{stroke:var(--crema);stroke-width:3}
+.carretera .carril{stroke:var(--crema);stroke-width:4;stroke-dasharray:34 26;animation:carril 1s linear infinite}
+@keyframes carril{to{stroke-dashoffset:-60}}
+.coche{will-change:transform}
+.c1{animation:izq 2.3s linear infinite}
+.c2{animation:der 3.1s linear infinite .6s}
+@keyframes izq{from{transform:translateX(860px)}to{transform:translateX(-200px)}}
+@keyframes der{from{transform:translateX(-200px)}to{transform:translateX(900px)}}
+.conejo{transform:translate(520px,272px) scale(1.25)}
+.conejo .cuerpo{animation:saltos 4s cubic-bezier(.3,.7,.4,1) infinite}
+@keyframes saltos{
+  0%{transform:translateY(0)} 9%{transform:translateY(-36px) rotate(-8deg)} 16%{transform:translateY(-48px)}
+  25%{transform:translateY(-84px) rotate(-8deg)} 32%{transform:translateY(-92px)}
+  41%{transform:translateY(-128px) rotate(-8deg)} 48%{transform:translateY(-130px)}
+  80%{transform:translateY(-130px);opacity:1} 86%{transform:translateY(-130px) translateX(60px);opacity:0}
+  87%{transform:translateY(0);opacity:0} 100%{transform:translateY(0);opacity:1}}
+.conejo .gota{animation:gota .5s ease-in infinite}
+@keyframes gota{from{transform:translate(0,0);opacity:1}to{transform:translate(-8px,10px);opacity:0}}
+.chiste .rotulo{font:italic 400 20px var(--serif);fill:var(--crema)}
+.crew h2 .script{text-transform:none;color:var(--tinta);font-size:1.05em}
+.crew .grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,5vw,70px);align-items:center;margin-top:clamp(28px,4vw,56px)}
+.foto-duo{border:1.5px solid var(--tinta);box-shadow:10px 10px 0 var(--tinta);transform:rotate(-2deg);background:var(--crema)}
+.foto-duo img{width:100%;filter:grayscale(1) contrast(1.1)}
+.foto-duo:hover img{filter:none}
+.foto-duo figcaption{font:italic 400 1.2rem var(--serif);color:var(--tomate);padding:8px 12px}
+.personas{display:grid;gap:26px}
+.persona h3{font-size:clamp(2.6rem,4.4vw,3.8rem)}
+.persona .rol{font:700 .75rem/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
+.persona p{margin-top:8px;max-width:44ch}
+.persona .frase{font-size:1.4rem;line-height:1.1;margin-top:8px;color:var(--tinta)}
+
+/* práctico */
+.practico h2{font-size:clamp(3.6rem,10vw,9rem)}
+.cajon{position:relative;margin-top:clamp(28px,4vw,50px);background:var(--papel);border:1.5px solid var(--tinta);box-shadow:12px 12px 0 var(--tomate);padding:clamp(22px,4vw,48px);transform:rotate(-1deg)}
+.cajon::before{content:"";position:absolute;top:-14px;left:12%;width:120px;height:28px;background:rgba(245,183,0,.7);transform:rotate(-4deg)}
+.cajon .esq{position:absolute;top:14px;right:14px}
+.cajon .rango{display:flex;flex-wrap:wrap;align-items:flex-end;gap:.05em .25em;font-size:clamp(3.4rem,11vw,10.5rem);color:var(--tomate);line-height:.85;margin-top:12px}
+.cajon .d small{display:block;font-size:.3em;color:var(--tinta);line-height:1;margin-bottom:.08em}
+.cajon .flecha{color:var(--tinta);font-family:var(--serif);font-size:.7em;line-height:1.1}
+.pie-c{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin-top:16px;padding-top:14px;border-top:1px dotted var(--linea)}
+.pie-c .anyo{font-size:clamp(2rem,4vw,3.4rem)}
+.pie-c .script{font-size:clamp(1.3rem,2.2vw,1.9rem)}
+.prac{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,2fr);gap:clamp(24px,5vw,70px);align-items:center;margin-top:clamp(28px,4vw,50px)}
+.calendario{position:relative;background:var(--papel);border:1.5px solid var(--tinta);box-shadow:6px 6px 0 var(--tomate);transform:rotate(-2deg);padding:0 0 22px;max-width:300px;width:100%}
+.calendario .cabeza{background:var(--tomate);color:var(--crema);text-align:center;padding:14px 10px 10px;font-size:2.2rem;line-height:1}
+.calendario .agujero{width:12px;height:12px;border-radius:50%;background:var(--tinta);position:absolute;top:-6px}
+.calendario .agujero.a{left:22%}.calendario .agujero.b{right:22%}
+.calendario .fecha{font:400 5rem/1 var(--display);text-align:center;padding:18px 0 4px}
+.calendario .fecha small{display:block;font:italic 400 1.4rem var(--serif);text-transform:none}
+.calendario .hasta{text-align:center;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+.datos{list-style:none;padding:0}
+.datos li{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;padding:16px 0;border-bottom:1px dotted var(--linea)}
+.datos li:first-child{border-top:1px dotted var(--linea)}
+.datos dt,.datos .k{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.85rem}
+.datos .puntos{flex:1;border-bottom:1.5px dotted var(--linea);transform:translateY(-.3em);min-width:24px}
+.datos .v{font:400 clamp(1.5rem,2.4vw,2.1rem)/1 var(--display);text-transform:uppercase;color:var(--tomate)}
+.datos .nota-d{flex-basis:100%;font-size:.9rem}
+
+/* recursos */
+.recursos h2{font-size:clamp(3.4rem,9vw,8.4rem)}
+.recursos h2 .script{display:block;text-transform:none;color:var(--tomate);font-size:.42em;margin-bottom:.1em}
+.recursos .lead{max-width:56ch;margin-top:18px}
+.aviso{border:1.5px dashed var(--mostaza);color:var(--mostaza);padding:12px 16px;font-size:.85rem;margin-top:26px;max-width:80ch}
+.login{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,4vw,48px);margin-top:28px;align-items:start}
+.form{background:var(--crema);color:var(--tinta);border:1.5px solid var(--tinta);padding:clamp(18px,3vw,30px);display:grid;gap:14px;min-width:0}
+.form label{font:700 .75rem/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;display:grid;gap:8px}
+.form input,.form select,.form textarea{font:400 1rem/1.3 var(--mono);padding:12px;border:1.5px solid var(--tinta);background:var(--papel);color:var(--tinta);width:100%;border-radius:0}
+.form .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form .msg{font-size:.9rem;min-height:1.4em;color:var(--tomate)}
+.modo{display:flex;border:1.5px solid var(--tinta)}
+.modo button{flex:1;font:700 .8rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:13px;border:0;background:transparent;color:var(--tinta);cursor:pointer}
+.modo button[aria-pressed="true"]{background:var(--tomate);color:var(--crema)}
+.que-hay{list-style:none;padding:0}
+.que-hay li{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;padding:14px 0;border-bottom:1px dotted rgba(237,229,208,.5)}
+.que-hay li:first-child{border-top:1px dotted rgba(237,229,208,.5)}
+.que-hay .damero{grid-row:span 2;width:20px;height:20px;background-size:10px 10px}
+.que-hay b{font:400 1.5rem/1 var(--display);text-transform:uppercase}
+.que-hay span{font-size:.9rem;color:rgba(237,229,208,.78)}
+
+/* cronograma */
+.crono{margin-top:34px;background:var(--crema);color:var(--tinta);border:1.5px solid var(--crema);padding:clamp(16px,3vw,28px)}
+.crono .head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px 24px;align-items:end}
+.crono .head h3{font-size:clamp(2.4rem,5vw,4.2rem)}
+.crono .head h3 .script{display:block;text-transform:none;color:var(--tomate);font-size:.5em}
+.leyenda{display:flex;flex-wrap:wrap;gap:8px 18px;font:700 .72rem/1 var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.leyenda span{display:inline-flex;align-items:center;gap:8px}
+.leyenda i{width:16px;height:16px;display:inline-block;border:1.5px solid var(--tinta)}
+.lg-ya{background:var(--coral)}
+.lg-ahora{background:var(--mostaza);box-shadow:0 0 10px 2px var(--mostaza)}
+.lg-luego{background:#c9c4b8;filter:blur(1px)}
+.simula{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px 16px;align-items:center;margin-top:18px;border:1.5px solid var(--tinta);background:var(--papel);padding:12px 14px}
+.simula label{font:700 .72rem/1.3 var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.simula input[type=range]{width:100%;accent-color:var(--tomate)}
+.simula output{font:400 1.5rem/1 var(--display);text-transform:uppercase;white-space:nowrap;color:var(--tomate)}
+.simula .pie{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:.85rem}
+.scroller{overflow-x:auto;margin-top:16px;border:1.5px solid var(--tinta);background:#fbf7ec}
+.grid-c{display:grid;grid-template-columns:140px repeat(11,minmax(170px,1fr));position:relative;min-width:max-content}
+.grid-c .lane{position:sticky;left:0;z-index:4;background:#fbf7ec;border-right:1.5px solid var(--tinta);border-bottom:1px dotted var(--linea);padding:12px;font:400 1.15rem/1 var(--display);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.grid-c .lane i{width:12px;height:12px;flex:none;border:1.5px solid var(--tinta)}
+.grid-c .corner{position:sticky;left:0;z-index:5;background:#fbf7ec;border-right:1.5px solid var(--tinta)}
+.grid-c .corner.b{border-bottom:1.5px solid var(--tinta);font:700 .68rem/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;padding:10px 12px;display:flex;align-items:end}
+.grid-c .band{padding:9px 10px;font:400 1rem/1 var(--display);letter-spacing:.04em;text-transform:uppercase;border-bottom:1.5px solid var(--tinta)}
+.b-deseo{background:var(--mostaza)} .b-arraigo{background:var(--coral)} .b-contra{background:var(--tomate);color:var(--crema)} .b-cierre{background:var(--tinta);color:var(--crema)}
+.grid-c .ses{padding:10px;border-bottom:1.5px solid var(--tinta);border-left:1px dotted var(--linea)}
+.grid-c .ses b{font:400 1.35rem/1 var(--display);text-transform:uppercase;display:block}
+.grid-c .ses span{font:italic 400 1rem/1.2 var(--serif)}
+.grid-c a.ses{text-decoration:none;color:inherit;display:block;transition:background .2s}
+.grid-c a.ses:hover{background:var(--tinta);color:var(--crema)}
+.grid-c .ses em{display:block;font:700 .62rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;font-style:normal;color:var(--tomate);margin-top:6px}
+.grid-c a.ses:hover em{color:var(--mostaza)}
+.cell{padding:8px;border-left:1px dotted var(--linea);border-bottom:1px dotted var(--linea);min-width:0;position:relative;z-index:2}
+.rec{display:block;text-decoration:none;color:var(--tinta);background:var(--papel);border:1.5px solid var(--tinta);padding:9px 10px;font-size:.85rem;line-height:1.25;transition:filter .6s, opacity .6s, box-shadow .4s, transform .2s, background .4s}
+.rec .k{display:inline-block;font:700 .62rem/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;padding:3px 5px;margin-bottom:6px;border:1px solid var(--tinta)}
+.rec small{display:block;font:italic 400 .95rem/1.1 var(--serif);margin-top:5px;color:var(--tomate)}
+.rec.ya{box-shadow:4px 4px 0 var(--tinta)}
+.rec.ya:hover{transform:translate(-2px,-2px) rotate(-1deg);box-shadow:6px 6px 0 var(--tomate)}
+.rec.ahora{background:#fff5cf;box-shadow:0 0 0 3px var(--mostaza),0 0 22px 6px rgba(245,183,0,.75);animation:latido 1.8s ease-in-out infinite}
+@keyframes latido{50%{box-shadow:0 0 0 3px var(--mostaza),0 0 34px 10px rgba(245,183,0,.95)}}
+.rec.luego{filter:grayscale(1) blur(1.5px);opacity:.42;pointer-events:none}
+.rec .estado{display:none;font:700 .62rem/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--tomate);margin-top:6px}
+.rec.ahora .estado,.rec.luego .estado{display:block}
+.hoyline{position:absolute;top:0;bottom:0;width:2px;background:var(--tomate);z-index:1;pointer-events:none}
+.hoyline::before{content:"HOY";position:absolute;top:0;left:4px;font:700 .62rem/1 var(--mono);color:var(--crema);background:var(--tomate);padding:4px 5px}
+
+/* contacto */
+.contacto .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,70px);align-items:start}
+.contacto h2{font-size:clamp(3rem,7.4vw,7rem)}
+.contacto h2 .script{display:block;text-transform:none;font-size:.62em;color:var(--tinta);margin-top:.1em}
+.contacto .nota{font-size:1.5rem;margin-top:20px;display:block;line-height:1.1}
+.contacto .trasto{position:relative;width:min(220px,50%);margin-top:30px}
+footer{background:var(--tinta);color:var(--crema);position:relative}
+footer .wrap{padding-block:30px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;font-size:.8rem;letter-spacing:.04em}
+footer a{color:var(--mostaza)}
+
+/* entradas al aparecer: parten de un estado visible y se asientan */
+.js .rv{transform:translateY(18px) rotate(var(--rg,-2deg)) scale(.96);transform-origin:left center;transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+.js .rv.in{transform:none}
+
+@media (max-width:900px){
+  .hero .grid{grid-template-columns:1fr}
+  .lado{display:none}
+  .concepto,.concepto.inv .txt{grid-template-columns:1fr;order:0}
+  .concepto{grid-template-columns:1fr}
+  .carta,.duo,.crew .grid,.prac,.login,.contacto .grid,.cana,.manif .grid{grid-template-columns:1fr}
+  .fases{grid-template-columns:1fr 1fr}
+  .fase:nth-child(2){border-right:0}
+  .fase:nth-child(-n+2){border-bottom:1.5px solid var(--crema)}
+  .carta li:nth-child(2){border-top:0}
+  .nav ul li:not(:last-child){display:none}
+}
+@media (max-width:540px){
+  .fases{grid-template-columns:1fr}
+  .fase{border-right:0;border-bottom:1.5px solid var(--crema)}
+  .fase:last-child{border-bottom:0}
+  .form .row,.simula{grid-template-columns:1fr}
+  .lema{white-space:normal;text-align:center}
+  .grid-c{grid-template-columns:104px repeat(11,minmax(150px,1fr))}
+  .grid-c .lane{font-size:.95rem;padding:10px 8px}
+  .h-flores{opacity:.55}
+}
+@media (prefers-reduced-motion:reduce){
+  .trasto img,.escena .pieza img{animation-duration:10s}
+}
+.caja-herr{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:18px 0}
+.caja-herr span{font-size:.85rem}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Principal">
+  <div class="wrap">
+    <a class="nav-logo display" href="#inicio">Altillo <span class="script">lab</span></a>
+    <ul>
+      <li><a href="#carta">El lab</a></li>
+      <li><a href="#temario">Temario</a></li>
+      <li><a href="#practico">Fechas</a></li>
+      <li><a href="#recursos">Recursos</a></li>
+      <li><a href="#contacto">Apúntate</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="inicio">
+  <!-- 0 · portada -->
+  <section class="panel hero" data-sec>
+    <span class="trasto a h-flores" data-par="-90" aria-hidden="true"><img src="../assets/img/collage-flores.webp" alt="" width="560" height="476"></span>
+    <span class="trasto b h-sillon" data-par="70" aria-hidden="true"><img src="../assets/img/figura-sillon.webp" alt="" width="520" height="570"></span>
+    <span class="trasto c h-cerdita" data-par="-50" aria-hidden="true"><img src="../assets/img/figura-cerdita.webp" alt="" width="229" height="420"></span>
+    <div class="wrap">
+      <div class="grid">
+        <div class="lado"><span>Laboratorio de canciones</span><hr><span>Presencial + online</span><hr><span>Ariana &amp; David</span></div>
+        <div>
+          <h1 class="display"><span class="l1"><span class="m"><span>Sube al</span></span></span><span class="l2"><span class="m"><span>Altillo<span class="lab">Lab</span></span></span></span></h1>
+          <p class="lema script">y baja con una canción tuya</p>
+        </div>
+        <div class="lado der"><span>13 ene — 17 mar 2027</span><hr><span>9 sesiones + ensayo + muestra</span><hr><span>Plazas limitadas</span></div>
+      </div>
+      <p class="bajada">Un laboratorio de composición y producción musical para gente que ya toca algo y tiene canciones a medias criando polvo en el móvil.</p>
+      <div class="acciones">
+        <a class="btn" href="#contacto">Quiero subir</a>
+        <a class="btn contorno" href="#carta">¿Esto qué es?</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- te sobra -->
+  <section class="panel pt sobra" data-sec>
+    <div class="wrap">
+      <h2 class="display t1 rv">Menos…</h2>
+      <span class="display palabra" aria-live="polite"><span id="sobra">teoría</span></span>
+      <p class="script falta">y más <b>Altillo Lab.</b></p>
+    </div>
+  </section>
+
+  <div class="cinta" aria-hidden="true"><div class="pista">
+    <span>Producción</span><span><i>y</i></span><span>Composición</span><span>✳</span><span>Letras</span><span><i>con</i></span><span>Voz</span><span>✳</span><span>Raíz</span><span><i>y</i></span><span>Directo</span><span>✳</span>
+    <span>Producción</span><span><i>y</i></span><span>Composición</span><span>✳</span><span>Letras</span><span><i>con</i></span><span>Voz</span><span>✳</span><span>Raíz</span><span><i>y</i></span><span>Directo</span><span>✳</span>
+  </div></div>
+
+  <!-- manifiesto -->
+  <section class="panel pc manif" data-sec id="manif">
+    <div class="wrap">
+      <div class="cab label"><span class="num">00</span><span>Manifiesto de bolsillo</span></div>
+      <div class="grid">
+        <div class="lines">
+          <p class="l">Las canciones no salen de un tutorial.</p>
+          <p class="l">Salen de tener herramientas para impulsar el proceso creativo,</p>
+          <p class="l">revolver lo que guardas</p>
+          <p class="l">y bajar con algo <em>tuyo.</em></p>
+        </div>
+        <div>
+          <span class="trasto" data-par="60" aria-hidden="true"><img src="../assets/img/figura-burro.webp" alt="" width="560" height="458" style="--g:-4deg"></span>
+          <p class="script nota">(si se te cae una caja encima, mejor: ahí suele estar la canción)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 la carta -->
+  <section class="panel pr quees" id="carta" data-sec>
+    <div class="wrap">
+      <div class="cab label"><span class="num">01</span><span>La carta del lab</span></div>
+      <h2 class="display rv">¿Qué es esto?</h2>
+      <p class="script sub">Un laboratorio de canciones: compones, produces y cantas lo tuyo, en grupo.</p>
+      <ul class="carta">
+        <li class="rv" style="--rg:1deg"><span class="n">01</span><span class="plato">Preproducción y maquetado<span class="puntos"></span><small>con David</small></span><p>De la nota de voz al tema que suena. Grabar, arreglar y saber cuándo dejar de tocar botones.</p></li>
+        <li class="rv" style="--rg:-1deg"><span class="n">02</span><span class="plato">Composición y letra<span class="puntos"></span><small>con Ariana</small></span><p>Saber de qué va tu canción antes de buscarle la rima.</p></li>
+        <li class="rv" style="--rg:1deg"><span class="n">03</span><span class="plato">Voz y escena<span class="puntos"></span><small>con Ariana</small></span><p>Cantar lo que escribes como si te lo creyeras. Cuerpo, flamenco y nervios bien llevados.</p></li>
+        <li class="rv" style="--rg:-1deg"><span class="n">04</span><span class="plato">Armonía con sentido<span class="puntos"></span><small>con David</small></span><p>La teoría que sirve para componer, no la que sirve para presumir en una cena.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 temario -->
+  <section class="panel pc temario" id="temario" data-sec>
+    <div class="wrap">
+      <div class="cab label"><span class="num">02</span><span>Temario · tres conceptos, tres sesiones cada uno</span></div>
+      <h2 class="display rv">Temario</h2>
+      <p class="script lema-t">Cómo nos lo montamos, la verdad.</p>
+
+      <article class="concepto">
+        <div class="txt">
+          <div class="eti label"><span class="damero"></span>Sesiones 1, 2 y 3</div>
+          <h3 class="display">Deseo</h3>
+          <p class="script gancho">Aquí se viene a querer cosas en voz alta.</p>
+          <p class="t">Escuchamos canciones que desean fuerte, desmontamos cómo lo hacen y escribes la tuya desde ahí.</p>
+          <ul><li>Te llevas<span class="puntos"></span><b>una primera maqueta</b></li><li>Tocamos<span class="puntos"></span><b>melodía, motivo y forma</b></li></ul>
+        </div>
+        <div class="escena rv" data-par="-50"><div class="fondo f-deseo"><span>Quiero</span></div><div class="pieza"><img src="../assets/img/figura-cerdita.webp" alt="" width="229" height="420"></div><span class="sello">Ingrediente<br>principal</span></div>
+      </article>
+
+      <article class="concepto inv">
+        <div class="txt">
+          <div class="eti label"><span class="damero"></span>Sesiones 4, 5 y 6</div>
+          <h3 class="display">Arraigo</h3>
+          <p class="script gancho">Tu abuela también hacía producción musical. Sin saberlo.</p>
+          <p class="t">Palos, ritmos, cantes y coplas de aquí y de allá como cantera, para que suenes a ti y a tu sitio.</p>
+          <ul><li>Te llevas<span class="puntos"></span><b>un tema con tradición</b></li><li>Tocamos<span class="puntos"></span><b>ritmo, compás, sampleo y voz</b></li></ul>
+        </div>
+        <div class="escena rv" data-par="-50" style="--rg:2deg"><div class="fondo f-arraigo"><span>Raíz</span></div><div class="pieza"><img src="../assets/img/figura-burro.webp" alt="" width="560" height="458"></div><span class="sello">De la tierra<br>al estudio</span></div>
+      </article>
+
+      <article class="concepto">
+        <div class="txt">
+          <div class="eti label"><span class="damero"></span>Sesiones 7, 8 y 9</div>
+          <h3 class="display" style="font-size:clamp(2.8rem,6.4vw,6rem)">Contradicción</h3>
+          <p class="script gancho">Si no te contradices, no estás escribiendo.</p>
+          <p class="t">Lo que chirría también se compone. Jugamos con el contraste entre lo que dices y cómo suena.</p>
+          <ul><li>Te llevas<span class="puntos"></span><b>producción cerrada</b></li><li>Tocamos<span class="puntos"></span><b>arreglo, tensión y mezcla</b></li></ul>
+        </div>
+        <div class="escena rv" data-par="-50"><div class="fondo f-contra"><span>Pero</span></div><div class="pieza"><img src="../assets/img/figura-mono.webp" alt="" width="315" height="460"></div><span class="sello">Dulce<br>y salado</span></div>
+      </article>
+
+      <article class="concepto inv">
+        <div class="txt">
+          <div class="eti label"><span class="damero"></span>Sesiones 10 y 11</div>
+          <h3 class="display">Ensayo y muestra</h3>
+          <p class="script gancho">Del altillo al escenario.</p>
+          <p class="t">Un ensayo general y una noche para enseñar todo lo que ha salido del laboratorio, con público y sin red. En Chulona Mía o Bella Bestia, Madrid. <span class="provisional">Por confirmar</span></p>
+        </div>
+        <div class="escena rv" data-par="-50" style="--rg:2deg"><div class="fondo f-muestra"><span>¡Ya!</span></div><div class="pieza"><img src="../assets/img/figura-sillon.webp" alt="" width="520" height="570"></div><span class="sello">Se sirve<br>en directo</span></div>
+      </article>
+    </div>
+  </section>
+
+  <div class="cinta inv" aria-hidden="true"><div class="pista">
+    <span>Dar la caña</span><span><i>no el pez</i></span><span>✳</span><span>Dar la caña</span><span><i>no el pez</i></span><span>✳</span><span>Dar la caña</span><span><i>no el pez</i></span><span>✳</span>
+    <span>Dar la caña</span><span><i>no el pez</i></span><span>✳</span><span>Dar la caña</span><span><i>no el pez</i></span><span>✳</span><span>Dar la caña</span><span><i>no el pez</i></span><span>✳</span>
+  </div></div>
+
+  <!-- 03 método -->
+  <section class="panel pt metodo" data-sec>
+    <div class="wrap">
+      <div class="cab label"><span class="num">03</span><span>El método <span class="provisional">Estructura en revisión</span></span></div>
+      <h2 class="display rv">Aquí solo se improvisa en el <span class="script">escenario</span></h2>
+      <div class="fases">
+        <div class="fase"><span class="n">A</span><h3>Análisis</h3><p>Escuchamos con lupa. ¿Por qué esta canción te rompe y esa otra no?</p></div>
+        <div class="fase"><span class="n">I</span><h3>Inmersión</h3><p>Juegos, dinámicas y material para que salgan ideas sin pedir permiso.</p></div>
+        <div class="fase"><span class="n">C</span><h3>Creación</h3><p>Componer, grabar y producir. Equivocarse y volver a grabar.</p></div>
+        <div class="fase"><span class="n">M</span><h3>Manifiesto</h3><p>Lo enseñas al grupo y lo defiendes. Tu canción, tu postura.</p></div>
+      </div>
+      <div class="cana">
+        <blockquote class="display rv">Dar la <span class="script">caña,</span><br>no el pez</blockquote>
+        <p>Trabajamos desde la pedagogía de la esperanza de Paulo Freire: no te damos canciones hechas, te damos herramientas para que hagas las tuyas cuando acabe el curso.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 para quién -->
+  <section class="panel pc2 quien" data-sec>
+    <div class="wrap">
+      <div class="cab label"><span class="num">04</span><span>Para quién</span></div>
+      <h2 class="display rv">¿Es para ti?</h2>
+      <div class="duo">
+        <div class="lista si rv">
+          <h3 class="display">Sí, si…</h3>
+          <ul>
+            <li>Tocas un instrumento o cantas, aunque sea a tu manera.</li>
+            <li>Tienes canciones a medias y ganas de acabarlas.</li>
+            <li>Quieres producir tus temas sin depender de nadie.</li>
+            <li>Te apetece crear en grupo y escuchar a otras.</li>
+          </ul>
+        </div>
+        <div class="lista no rv" style="--rg:1.5deg">
+          <h3 class="display">Todavía no, si…</h3>
+          <ul>
+            <li>Nunca has tocado ni cantado nada.</li>
+            <li>Buscas un curso de solo software.</li>
+            <li>Quieres que te hagamos la canción.</li>
+          </ul>
+          <span class="script nota">Para lo primero, escríbenos igual: te contamos por dónde empezar.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 crew -->
+  <section class="panel pr crew" data-sec>
+    <div class="wrap">
+      <div class="cab label"><span class="num">05</span><span>Quién cocina</span></div>
+      <h2 class="display rv">Dos artistas, con más <span class="script">aristas</span>, que el electrocardiograma de un conejo atravesando una autopista</h2>
+      <figure class="chiste">
+        <svg viewBox="0 0 800 290" role="img" aria-label="Un conejo cruza una autopista a saltos entre coches mientras un monitor dibuja su electrocardiograma lleno de picos">
+          <g class="monitor">
+            <rect x="0" y="0" width="800" height="92" rx="10"/>
+            <path class="rejilla" d="M0 23H800M0 46H800M0 69H800M100 0V92M200 0V92M300 0V92M400 0V92M500 0V92M600 0V92M700 0V92"/>
+            <polyline class="linea" points="0,52 60,52 70,48 78,14 88,84 96,52 150,52 160,40 166,52 214,52 222,6 230,88 238,20 246,70 254,52 310,52 318,46 324,58 330,52 382,52 390,10 398,86 404,30 410,74 416,52 470,52 478,4 484,90 490,8 496,88 502,52 560,52 568,44 574,52 620,52 628,12 636,82 644,52 700,52 708,2 714,90 720,6 726,52 800,52"/>
+            <text x="788" y="20" text-anchor="end" class="bpm">BPM: SÍ</text>
+          </g>
+          <g class="carretera">
+            <rect x="0" y="118" width="800" height="118"/>
+            <path class="borde" d="M0 121H800M0 233H800"/>
+            <path class="carril" d="M0 177H800"/>
+          </g>
+          <g class="coche c1"><rect x="0" y="140" width="104" height="26" rx="8" fill="#F5B700"/><rect x="20" y="126" width="56" height="18" rx="6" fill="#F5B700"/><rect x="28" y="130" width="18" height="11" rx="2" fill="#ede5d0"/><rect x="50" y="130" width="18" height="11" rx="2" fill="#ede5d0"/><circle cx="24" cy="168" r="9" fill="#17140f" stroke="#ede5d0" stroke-width="2"/><circle cx="82" cy="168" r="9" fill="#17140f" stroke="#ede5d0" stroke-width="2"/><path d="M108 146h26M110 156h34" stroke="#ede5d0" stroke-width="3" stroke-linecap="round" opacity=".7"/></g>
+          <g class="coche c2"><rect x="0" y="196" width="120" height="26" rx="8" fill="#ede5d0"/><rect x="40" y="182" width="60" height="18" rx="6" fill="#ede5d0"/><rect x="50" y="186" width="18" height="11" rx="2" fill="#d4261a"/><rect x="72" y="186" width="18" height="11" rx="2" fill="#d4261a"/><circle cx="28" cy="224" r="9" fill="#17140f" stroke="#F5B700" stroke-width="2"/><circle cx="96" cy="224" r="9" fill="#17140f" stroke="#F5B700" stroke-width="2"/><path d="M-4 202h-26M-4 212h-34" stroke="#ede5d0" stroke-width="3" stroke-linecap="round" opacity=".7"/></g>
+          <g class="conejo">
+            <g class="cuerpo">
+              <ellipse cx="0" cy="-6" rx="20" ry="15" fill="#ede5d0" stroke="#17140f" stroke-width="2.5"/>
+              <circle cx="-19" cy="-10" r="6" fill="#fff" stroke="#17140f" stroke-width="2"/>
+              <ellipse cx="10" cy="-46" rx="5" ry="18" transform="rotate(-12 10 -46)" fill="#ede5d0" stroke="#17140f" stroke-width="2.5"/>
+              <ellipse cx="22" cy="-44" rx="5" ry="18" transform="rotate(18 22 -44)" fill="#ede5d0" stroke="#17140f" stroke-width="2.5"/>
+              <ellipse cx="10" cy="-46" rx="2" ry="11" transform="rotate(-12 10 -46)" fill="#E8694F"/>
+              <ellipse cx="22" cy="-44" rx="2" ry="11" transform="rotate(18 22 -44)" fill="#E8694F"/>
+              <circle cx="16" cy="-22" r="14" fill="#ede5d0" stroke="#17140f" stroke-width="2.5"/>
+              <circle cx="20" cy="-25" r="6" fill="#fff" stroke="#17140f" stroke-width="1.5"/>
+              <circle cx="21" cy="-25" r="2.2" fill="#17140f"/>
+              <ellipse cx="26" cy="-14" rx="3" ry="4" fill="#17140f"/>
+              <path d="M4 8l-6 6M12 8l4 7" stroke="#17140f" stroke-width="2.5" stroke-linecap="round"/>
+              <path class="gota" d="M-6 -40q4 -8 6 0a3 3 0 0 1 -6 0z" fill="#9fd3ff" stroke="#17140f" stroke-width="1"/>
+            </g>
+          </g>
+          <text x="16" y="112" class="rotulo">↑ salida: el altillo</text>
+          <text x="16" y="266" class="rotulo">entrada: tu canción a medias</text>
+        </svg>
+        <figcaption class="script">El conejo somos nosotros. El electrocardiograma, nuestras aristas.</figcaption>
+      </figure>
+      <div class="grid">
+        <figure class="foto-duo rv" data-par="-40" style="margin:0"><img src="../assets/img/altillo-duo.jpg" alt="Ariana y David, de Altillo" width="900" height="524"><figcaption>Ariana &amp; David · Altillo</figcaption></figure>
+        <div class="personas">
+          <div class="persona">
+            <h3 class="display">Ariana</h3>
+            <p class="rol">Voz · composición · letras · flamenco · escena</p>
+            <p>Te enseña a escribir lo que no te atreves a decir y luego a cantarlo mirando al público.</p>
+            <p class="script frase">Frase pícara de Ariana por escribir.</p>
+          </div>
+          <div class="persona">
+            <h3 class="display">David</h3>
+            <p class="rol">Producción · armonía</p>
+            <p>Te enseña a que la nota de voz que grabaste en el metro acabe sonando a disco, y a entender por qué funciona.</p>
+            <p class="script frase">Frase pícara de David por escribir.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 práctico -->
+  <section class="panel pc practico" id="practico" data-sec>
+    <div class="wrap">
+      <div class="cab label"><span class="num">06</span><span>Lo práctico</span></div>
+      <h2 class="display rv">Apunta</h2>
+      <div class="cajon rv">
+        <span class="damero esq" aria-hidden="true"></span>
+        <p class="label">Fechas del lab</p>
+        <p class="rango display"><span class="d"><small class="script">del</small>13 ene</span><span class="flecha" aria-hidden="true">→</span><span class="d"><small class="script">al</small>17 mar</span></p>
+        <p class="pie-c"><span class="display anyo">2027</span><span class="script">diez miércoles y una muestra final</span><span class="provisional">Hora por confirmar</span></p>
+      </div>
+      <div class="prac">
+        <div class="calendario rv" data-par="-30"><span class="agujero a"></span><span class="agujero b"></span><div class="cabeza display">Enero</div><div class="fecha">13<small>miércoles</small></div><p class="hasta">hasta el 17 de marzo de 2027</p></div>
+        <ul class="datos">
+          <li><span class="k">Cuándo</span><span class="puntos"></span><span class="v">Miércoles, semanal</span><span class="nota-d">13 de enero a 17 de marzo de 2027. <span class="provisional">Día y hora por confirmar</span></span></li>
+          <li><span class="k">Dónde</span><span class="puntos"></span><span class="v">Presencial (Madrid) + online</span><span class="nota-d">Sesiones presenciales en Madrid y acceso online a grabaciones y materiales.</span></li>
+          <li><span class="k">Cuánto</span><span class="puntos"></span><span class="v">600 € en un pago</span><span class="nota-d">O en <b>2 pagos de 300 € sin intereses</b>. También puedes <b>financiarlo por 650 €</b> con SeQura (pregunta disponibilidad). Y un 10 % de descuento por cada persona que traigas, hasta 4.</span></li>
+          <li><span class="k">Muestra</span><span class="puntos"></span><span class="v">Chulona Mía o Bella Bestia</span><span class="nota-d"><span class="provisional">Fecha y sala por confirmar</span></span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 recursos -->
+  <section class="panel pt recursos" id="recursos" data-sec>
+    <div class="wrap">
+      <div class="cab label"><span class="num">07</span><span>Solo para la gente del lab</span></div>
+      <h2 class="display rv"><span class="script">el altillo de</span>Recursos</h2>
+      <p class="lead">Temario, material, apps y grabaciones, ordenados en el tiempo. Lo que ya ha pasado se queda a color, lo de esta semana brilla y lo que viene espera en blanco y negro.</p>
+      <p class="aviso">MAQUETA · En este prototipo la clave no protege nada: solo sirve para ver cómo quedaría. Para probarla, usuario cualquiera y clave «altillo».</p>
+      <div class="login" id="login-box">
+        <form class="form" id="f-login" novalidate>
+          <div class="modo" role="group" aria-label="Modalidad">
+            <button type="button" id="m-pres" aria-pressed="true">Presencial</button>
+            <button type="button" id="m-online" aria-pressed="false">Online</button>
+          </div>
+          <label for="l-user">Usuario o email<input id="l-user" autocomplete="username" placeholder="tu@correo.com"></label>
+          <label for="l-pass">Clave<input id="l-pass" type="password" autocomplete="current-password" placeholder="••••••"></label>
+          <button class="btn" type="submit">Abrir el altillo</button>
+          <p class="msg" id="l-msg" role="status"></p>
+        </form>
+        <ul class="que-hay">
+          <li><span class="damero crema"></span><b>Temario</b><span>Lo que toca cada sesión, para saber dónde estás.</span></li>
+          <li><span class="damero crema"></span><b>Material</b><span>Digital (Drive) y físico: cuadernos, cancioneros impresos.</span></li>
+          <li><span class="damero crema"></span><b>Apps web</b><span>Juegos y herramientas que hacemos para el curso.</span></li>
+          <li><span class="damero crema"></span><b>Grabaciones</b><span>Cada clase en vídeo, para repasar o ponerte al día.</span></li>
+        </ul>
+      </div>
+
+      <div class="crono" id="crono" hidden>
+        <div class="head">
+          <h3 class="display"><span class="script" id="c-hola">Hola. Esto es tu altillo presencial</span>Cronograma del lab</h3>
+          <div class="leyenda" aria-label="Leyenda">
+            <span><i class="lg-ya"></i>Ya disponible</span>
+            <span><i class="lg-ahora"></i>Esta semana</span>
+            <span><i class="lg-luego"></i>Próximamente</span>
+          </div>
+        </div>
+        <div class="simula">
+          <label for="sim">Ver el altillo como si fuera el</label>
+          <input type="range" id="sim" min="0" max="70" step="1" value="29">
+          <output id="sim-out" for="sim">4 feb 2027</output>
+          <div class="pie">
+            <span>En la web real manda la fecha de hoy; aquí puedes moverla para ver cómo cambia.</span>
+            <button class="btn contorno sm" type="button" id="sim-hoy">Usar la fecha de hoy</button>
+            <button class="btn contorno sm" type="button" id="c-out">Cerrar el altillo</button>
+          </div>
+        </div>
+        <p class="caja-herr"><a class="btn" href="apps/index.html">Caja de herramientas ↗</a><span>Coetus, Revisión, Armonía y lo que venga, siempre a mano.</span></p>
+        <div class="scroller" tabindex="0" aria-label="Cronograma, desplázalo en horizontal">
+          <div class="grid-c" id="grid-c"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 contacto -->
+  <section class="panel pr contacto" id="contacto" data-sec>
+    <div class="wrap grid">
+      <div>
+        <div class="cab label"><span class="num">08</span><span>Apúntate</span></div>
+        <h2 class="display rv">Lo que te falte,<span class="script">pídelo por esa boquita</span></h2>
+        <span class="script nota">Plazas limitadas. El altillo es grande, pero no tanto.</span>
+        <span class="trasto" data-par="40" aria-hidden="true"><img src="../assets/img/collage-ariana.webp" alt="" width="700" height="487" style="--g:-5deg"></span>
+      </div>
+      <form class="form" id="f-contacto" novalidate>
+        <div class="row">
+          <label for="c-nombre">Nombre<input id="c-nombre" autocomplete="name"></label>
+          <label for="c-mail">Email<input id="c-mail" type="email" autocomplete="email"></label>
+        </div>
+        <label for="c-toco">¿Qué tocas o cantas?<input id="c-toco" placeholder="Guitarra, voz, ukelele, lo que sea"></label>
+        <label for="c-modo">Me interesa
+          <select id="c-modo"><option>Presencial en Madrid</option><option>Online</option><option>Solo quiero info</option></select>
+        </label>
+        <label for="c-cancion">Cuéntanos tu canción a medias<textarea id="c-cancion" rows="3"></textarea></label>
+        <button class="btn" type="submit" style="background:var(--tinta);border-color:var(--tinta)">Mandar</button>
+        <p class="msg" id="c-msg" role="status"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Laboratorio Altillo es parte de <a href="https://altillomusica.com/">ALTILLO</a> · Ariana &amp; David · Madrid</span>
+    <a href="#inicio">Volver arriba ↑</a>
+  </div>
+</footer>
+
+<script src="datos-sesiones.js"></script>
+<script>
+(function(){
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasIO = 'IntersectionObserver' in window;
+  if(hasIO) document.documentElement.classList.add('js');
+
+  /* Te sobra ___ : cambia sola, con giro */
+  var words = ['teoría','presets','tutoriales','miedo al folio','vergüenza','canciones a medias'];
+  var chip = document.getElementById('sobra'), wi = 0;
+  setInterval(function(){
+    wi = (wi+1) % words.length; chip.textContent = words[wi];
+    chip.classList.remove('cambia'); void chip.offsetWidth; chip.classList.add('cambia');
+  }, 1700);
+
+  /* Entradas: .rv se asienta al entrar en pantalla */
+  if(hasIO){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {threshold:.12});
+    document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+  }
+
+  /* Progreso de cada panel (0 = entrando por abajo, 1 = saliendo por arriba).
+     Se calcula con IntersectionObserver para que funcione también dentro de un iframe
+     que no hace scroll propio; si la ventana sí hace scroll, se afina con getBoundingClientRect. */
+  var secs = Array.prototype.slice.call(document.querySelectorAll('[data-sec]'));
+  var prog = new Map();
+  function aplica(sec){
+    var p = prog.get(sec); if(p == null) return;
+    if(!reduce){
+      sec.querySelectorAll('[data-par]').forEach(function(el){
+        var k = parseFloat(el.getAttribute('data-par')) || 0;
+        el.style.translate = '0 ' + ((p - .5) * k * 2).toFixed(1) + 'px';
+      });
+    }
+    if(sec.id === 'manif'){
+      var ls = sec.querySelectorAll('.l');
+      ls.forEach(function(l, i){ l.classList.toggle('on', p > .18 + i*.1); });
+    }
+  }
+  if(hasIO){
+    var th = []; for(var i=0;i<=50;i++) th.push(i/50);
+    var io2 = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting){ return; }
+        var b = e.boundingClientRect, r = e.intersectionRect, p;
+        if(e.rootBounds){
+          var vh = e.rootBounds.height; p = (vh - b.top) / (vh + b.height);
+        } else {
+          p = (((r.top + r.bottom)/2) - b.top) / b.height;
+        }
+        prog.set(e.target, Math.max(0, Math.min(1, p))); aplica(e.target);
+      });
+    }, {threshold:th});
+    secs.forEach(function(s){ io2.observe(s); });
+  } else {
+    document.querySelectorAll('.manif .l').forEach(function(l){ l.classList.add('on'); });
+  }
+  var tick = false;
+  window.addEventListener('scroll', function(){
+    if(tick) return; tick = true;
+    requestAnimationFrame(function(){
+      tick = false; var vh = window.innerHeight;
+      secs.forEach(function(s){
+        var b = s.getBoundingClientRect(); if(b.bottom < 0 || b.top > vh) return;
+        prog.set(s, Math.max(0, Math.min(1, (vh - b.top) / (vh + b.height)))); aplica(s);
+      });
+    });
+  }, {passive:true});
+
+  /* ---------- cronograma de recursos (datos en datos-sesiones.js) ---------- */
+  var LAB = window.ALTILLO_LAB || {sesiones:[], bloques:{}};
+  function aFecha(iso){ var p = iso.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+  var SES = LAB.sesiones.map(function(s){ return {n:s.n, fecha:aFecha(s.fecha), tbc:!!s.fechaPorConfirmar, d:s}; });
+  var LANES = [
+    {k:'tem', t:'Temario', col:'#d4261a', sec:'resumen', pick:function(d){ return d.titulo; }},
+    {k:'dig', t:'Material digital', col:'#17140f', sec:'pdf', pick:function(d){ return (d.pdfs[0]||d.textos[0]||{}).t; }},
+    {k:'fis', t:'Material físico', col:'#E8694F', sec:'fisico', pick:function(d){ return (d.fisico[0]||{}).t; }},
+    {k:'app', t:'Apps web', col:'#F5B700', sec:'app', pick:function(d){ return (d.apps[0]||{}).t; }},
+    {k:'vid', t:'Grabación', col:'#ede5d0', sec:'video', pick:function(d){ return (d.videos[0]||{}).t; }}
+  ];
+  var KIND = {tem:'Temario', dig:'PDF y Drive', fis:'Para llevar', app:'App web', vid:'Vídeo'};
+  var MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  function fmt(d){ return d.getDate()+' '+MES[d.getMonth()]; }
+  function esc(t){ return String(t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  var grid = document.getElementById('grid-c');
+  (function construye(){
+    var h = '<div class="corner"></div>', cuenta = {};
+    SES.forEach(function(s){ cuenta[s.d.bloque] = (cuenta[s.d.bloque]||0) + 1; });
+    var cls = {deseo:'b-deseo', arraigo:'b-arraigo', contra:'b-contra', cierre:'b-cierre'};
+    Object.keys(cuenta).forEach(function(k){
+      h += '<div class="band '+(cls[k]||'')+'" style="grid-column:span '+cuenta[k]+'">'+esc((LAB.bloques[k]||{}).nombre||k)+'</div>';
+    });
+    h += '<div class="corner b">Sesión</div>';
+    SES.forEach(function(s){ h += '<a class="ses" href="sesion.html#s'+s.n+'"><b>'+(s.n===10?'Ensayo':s.n===11?'Muestra':'Sesión '+s.n)+'</b><span>'+(s.tbc?'fecha por confirmar':'miércoles '+fmt(s.fecha))+'</span><em>Abrir el cajón →</em></a>'; });
+    LANES.forEach(function(L){
+      h += '<div class="lane"><i style="background:'+L.col+'"></i>'+L.t+'</div>';
+      SES.forEach(function(s){
+        var txt = L.pick(s.d);
+        h += '<div class="cell">';
+        if(txt){
+          var claro = (L.k==='app'||L.k==='vid'||L.k==='fis');
+          h += '<a class="rec" href="sesion.html#s'+s.n+'-'+L.sec+'" data-n="'+s.n+'"><span class="k" style="background:'+L.col+';color:'+(claro?'#17140f':'#ede5d0')+'">'+KIND[L.k]+'</span><br>'+esc(txt)+'<small>ejemplo</small><span class="estado"></span></a>';
+        }
+        h += '</div>';
+      });
+    });
+    h += '<div class="hoyline" id="hoyline" aria-hidden="true"></div>';
+    grid.innerHTML = h;
+  })();
+
+  var sim = document.getElementById('sim'), out = document.getElementById('sim-out');
+  var BASE = new Date(2027,0,6), usarHoy = false;
+  function fechaSim(){ var d = new Date(BASE); d.setDate(d.getDate() + parseInt(sim.value,10)); return d; }
+  function pinta(){
+    var hoy = usarHoy ? new Date() : fechaSim();
+    try{ localStorage.setItem('altillolab-fecha', usarHoy ? '' : hoy.toISOString()); }catch(e){}
+    out.textContent = (usarHoy ? 'hoy · ' : '') + fmt(hoy) + ' ' + hoy.getFullYear();
+    grid.querySelectorAll('.rec').forEach(function(a){
+      var s = SES[parseInt(a.dataset.n,10)-1], ini = s.fecha, fin = new Date(ini); fin.setDate(fin.getDate()+7);
+      var st = hoy < ini ? 'luego' : hoy < fin ? 'ahora' : 'ya';
+      a.classList.remove('ya','ahora','luego'); a.classList.add(st);
+      a.querySelector('.estado').textContent = st==='ahora' ? 'Esta semana' : st==='luego' ? (s.tbc ? 'Fecha por confirmar' : 'Se abre el '+fmt(ini)) : '';
+      a.setAttribute('aria-disabled', st==='luego'); a.tabIndex = st==='luego' ? -1 : 0;
+    });
+    var cols = grid.querySelectorAll('.ses'), line = document.getElementById('hoyline'), idx = -1;
+    for(var i=0;i<SES.length;i++){ if(hoy >= SES[i].fecha) idx = i; }
+    if(idx < 0){ line.hidden = true; return; }
+    var dias = (hoy - SES[idx].fecha)/864e5;
+    if(idx === SES.length-1 && dias > 7){ line.hidden = true; return; }
+    var gap = idx < SES.length-1 ? (SES[idx+1].fecha - SES[idx].fecha)/864e5 : 7;
+    var c = cols[idx]; line.hidden = false; line.style.left = (c.offsetLeft + c.offsetWidth*Math.min(1, dias/gap))+'px';
+  }
+  sim.addEventListener('input', function(){ usarHoy = false; pinta(); });
+  document.getElementById('sim-hoy').onclick = function(){ usarHoy = true; pinta(); };
+  window.addEventListener('resize', function(){ if(!document.getElementById('crono').hidden) pinta(); });
+
+  /* login de maqueta */
+  var modo = 'presencial', bP = document.getElementById('m-pres'), bO = document.getElementById('m-online');
+  function setModo(m){ modo = m; bP.setAttribute('aria-pressed', m==='presencial'); bO.setAttribute('aria-pressed', m==='online'); }
+  bP.onclick = function(){ setModo('presencial'); }; bO.onclick = function(){ setModo('online'); };
+  var crono = document.getElementById('crono'), fl = document.getElementById('f-login'), lm = document.getElementById('l-msg');
+  fl.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    if(document.getElementById('l-pass').value.trim().toLowerCase() !== 'altillo'){ lm.textContent = 'Esa clave no abre el altillo. En la maqueta es «altillo».'; return; }
+    lm.textContent = '';
+    document.getElementById('c-hola').textContent = modo==='online' ? 'Hola. Esto es tu altillo online' : 'Hola. Esto es tu altillo presencial';
+    document.getElementById('login-box').hidden = true;
+    try{ localStorage.setItem('altillolab-dentro', modo); }catch(e){}
+    crono.hidden = false; pinta();
+    if(crono.animate){
+      crono.animate([{clipPath:'inset(0 0 100% 0)'},{clipPath:'inset(0 0 0 0)'}], {duration:900, easing:'cubic-bezier(.7,0,.2,1)'});
+      grid.querySelectorAll('.rec').forEach(function(a, i){
+        a.animate([{transform:'translateY(18px) scale(.92)'},{transform:'none'}], {duration:450, delay:400 + i*18, easing:'cubic-bezier(.2,1.4,.4,1)', fill:'backwards'});
+      });
+    }
+    crono.scrollIntoView({behavior: reduce?'auto':'smooth', block:'start'});
+  });
+  document.getElementById('c-out').onclick = function(){ try{ localStorage.removeItem('altillolab-dentro'); }catch(e){} crono.hidden = true; document.getElementById('login-box').hidden = false; fl.reset(); };
+
+  try{
+    var dentro = localStorage.getItem('altillolab-dentro');
+    if(dentro){ setModo(dentro); document.getElementById('c-hola').textContent = dentro==='online' ? 'Hola. Esto es tu altillo online' : 'Hola. Esto es tu altillo presencial'; document.getElementById('login-box').hidden = true; crono.hidden = false;
+      var f = localStorage.getItem('altillolab-fecha'); if(f){ var d = new Date(f); sim.value = Math.max(0, Math.min(70, Math.round((d - BASE)/864e5))); } else { usarHoy = true; }
+      pinta(); }
+  }catch(e){}
+
+  document.getElementById('f-contacto').addEventListener('submit', function(ev){
+    ev.preventDefault(); document.getElementById('c-msg').textContent = 'Prototipo: este formulario todavía no envía nada.';
+  });
+})();
+</script>
+</body>
+</html>

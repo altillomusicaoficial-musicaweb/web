@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Armonía con conejo · AltilloLAB</title>
+<meta name="description" content="Círculo de quintas, escalas y los acordes de cada escala, con un conejo que salta por las notas. Nivel básico, medio y avanzado.">
+<link rel="stylesheet" href="../marca.css">
+<style>
+/* Layout: niveles arriba; círculo de quintas a la izquierda y escala a la derecha; debajo el camino de piedras
+   por el que salta el conejo, el teclado, los acordes de la escala y progresiones para escuchar. */
+.niveles{display:flex;gap:0;margin:6px 0 26px;border:1.5px solid var(--tinta);width:max-content;max-width:100%}
+.niveles button{min-height:46px;padding:.5em 1.1em;border:0;background:var(--papel);cursor:pointer;font:700 .8rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.niveles button+button{border-left:1.5px solid var(--tinta)}
+.niveles button[aria-pressed="true"]{background:var(--tomate);color:#fff4e4}
+.arriba{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(18px,3vw,40px);align-items:start}
+@media (max-width:860px){.arriba{grid-template-columns:1fr}}
+.circulo svg{display:block;width:100%;max-width:470px;margin:0 auto;height:auto}
+.circulo .sector{cursor:pointer;transition:fill .2s}
+.circulo .sector:hover{fill:var(--mostaza)}
+.circulo text{pointer-events:none;font-family:var(--mono);font-weight:700}
+.circulo .ayuda{font-size:.82rem;margin-top:10px;text-align:center}
+.leyenda{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:.75rem;margin-top:8px}
+.leyenda i{display:inline-block;width:12px;height:12px;border:1.5px solid var(--tinta);vertical-align:-2px;margin-right:4px}
+.escala h2{font-size:clamp(2.4rem,6vw,4.4rem);color:var(--tomate)}
+.escala h2 .script{color:var(--tinta);font-size:.55em;display:block}
+.sel-escala{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.sel-escala button{min-height:36px;padding:.35em .75em;border:1.5px solid var(--tinta);background:#fffaf0;cursor:pointer;font:700 .72rem/1.1 var(--mono)}
+.sel-escala button[aria-pressed="true"]{background:var(--tinta);color:var(--crema)}
+.sel-escala button .n{display:inline-block;font-size:.6rem;opacity:.6;margin-left:4px}
+.raiz{font-family:var(--serif);font-style:italic;font-size:1.35rem;line-height:1.2;margin-top:6px}
+.formula{font-size:.85rem;margin-top:8px}
+.formula b{background:var(--crema-2);padding:2px 6px;margin-right:2px;display:inline-block;margin-bottom:3px}
+
+/* el camino del conejo */
+.camino-caja{margin-top:clamp(28px,4vw,48px);background:var(--tinta);color:var(--crema);padding:18px clamp(12px,2.5vw,26px) 22px;position:relative}
+.camino-caja .cab{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.camino-caja h3{font-size:1.9rem}
+.mandos{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mandos .btn.contorno{color:var(--crema);border-color:var(--crema)}
+.mandos .btn.contorno:hover{background:var(--crema);color:var(--tinta)}
+.mandos label{font-size:.7rem;display:flex;gap:6px;align-items:center}
+.mandos input[type=range]{accent-color:var(--tomate);width:90px}
+.camino{position:relative;height:190px;margin-top:10px;overflow:hidden}
+.piedras{position:absolute;left:0;right:0;bottom:12px;display:flex;justify-content:space-between;gap:4px}
+.piedra{flex:1;min-width:0;height:62px;border-radius:50% 50% 44% 44%/60% 60% 40% 40%;background:#3a342b;border:2px solid #5c5446;display:grid;place-items:center;align-content:center;cursor:pointer;transition:background .15s,transform .15s;color:var(--crema);padding:0;font:inherit}
+.piedra .nom{font:700 clamp(.72rem,2.1vw,1.05rem)/1 var(--mono)}
+.piedra .gr{font:400 .62rem/1 var(--mono);opacity:.65;margin-top:4px}
+.piedra.luz{background:var(--tomate);border-color:#fff4e4;transform:translateY(3px)}
+.piedra.acorde{background:var(--mostaza);border-color:#fff4e4;color:var(--tinta)}
+.piedra.tonica .nom{text-decoration:underline;text-underline-offset:3px}
+.conejo{position:absolute;bottom:70px;left:0;width:74px;height:84px;transform:translateX(-50%);transition:left .26s cubic-bezier(.4,.1,.3,1);pointer-events:none;z-index:2}
+.conejo svg{width:100%;height:100%;overflow:visible}
+.conejo .cuerpo{transform-origin:50% 100%}
+.conejo.salta .cuerpo{animation:salto .28s ease-out}
+@keyframes salto{0%{transform:translateY(0) scale(1.05,.92)}45%{transform:translateY(-58px) rotate(-8deg) scale(.96,1.06)}100%{transform:translateY(0) scale(1.06,.9)}}
+.conejo .gota{opacity:0}
+.conejo.salta .gota{animation:gota .4s ease-in}
+@keyframes gota{from{opacity:1;transform:translate(0,0)}to{opacity:0;transform:translate(-8px,10px)}}
+.bocadillo{position:absolute;top:6px;left:0;right:0;text-align:center;font:italic 400 clamp(1.1rem,2.4vw,1.5rem)/1.1 var(--serif);color:var(--crema);min-height:1.2em}
+
+/* teclado */
+.teclado{margin-top:16px}
+.teclado svg{display:block;width:100%;height:auto;max-height:120px}
+.teclado .blanca{fill:#fffaf0;stroke:var(--tinta);stroke-width:1.5}
+.teclado .negra{fill:var(--tinta)}
+.teclado .en-escala{fill:var(--crema-2)}
+.teclado .negra.en-escala{fill:#6e5f48}
+.teclado .suena{fill:var(--tomate)!important}
+.teclado .tecla{cursor:pointer}
+
+/* acordes */
+.bloque{margin-top:clamp(32px,5vw,60px)}
+.bloque .cab{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.bloque h3{font-size:clamp(2rem,5vw,3.2rem)}
+.alternar{display:flex;border:1.5px solid var(--tinta)}
+.alternar button{min-height:38px;padding:.4em .9em;border:0;background:var(--papel);cursor:pointer;font:700 .72rem/1 var(--mono);text-transform:uppercase;letter-spacing:.05em}
+.alternar button+button{border-left:1.5px solid var(--tinta)}
+.alternar button[aria-pressed="true"]{background:var(--tinta);color:var(--crema)}
+.acordes{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.acorde{border:1.5px solid var(--tinta);background:#fffaf0;padding:12px 10px;cursor:pointer;text-align:left;display:grid;gap:4px;box-shadow:4px 4px 0 var(--tinta);transition:transform .12s,background .12s}
+.acorde:hover{transform:translate(-2px,-2px) rotate(-1deg)}
+.acorde.activo{background:var(--mostaza)}
+.acorde .rom{font:400 1.9rem/1 var(--display);color:var(--tomate)}
+.acorde .nom{font:700 1.05rem/1.1 var(--mono)}
+.acorde .notas{font-size:.72rem;opacity:.75}
+.acorde .fun{font:700 .62rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 6px;justify-self:start;border:1.5px solid currentColor}
+.fun.T{color:#1B2845}.fun.S{color:#b38600}.fun.D{color:#d4261a}
+.nota-madre{font-size:.85rem;margin-bottom:12px;max-width:70ch}
+.progresiones{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.prog{border:1.5px solid var(--tinta);background:var(--papel);padding:14px;display:grid;gap:8px}
+.prog h4{font:400 1.5rem/1 var(--display);text-transform:uppercase}
+.prog .cifra{font:700 1rem var(--mono)}
+.prog .rom2{font-size:.78rem;opacity:.7}
+.prog p{font-size:.82rem}
+.prog .btn{justify-self:start}
+.chuleta{margin-top:clamp(32px,5vw,60px);display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.chuleta .carta h4{font:400 1.5rem/1 var(--display);text-transform:uppercase;color:var(--tomate);margin-bottom:8px}
+.chuleta .carta p{font-size:.86rem}
+</style>
+</head>
+<body>
+<header class="lab-bar">
+  <div class="wrap">
+    <a class="lab-logo" href="../../index.html">Altillo<span class="lab">LAB</span><span class="script">· armonía</span></a>
+    <a class="lab-volver" id="volver" href="../index.html">← Herramientas</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="lab-hero">
+    <span class="cinta">Herramienta 03</span>
+    <h1 class="display">Armonía<span class="script">con un conejo que salta por las notas</span></h1>
+    <p>Elige una tónica en el círculo, elige una escala y mira qué acordes salen de ella. Toca cualquier cosa para oírla. La teoría que sirve para componer, no la que sirve para presumir en una cena.</p>
+  </section>
+
+  <div class="niveles" role="group" aria-label="Nivel">
+    <button data-nivel="1" aria-pressed="true">Básico</button>
+    <button data-nivel="2" aria-pressed="false">Medio</button>
+    <button data-nivel="3" aria-pressed="false">Avanzado</button>
+  </div>
+
+  <div class="arriba">
+    <section class="circulo carta" aria-label="Círculo de quintas">
+      <p class="label rojo">Círculo de quintas</p>
+      <svg id="circulo" viewBox="0 0 400 400" role="img" aria-label="Círculo de quintas: fuera las tonalidades mayores, dentro sus relativas menores"></svg>
+      <div class="leyenda"><span><i style="background:var(--tomate)"></i>tu tónica</span><span><i style="background:var(--mostaza)"></i>vecinas (IV y V)</span><span><i style="background:var(--crema-2)"></i>relativa</span></div>
+      <p class="ayuda">Fuera, las mayores; dentro, sus relativas menores. Al girar a la derecha, cada paso añade un sostenido.</p>
+    </section>
+
+    <section class="escala">
+      <p class="label rojo">Escala</p>
+      <h2 class="display" id="tituloEscala"></h2>
+      <div class="sel-escala" id="selEscala" role="group" aria-label="Elige escala"></div>
+      <p class="raiz" id="raiz"></p>
+      <p class="formula" id="formula"></p>
+    </section>
+  </div>
+
+  <section class="camino-caja" aria-label="El camino del conejo">
+    <div class="cab">
+      <h3 class="display">El camino del conejo</h3>
+      <div class="mandos">
+        <button class="btn sm" id="subir">▲ Sube la escala</button>
+        <button class="btn contorno sm" id="bajar">▼ Bájala</button>
+        <label class="label">Tempo <input type="range" id="tempo" min="60" max="220" value="120" aria-label="Tempo"></label>
+      </div>
+    </div>
+    <div class="camino" id="camino">
+      <p class="bocadillo" id="bocadillo">Toca una piedra y el conejo salta.</p>
+      <div class="conejo" id="conejo" aria-hidden="true">
+        <svg viewBox="-40 -76 80 96">
+          <g class="cuerpo">
+            <ellipse cx="0" cy="-6" rx="20" ry="15" fill="#ede5d0" stroke="#17140f" stroke-width="2.5"/>
+            <circle cx="-19" cy="-10" r="6" fill="#fff" stroke="#17140f" stroke-width="2"/>
+            <ellipse cx="10" cy="-46" rx="5" ry="18" transform="rotate(-12 10 -46)" fill="#ede5d0" stroke="#17140f" stroke-width="2.5"/>
+            <ellipse cx="22" cy="-44" rx="5" ry="18" transform="rotate(18 22 -44)" fill="#ede5d0" stroke="#17140f" stroke-width="2.5"/>
+            <ellipse cx="10" cy="-46" rx="2" ry="11" transform="rotate(-12 10 -46)" fill="#E8694F"/>
+            <ellipse cx="22" cy="-44" rx="2" ry="11" transform="rotate(18 22 -44)" fill="#E8694F"/>
+            <circle cx="16" cy="-22" r="14" fill="#ede5d0" stroke="#17140f" stroke-width="2.5"/>
+            <circle cx="20" cy="-25" r="6" fill="#fff" stroke="#17140f" stroke-width="1.5"/>
+            <circle cx="21" cy="-25" r="2.2" fill="#17140f"/>
+            <ellipse cx="26" cy="-14" rx="3" ry="4" fill="#17140f"/>
+            <path d="M4 8l-6 6M12 8l4 7" stroke="#17140f" stroke-width="2.5" stroke-linecap="round"/>
+            <path class="gota" d="M-6 -40q4 -8 6 0a3 3 0 0 1 -6 0z" fill="#9fd3ff" stroke="#17140f" stroke-width="1"/>
+          </g>
+        </svg>
+      </div>
+      <div class="piedras" id="piedras"></div>
+    </div>
+    <div class="teclado"><svg id="teclado" viewBox="0 0 700 110" aria-label="Teclado con las notas de la escala marcadas"></svg></div>
+  </section>
+
+  <section class="bloque">
+    <div class="cab">
+      <h3 class="display">Los acordes de la escala</h3>
+      <div class="alternar" role="group" aria-label="Tipo de acorde">
+        <button data-tipo="3" aria-pressed="true">Tríadas</button>
+        <button data-tipo="4" aria-pressed="false">Cuatriadas (7ª)</button>
+      </div>
+    </div>
+    <p class="nota-madre" id="notaMadre" hidden></p>
+    <div class="acordes" id="acordes"></div>
+  </section>
+
+  <section class="bloque">
+    <div class="cab"><h3 class="display">Progresiones para escuchar</h3><span class="label" id="progTono"></span></div>
+    <div class="progresiones" id="progresiones"></div>
+  </section>
+
+  <section class="chuleta" id="chuleta"></section>
+
+  <footer class="lab-pie">
+    <p>AltilloLAB · herramienta de armonía. Funciona sin conexión una vez cargada. El sonido es un sintetizador sencillo del propio navegador; si no suena, revisa que el móvil no esté en silencio.</p>
+  </footer>
+</main>
+
+<script>
+/* ======================= teoría ======================= */
+const LETRAS = ['Do','Re','Mi','Fa','Sol','La','Si'];
+const NATURAL = [0,2,4,5,7,9,11];
+const ALT = {'-2':'𝄫','-1':'♭','0':'','1':'♯','2':'𝄪'};
+// tónicas del círculo (mayores) y sus relativas menores: [letra, alteración]
+const MAYORES = [[0,0],[4,0],[1,0],[5,0],[2,0],[6,0],[3,1],[1,-1],[5,-1],[2,-1],[6,-1],[3,0]];
+const MENORES = [[5,0],[2,0],[6,0],[3,1],[0,1],[4,1],[1,1],[6,-1],[3,0],[0,0],[4,0],[1,0]];
+const ARMADURA = ['sin alteraciones','1♯','2♯','3♯','4♯','5♯','6♯ / 6♭','5♭','4♭','3♭','2♭','1♭'];
+const MAYOR = [0,2,4,5,7,9,11];
+
+// nivel: 1 básico, 2 medio, 3 avanzado. semis = semitonos desde la tónica; pasos = qué letra ocupa cada nota.
+const ESCALAS = [
+  {id:'mayor', nombre:'Mayor (jónica)', nivel:1, semis:[0,2,4,5,7,9,11], pasos:[0,1,2,3,4,5,6], funciones:true,
+    raiz:'La de casi todas las canciones que cantas sin darte cuenta. Luminosa, de casa.'},
+  {id:'menor', nombre:'Menor natural (eólica)', nivel:1, semis:[0,2,3,5,7,8,10], pasos:[0,1,2,3,4,5,6], funciones:true,
+    raiz:'La mayor vista desde su sexto grado: las mismas notas, otra casa. Más sombra.'},
+  {id:'pmay', nombre:'Pentatónica mayor', nivel:1, semis:[0,2,4,7,9], pasos:[0,1,2,4,5], madre:'mayor',
+    raiz:'Cinco notas sin semitonos: no hay forma de que suene mal. Está en músicas de raíz de medio mundo.'},
+  {id:'pmen', nombre:'Pentatónica menor', nivel:1, semis:[0,3,5,7,10], pasos:[0,2,3,4,6], madre:'menor',
+    raiz:'La de los solos de guitarra y de muchas nanas. Cinco notas para improvisar sin miedo.'},
+  {id:'armonica', nombre:'Menor armónica', nivel:2, semis:[0,2,3,5,7,8,11], pasos:[0,1,2,3,4,5,6], funciones:true,
+    raiz:'La menor con la 7ª subida: aparece la sensible y el V se vuelve mayor. Tensión que pide volver.'},
+  {id:'melodica', nombre:'Menor melódica', nivel:2, semis:[0,2,3,5,7,9,11], pasos:[0,1,2,3,4,5,6], funciones:true,
+    raiz:'Menor abajo, mayor arriba. La del jazz cuando quiere color sin perder la pena.'},
+  {id:'dorica', nombre:'Dórica', nivel:2, semis:[0,2,3,5,7,9,10], pasos:[0,1,2,3,4,5,6],
+    raiz:'Menor con la 6ª luminosa. Suena a mucha música celta y gallega, y al funk de dos acordes.'},
+  {id:'mixolidia', nombre:'Mixolidia', nivel:2, semis:[0,2,4,5,7,9,10], pasos:[0,1,2,3,4,5,6],
+    raiz:'Mayor con la 7ª bajada. Suena a gaita, a rock de tres acordes y a cumbia.'},
+  {id:'blues', nombre:'Blues', nivel:2, semis:[0,3,5,6,7,10], pasos:[0,2,3,4,4,6], madre:'menor',
+    raiz:'La pentatónica menor con la «blue note» (5ª disminuida) colándose entre medias.'},
+  {id:'frigia', nombre:'Frigia', nivel:3, semis:[0,1,3,5,7,8,10], pasos:[0,1,2,3,4,5,6],
+    raiz:'Menor con la 2ª pegada a la tónica. Oscura y cercana: el modo de Mi de la música andaluza.'},
+  {id:'fdom', nombre:'Frigia dominante (flamenca)', nivel:3, semis:[0,1,4,5,7,8,10], pasos:[0,1,2,3,4,5,6],
+    raiz:'La frigia con la 3ª mayor. Es la del flamenco por soleá o por seguiriya y la de muchas músicas árabes y sefardíes. Sobre Mi: Mi–Fa–Sol♯–La–Si–Do–Re.'},
+  {id:'lidia', nombre:'Lidia', nivel:3, semis:[0,2,4,6,7,9,11], pasos:[0,1,2,3,4,5,6],
+    raiz:'Mayor con la 4ª subida. Flota: es la de las bandas sonoras que vuelan.'},
+  {id:'locria', nombre:'Locria', nivel:3, semis:[0,1,3,5,6,8,10], pasos:[0,1,2,3,4,5,6],
+    raiz:'La más inestable: hasta su tónica es disminuida. Útil para un instante, rara para vivir en ella.'},
+  {id:'doble', nombre:'Doble armónica (árabe)', nivel:3, semis:[0,1,4,5,7,8,11], pasos:[0,1,2,3,4,5,6],
+    raiz:'Dos segundas aumentadas. Suena a zambra, a Oriente Próximo y a película de desierto.'}
+];
+
+const pcDe = (l,a) => ((NATURAL[l]+a)%12+12)%12;
+function nombreNota(l, a){ return LETRAS[l] + (ALT[a] ?? ''); }
+// deletrea una nota a partir de la tónica (letra+alteración), su distancia en semitonos y su paso de letra
+function deletrear(tl, ta, semis, paso){
+  const l = (tl + paso) % 7;
+  const objetivo = (pcDe(tl,ta) + semis) % 12;
+  let a = objetivo - NATURAL[l]; a = ((a+6)%12+12)%12 - 6;
+  return {l, a, pc:objetivo, nombre:nombreNota(l,a)};
+}
+function calidad(t, q, s){ // intervalos 3ª, 5ª (y 7ª) desde la fundamental
+  if(s === undefined){
+    if(t===4&&q===7) return {suf:'',tipo:'M'}; if(t===3&&q===7) return {suf:'m',tipo:'m'};
+    if(t===3&&q===6) return {suf:'dim',tipo:'dim'}; if(t===4&&q===8) return {suf:'aum',tipo:'aum'};
+    return {suf:'(?)',tipo:'?'};
+  }
+  const k = `${t}-${q}-${s}`;
+  const tabla = {'4-7-11':['maj7','M'],'4-7-10':['7','M'],'3-7-10':['m7','m'],'3-6-10':['m7♭5','ø'],'3-6-9':['dim7','dim'],'3-7-11':['m(maj7)','m'],'4-8-11':['aum(maj7)','aum'],'4-8-10':['aum7','aum']};
+  const r = tabla[k] || ['(?)','?']; return {suf:r[0],tipo:r[1]};
+}
+const ROMANOS = ['I','II','III','IV','V','VI','VII'];
+function romano(grado, semis, tipo, siete){
+  const dif = semis - MAYOR[grado];
+  const acc = dif < 0 ? '♭'.repeat(-dif) : '♯'.repeat(dif);
+  let r = ROMANOS[grado]; if(tipo==='m'||tipo==='dim'||tipo==='ø') r = r.toLowerCase();
+  if(tipo==='dim') r += '°'; if(tipo==='aum') r += '+'; if(tipo==='ø') r += 'ø';
+  if(siete && tipo!=='ø' && tipo!=='dim') r += '7'; if(siete && tipo==='dim') r += '7';
+  return acc + r;
+}
+const FUNCION = ['T','S','T','S','D','T','D'];
+const FUNCION_TXT = {T:'Tónica · reposo', S:'Subdominante · salir', D:'Dominante · tensión'};
+
+// progresiones: cada acorde = semitonos y paso desde la tónica + sufijo. menor:true usa la relativa menor como centro.
+const PROGRESIONES = [
+  {nivel:1, nombre:'La de toda la vida', cifra:[[0,0,''],[5,3,''],[7,4,''],[0,0,'']], rom:'I – IV – V – I', txt:'Salir de casa, alejarse y volver. Medio cancionero popular cabe aquí.'},
+  {nivel:1, nombre:'La del pop', cifra:[[0,0,''],[7,4,''],[9,5,'m'],[5,3,'']], rom:'I – V – vi – IV', txt:'Cuatro acordes, mil canciones. Prueba a empezarla por el vi y verás cómo se entristece.'},
+  {nivel:1, nombre:'Menor de verdad', cifra:[[0,0,'m'],[5,3,'m'],[7,4,'m'],[0,0,'m']], rom:'i – iv – v – i (sobre la tónica en menor)', txt:'Todo menor: sin sensible, más modal y más antigua.'},
+  {nivel:2, nombre:'Dos-cinco-uno', cifra:[[2,1,'m7'],[7,4,'7'],[0,0,'maj7']], rom:'ii7 – V7 – Imaj7', txt:'La cadencia del jazz y del bolero. El ii prepara, el V tensa, el I resuelve.'},
+  {nivel:2, nombre:'La rueda', cifra:[[0,0,''],[9,5,'m'],[2,1,'m'],[7,4,'7']], rom:'I – vi – ii – V7', txt:'Gira sola y nunca se acaba de cerrar: perfecta para un estribillo que vuelve.'},
+  {nivel:2, nombre:'Dominante de la dominante', cifra:[[0,0,''],[2,1,'7'],[7,4,'7'],[0,0,'']], rom:'I – II7 (V/V) – V7 – I', txt:'El II se vuelve mayor para empujar hacia el V. Primer préstamo de tensión.'},
+  {nivel:3, nombre:'Cadencia andaluza', cifra:[[0,0,'m'],[10,6,''],[8,5,''],[7,4,'']], rom:'i – ♭VII – ♭VI – V', txt:'Bajando por la frigia dominante hasta posarse en el V (que en flamenco se siente como tónica). Sobre La: La m – Sol – Fa – Mi.'},
+  {nivel:3, nombre:'Préstamo modal', cifra:[[0,0,''],[5,3,'m'],[0,0,''],[8,5,''],[10,6,''],[0,0,'']], rom:'I – iv – I – ♭VI – ♭VII – I', txt:'Acordes prestados de la menor paralela: la luz de la mayor con una nube encima.'},
+  {nivel:3, nombre:'Sustituto tritonal', cifra:[[2,1,'m7'],[1,1,'7'],[0,0,'maj7']], rom:'ii7 – ♭II7 – Imaj7', txt:'El V7 se cambia por el acorde que está a un tritono: el bajo baja por semitonos hacia la tónica.'},
+  {nivel:3, nombre:'Mixolidia de raíz', cifra:[[0,0,''],[10,6,''],[5,3,''],[0,0,'']], rom:'I – ♭VII – IV – I', txt:'La 7ª bajada convierte el ♭VII en un acorde de casa. Gaita, rock y cumbia.'}
+];
+const CHULETA = {
+  1:[['Tónica','El acorde de casa. Todo quiere volver a él.'],['Relativa','Toda mayor tiene una menor con sus mismas notas, tres semitonos por debajo (Do ↔ La m).'],['Vecinas','En el círculo, las de al lado comparten seis de siete notas: por eso modular a ellas suena natural.']],
+  2:[['Función','Tónica = reposo, subdominante = salir, dominante = tensión que pide volver.'],['Sensible','La nota a un semitono de la tónica. Es la que hace que el V «tire» hacia el I.'],['Modos','Mismas notas, otro centro. Dórica y mixolidia cambian una sola nota respecto a menor y mayor.']],
+  3:[['Intercambio modal','Tomar acordes de la escala paralela (Do mayor ↔ Do menor) para cambiar la luz sin cambiar de casa.'],['Frigio y flamenco','En la cadencia andaluza el reposo está en el V, que suena a tónica: es el modo de Mi.'],['Tritono','El V7 y el ♭II7 comparten el mismo tritono, por eso uno puede sustituir al otro.']]
+};
+
+/* ======================= estado ======================= */
+let est = { nivel:1, tonica:[0,0], escala:'mayor', tipo:3, tempo:120 };
+try{ Object.assign(est, JSON.parse(localStorage.getItem('altillolab-armonia') || '{}')); }catch(e){}
+const guardar = () => { try{ localStorage.setItem('altillolab-armonia', JSON.stringify(est)); }catch(e){} };
+const $ = s => document.querySelector(s);
+const escalaActual = () => ESCALAS.find(e => e.id === est.escala) || ESCALAS[0];
+
+function notasEscala(esc){
+  const [tl,ta] = est.tonica;
+  return esc.semis.map((s,i) => ({...deletrear(tl,ta,s,esc.pasos[i]), semis:s, grado:i}));
+}
+function acordesDe(esc){
+  const [tl,ta] = est.tonica, n = esc.semis.length;
+  return esc.semis.map((s,i) => {
+    const idx = est.tipo===4 ? [0,2,4,6] : [0,2,4];
+    const tonos = idx.map(k => { const j=(i+k)%n, oct = i+k>=n ? 12 : 0; return {semis:esc.semis[j]+oct, paso:esc.pasos[j]+(i+k>=n?7:0)}; });
+    const rel = tonos.map(t => t.semis - s);
+    const q = est.tipo===4 ? calidad(rel[1],rel[2],rel[3]) : calidad(rel[1],rel[2]);
+    const fund = deletrear(tl,ta,s,esc.pasos[i]);
+    const notas = tonos.map(t => deletrear(tl,ta,t.semis%12 + (t.semis>=12?0:0), t.paso%7));
+    return {grado:i, semis:s, fund, q, notas, rom:romano(i,s,q.tipo,est.tipo===4), alturas:tonos.map(t => t.semis)};
+  });
+}
+
+/* ======================= sonido ======================= */
+let ac = null;
+function ctx(){ if(!ac){ const A = window.AudioContext || window.webkitAudioContext; ac = new A(); } if(ac.state==='suspended') ac.resume(); return ac; }
+function tocar(midi, cuando=0, dur=.5, vol=.18){
+  const c = ctx(), t = c.currentTime + cuando;
+  const f = 440 * Math.pow(2, (midi-69)/12);
+  const o1 = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), lp = c.createBiquadFilter();
+  o1.type = 'triangle'; o2.type = 'sine'; o1.frequency.value = f; o2.frequency.value = f*2; o2.detune.value = 4;
+  lp.type = 'lowpass'; lp.frequency.value = 2400;
+  const g2 = c.createGain(); g2.gain.value = .25;
+  o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(lp); lp.connect(c.destination);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t+.012); g.gain.exponentialRampToValueAtTime(vol*.4, t+dur*.5); g.gain.exponentialRampToValueAtTime(.0001, t+dur);
+  o1.start(t); o2.start(t); o1.stop(t+dur+.05); o2.stop(t+dur+.05);
+}
+const midiTonica = () => 60 + pcDe(...est.tonica) - (pcDe(...est.tonica) > 6 ? 12 : 0);
+
+/* ======================= conejo ======================= */
+let secuencia = [];
+function pararSecuencia(){ secuencia.forEach(clearTimeout); secuencia = []; }
+let posConejo = 0;
+function saltarA(i, quieto){
+  posConejo = i;
+  const piedras = [...document.querySelectorAll('.piedra')];
+  const p = piedras[i]; if(!p) return;
+  const caja = $('#camino').getBoundingClientRect(), r = p.getBoundingClientRect();
+  const con = $('#conejo');
+  con.style.left = (r.left - caja.left + r.width/2) + 'px';
+  if(quieto) return;
+  con.classList.remove('salta'); void con.offsetWidth; con.classList.add('salta');
+  piedras.forEach(x => x.classList.remove('luz')); p.classList.add('luz');
+  setTimeout(() => p.classList.remove('luz'), 260);
+}
+function iluminarAcorde(pcs){
+  document.querySelectorAll('.piedra').forEach(p => p.classList.toggle('acorde', pcs.includes(+p.dataset.pc)));
+  document.querySelectorAll('.tecla').forEach(k => k.classList.toggle('suena', pcs.includes(+k.dataset.pc % 12) ));
+}
+function sonarTecla(midi){ const k = document.querySelector(`.tecla[data-midi="${midi}"]`); if(k){ k.classList.add('suena'); setTimeout(() => k.classList.remove('suena'), 240); } }
+
+/* ======================= render ======================= */
+function render(){
+  document.querySelectorAll('[data-nivel]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.nivel === est.nivel));
+  document.querySelectorAll('[data-tipo]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.tipo === est.tipo));
+  if(escalaActual().nivel > est.nivel) est.escala = 'mayor';
+  const esc = escalaActual(), [tl,ta] = est.tonica, tonNom = nombreNota(tl,ta);
+
+  // círculo de quintas
+  const svg = $('#circulo'); let h = '';
+  const cx = 200, cy = 200, R1 = 190, R2 = 128, R3 = 76;
+  const pcTon = pcDe(tl,ta), idxMay = MAYORES.findIndex(m => pcDe(...m) === pcTon), idxMen = MENORES.findIndex(m => pcDe(...m) === pcTon);
+  const esMenor = ['menor','pmen','armonica','melodica','dorica','frigia','fdom','locria','blues','doble'].includes(esc.id);
+  const centro = esMenor && idxMen >= 0 ? idxMen : (idxMay >= 0 ? idxMay : idxMen);
+  const sector = (r0, r1, i) => {
+    const a0 = (i*30 - 105) * Math.PI/180, a1 = (i*30 - 75) * Math.PI/180;
+    const p = (r,a) => `${(cx + r*Math.cos(a)).toFixed(1)} ${(cy + r*Math.sin(a)).toFixed(1)}`;
+    return `M${p(r0,a0)} A${r0} ${r0} 0 0 1 ${p(r0,a1)} L${p(r1,a1)} A${r1} ${r1} 0 0 0 ${p(r1,a0)}Z`;
+  };
+  const pos = (r,i) => { const a = (i*30 - 90) * Math.PI/180; return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; };
+  for(let i=0;i<12;i++){
+    const vecina = (i === (centro+1)%12 || i === (centro+11)%12);
+    const fM = (!esMenor && i===centro) ? 'var(--tomate)' : vecina ? 'var(--mostaza)' : (esMenor && i===centro) ? 'var(--crema-2)' : '#fffaf0';
+    const fm = (esMenor && i===centro) ? 'var(--tomate)' : vecina ? '#f9d76a' : (!esMenor && i===centro) ? 'var(--crema-2)' : '#f4eedd';
+    h += `<path class="sector" d="${sector(R1,R2,i)}" fill="${fM}" stroke="#17140f" stroke-width="1.5" data-may="${i}"><title>${nombreNota(...MAYORES[i])} mayor · ${ARMADURA[i]}</title></path>`;
+    h += `<path class="sector" d="${sector(R2,R3,i)}" fill="${fm}" stroke="#17140f" stroke-width="1.5" data-men="${i}"><title>${nombreNota(...MENORES[i])} menor</title></path>`;
+    const [x1,y1] = pos((R1+R2)/2 + 6, i), [x2,y2] = pos((R2+R3)/2, i), [x3,y3] = pos((R1+R2)/2 - 16, i);
+    const blancoM = (!esMenor && i===centro), blancom = (esMenor && i===centro);
+    h += `<text x="${x1}" y="${y1}" text-anchor="middle" dominant-baseline="middle" font-size="15" fill="${blancoM?'#fff4e4':'#17140f'}">${nombreNota(...MAYORES[i])}</text>`;
+    h += `<text x="${x3}" y="${y3}" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="${blancoM?'#fff4e4':'#7a6e58'}">${ARMADURA[i].replace(' / ','/')}</text>`;
+    h += `<text x="${x2}" y="${y2}" text-anchor="middle" dominant-baseline="middle" font-size="11.5" fill="${blancom?'#fff4e4':'#17140f'}">${nombreNota(...MENORES[i])}m</text>`;
+  }
+  h += `<circle cx="200" cy="200" r="${R3}" fill="#17140f"/><text x="200" y="190" text-anchor="middle" font-family="Anton,Impact,sans-serif" font-size="26" fill="#d4261a" style="font-weight:400">${tonNom}</text><text x="200" y="216" text-anchor="middle" font-size="10" fill="#ede5d0">${esc.nombre.split(' (')[0].toLowerCase()}</text>`;
+  svg.innerHTML = h;
+
+  // escala
+  $('#tituloEscala').innerHTML = `${tonNom}<span class="script">${esc.nombre}</span>`;
+  $('#selEscala').innerHTML = ESCALAS.filter(e => e.nivel <= est.nivel).map(e => `<button data-escala="${e.id}" aria-pressed="${e.id===esc.id}">${e.nombre}${e.nivel>1?`<span class="n">${e.nivel===2?'medio':'avanz.'}</span>`:''}</button>`).join('');
+  $('#raiz').textContent = esc.raiz;
+  const notas = notasEscala(esc);
+  const nombresIntervalo = {0:'1',1:'♭2',2:'2',3:'♭3',4:'3',5:'4',6:'♯4/♭5',7:'5',8:'♭6',9:'6',10:'♭7',11:'7'};
+  $('#formula').innerHTML = 'Fórmula: ' + esc.semis.map(s => `<b>${nombresIntervalo[s]}</b>`).join(' ') + '<br>Notas: ' + notas.map(n => `<b>${n.nombre}</b>`).join(' ');
+
+  // piedras (escala + tónica arriba)
+  const piedras = [...notas, {...notas[0], grado:esc.semis.length, semis:12}];
+  $('#piedras').innerHTML = piedras.map((n,i) => `<button class="piedra ${n.semis%12===0?'tonica':''}" data-i="${i}" data-pc="${n.pc}" data-semis="${n.semis}" aria-label="${n.nombre}"><span class="nom">${n.nombre}</span><span class="gr">${i===piedras.length-1?'8':nombresIntervalo[n.semis%12]}</span></button>`).join('');
+  requestAnimationFrame(() => { const con = $('#conejo'); con.style.transition = 'none'; saltarA(0, true); requestAnimationFrame(() => con.style.transition = ''); });
+
+  // teclado (dos octavas desde Do)
+  const base = 48 + 12; let t = '', x = 0; const W = 700/14, pcsEsc = notas.map(n => n.pc);
+  const blancas = [0,2,4,5,7,9,11], negras = {1:1,3:2,6:4,8:5,10:6};
+  for(let o=0;o<2;o++) blancas.forEach((pc,j) => { const m = base + o*12 + pc; t += `<rect class="tecla blanca ${pcsEsc.includes(pc)?'en-escala':''}" data-midi="${m}" data-pc="${pc}" x="${(o*7+j)*W}" y="0" width="${W}" height="110"/>`; if(pcsEsc.includes(pc)) t += `<circle cx="${(o*7+j)*W+W/2}" cy="92" r="5" fill="${pc===pcTon?'#d4261a':'#17140f'}" pointer-events="none"/>`; });
+  for(let o=0;o<2;o++) Object.entries(negras).forEach(([pc,j]) => { pc = +pc; const m = base + o*12 + pc; const xx = (o*7+j)*W - W*0.3; t += `<rect class="tecla negra ${pcsEsc.includes(pc)?'en-escala':''}" data-midi="${m}" data-pc="${pc}" x="${xx}" y="0" width="${W*0.6}" height="66"/>`; if(pcsEsc.includes(pc)) t += `<circle cx="${xx+W*0.3}" cy="54" r="4.5" fill="${pc===pcTon?'#d4261a':'#ede5d0'}" pointer-events="none"/>`; });
+  $('#teclado').innerHTML = t;
+
+  // acordes
+  let escAcordes = esc, nota = $('#notaMadre');
+  if(esc.madre){ escAcordes = ESCALAS.find(e => e.id === esc.madre); nota.hidden = false; nota.innerHTML = `La ${esc.nombre.toLowerCase()} tiene ${esc.semis.length} notas y no forma acordes por terceras completos. Estos son los acordes de su escala madre, <b>${tonNom} ${escAcordes.nombre.toLowerCase()}</b>, que le sientan bien debajo.`; }
+  else nota.hidden = true;
+  const acs = acordesDe(escAcordes);
+  $('#acordes').innerHTML = acs.map((a,i) => `<button class="acorde" data-acorde="${i}">
+      <span class="rom">${a.rom}</span>
+      <span class="nom">${a.fund.nombre}${a.q.suf ? ' '+a.q.suf : ''}</span>
+      <span class="notas">${a.notas.map(n => n.nombre).join(' · ')}</span>
+      ${(escAcordes.funciones && est.nivel>=2) ? `<span class="fun ${FUNCION[i]}">${FUNCION_TXT[FUNCION[i]]}</span>` : ''}
+    </button>`).join('');
+  acordes = acs;
+
+  // progresiones
+  $('#progTono').textContent = `en ${tonNom}`;
+  $('#progresiones').innerHTML = PROGRESIONES.filter(p => p.nivel <= est.nivel).map((p,i) => `<article class="prog">
+      <h4>${p.nombre}</h4>
+      <p class="cifra">${p.cifra.map(([s,paso,suf]) => deletrear(tl,ta,s,paso).nombre + (suf ? ' '+suf : '')).join(' – ')}</p>
+      <p class="rom2">${p.rom}</p>
+      <p>${p.txt}</p>
+      <button class="btn sm" data-prog="${PROGRESIONES.indexOf(p)}">▶ Escuchar</button>
+    </article>`).join('');
+
+  $('#chuleta').innerHTML = CHULETA[est.nivel].map(([t,p]) => `<div class="carta"><h4>${t}</h4><p>${p}</p></div>`).join('');
+  $('#tempo').value = est.tempo;
+  guardar();
+}
+let acordes = [];
+
+/* ======================= interacción ======================= */
+function tocarEscala(arriba){
+  pararSecuencia(); iluminarAcorde([]);
+  const piedras = [...document.querySelectorAll('.piedra')];
+  const orden = piedras.map((_,i) => i); if(!arriba) orden.reverse();
+  const paso = 60 / est.tempo, m0 = midiTonica();
+  $('#bocadillo').textContent = arriba ? '¡Para arriba!' : 'Bajando con cuidado…';
+  ctx();
+  orden.forEach((i,k) => {
+    secuencia.push(setTimeout(() => {
+      const midi = m0 + (+piedras[i].dataset.semis);
+      tocar(midi, 0, paso*.95); saltarA(i); sonarTecla(midi);
+      if(k === orden.length-1) $('#bocadillo').textContent = arriba ? 'Arriba del todo: la misma nota, una octava más alta.' : 'De vuelta en casa.';
+    }, k*paso*1000));
+  });
+}
+function tocarAcorde(a, cuando=0, dur=1.2){
+  const m0 = midiTonica();
+  a.alturas.forEach((s,k) => tocar(m0 + s - (k===0 ? 12 : 0), cuando, dur, .12));
+  tocar(m0 + a.alturas[0] - 12, cuando, dur, .1);
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('button,[data-may],[data-men],.tecla'); if(!b) return;
+  if(b.dataset.nivel){ est.nivel = +b.dataset.nivel; est.tipo = est.nivel === 1 ? 3 : 4; pararSecuencia(); render(); return; }
+  if(b.dataset.tipo){ est.tipo = +b.dataset.tipo; render(); return; }
+  if(b.dataset.escala){ est.escala = b.dataset.escala; pararSecuencia(); render(); tocarEscala(true); return; }
+  if(b.dataset.may !== undefined){ est.tonica = MAYORES[+b.dataset.may]; if(['menor','pmen','armonica','melodica','dorica','frigia','fdom','locria','blues','doble'].includes(est.escala)) est.escala = 'mayor'; pararSecuencia(); render(); tocarEscala(true); return; }
+  if(b.dataset.men !== undefined){ est.tonica = MENORES[+b.dataset.men]; if(!['menor','pmen','armonica','melodica','dorica','frigia','fdom','locria','blues','doble'].includes(est.escala)) est.escala = 'menor'; pararSecuencia(); render(); tocarEscala(true); return; }
+  if(b.classList.contains('piedra')){ pararSecuencia(); iluminarAcorde([]); const i = +b.dataset.i, midi = midiTonica() + (+b.dataset.semis); tocar(midi, 0, .6); saltarA(i); sonarTecla(midi); $('#bocadillo').textContent = b.getAttribute('aria-label'); return; }
+  if(b.classList.contains('tecla')){ const midi = +b.dataset.midi; tocar(midi, 0, .6); sonarTecla(midi); return; }
+  if(b.id === 'subir') return tocarEscala(true);
+  if(b.id === 'bajar') return tocarEscala(false);
+  if(b.dataset.acorde !== undefined){
+    pararSecuencia(); const a = acordes[+b.dataset.acorde]; tocarAcorde(a);
+    document.querySelectorAll('.acorde').forEach(x => x.classList.toggle('activo', x === b));
+    const piedras = [...document.querySelectorAll('.piedra')]; const i = piedras.findIndex(p => +p.dataset.pc === a.fund.pc);
+    if(i >= 0) saltarA(i); iluminarAcorde(a.notas.map(n => n.pc));
+    $('#bocadillo').textContent = `${a.rom}: ${a.fund.nombre}${a.q.suf?' '+a.q.suf:''} = ${a.notas.map(n => n.nombre).join(' + ')}`;
+    return;
+  }
+  if(b.dataset.prog !== undefined){
+    pararSecuencia(); ctx();
+    const p = PROGRESIONES[+b.dataset.prog], [tl,ta] = est.tonica, dur = 60/est.tempo*2;
+    p.cifra.forEach(([s,paso,suf],k) => secuencia.push(setTimeout(() => {
+      const q = {'':[0,4,7],'m':[0,3,7],'7':[0,4,7,10],'m7':[0,3,7,10],'maj7':[0,4,7,11]}[suf] || [0,4,7];
+      tocarAcorde({alturas:q.map(x => x + s)}, 0, dur*.95);
+      const fund = deletrear(tl,ta,s,paso), pcs = q.map(x => (fund.pc + x)%12);
+      const piedras = [...document.querySelectorAll('.piedra')]; const i = piedras.findIndex(pp => +pp.dataset.pc === fund.pc);
+      if(i >= 0) saltarA(i); iluminarAcorde(pcs);
+      $('#bocadillo').textContent = `${p.nombre}: ${fund.nombre}${suf?' '+suf:''}`;
+    }, k*dur*1000)));
+    secuencia.push(setTimeout(() => iluminarAcorde([]), p.cifra.length*dur*1000));
+    return;
+  }
+});
+$('#tempo').addEventListener('input', e => { est.tempo = +e.target.value; guardar(); });
+window.addEventListener('resize', () => { const con = $('#conejo'); con.style.transition = 'none'; saltarA(posConejo, true); requestAnimationFrame(() => con.style.transition = ''); });
+
+try{ const d = new URLSearchParams(location.search).get('desde'); if(d && /^[\w.#-]+$/.test(d)){ const v = $('#volver'); v.href = '../../' + d; v.textContent = '← Volver a la sesión'; } }catch(e){}
+render();
+</script>
+</body>
+</html>
