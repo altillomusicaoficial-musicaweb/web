@@ -103,16 +103,23 @@ img{display:block;max-width:100%;height:auto}
 .texto h3{font:italic 400 1.8rem/1.1 var(--serif);color:var(--tomate);margin-bottom:10px}
 .texto p + p{margin-top:10px}
 
-.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px}
-.app{border:1.5px solid var(--tinta);background:var(--papel);padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0;transform:rotate(-1deg)}
-.app:nth-child(even){transform:rotate(1deg)}
-.app .marco{height:110px;border:1.5px solid var(--tinta);background:
-  linear-gradient(var(--tinta),var(--tinta)) 0 0/100% 18px no-repeat,
-  repeating-linear-gradient(90deg,var(--crema-2) 0 18px,var(--crema) 18px 36px);position:relative}
-.app .marco::before{content:"● ● ●";position:absolute;left:8px;top:2px;font-size:9px;color:var(--mostaza);letter-spacing:2px}
-.app h3{font:400 1.6rem/1 var(--display);text-transform:uppercase}
-.app p{font-size:.9rem}
-.app .btn{margin-top:auto;align-self:flex-start}
+.caja{background:var(--tinta);color:var(--crema);scroll-margin-top:60px}
+.caja > .wrap{padding-block:calc(var(--r) + 30px) 60px;position:relative}
+.caja > .wrap::before{content:"";position:absolute;top:calc(var(--r) - 6px);left:50%;width:min(150px,36%);height:14px;transform:translateX(-50%);background:var(--crema);border-radius:0 0 12px 12px}
+.caja .cajon-cab .script{color:var(--mostaza)}
+.caja .cajon-cab p{flex-basis:100%;max-width:56ch;font-size:.9rem}
+.caja .cajon-cab a{color:var(--mostaza)}
+.herrs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:16px}
+.herr{position:relative;display:flex;flex-direction:column;gap:8px;min-width:0;background:var(--papel);color:var(--tinta);border:1.5px solid var(--crema);padding:16px 14px 14px;text-decoration:none;transform:rotate(-.8deg);transition:transform .2s,box-shadow .2s}
+.herr:nth-child(even){transform:rotate(.8deg)}
+a.herr:hover{transform:translate(-3px,-3px) rotate(-1.5deg);box-shadow:6px 6px 0 var(--mostaza)}
+.herr .n{font:400 2.2rem/1 var(--display);color:var(--tomate)}
+.herr b{font:400 1.45rem/1 var(--display);text-transform:uppercase;overflow-wrap:anywhere}
+.herr .para{font:italic 400 1.05rem/1.1 var(--serif);color:var(--tomate)}
+.herr span.d{font-size:.84rem;line-height:1.35}
+.herr .ir{margin-top:auto;font:700 .72rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--tomate)}
+.herr .est{position:absolute;top:12px;right:10px;font:700 .66rem/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;background:var(--mostaza);color:var(--tinta);padding:5px 7px;transform:rotate(-2deg)}
+.herr.obras{background:repeating-linear-gradient(-45deg,var(--papel) 0 12px,var(--crema-2) 12px 24px)}
 
 .fisico .lista .ico{background:var(--coral);color:var(--tinta)}
 .modo-nota{margin-top:14px;font-size:1.2rem;color:var(--tomate)}
@@ -123,7 +130,7 @@ img{display:block;max-width:100%;height:auto}
 .candado b{display:block;font:400 2.2rem/1 var(--display);text-transform:uppercase;color:var(--mostaza)}
 .candado p{margin-top:8px}
 
-.pasos{background:var(--tinta);color:var(--crema)}
+.pasos{background:var(--tinta);color:var(--crema);border-top:1px dotted var(--linea)}
 .pasos .wrap{padding-block:30px 40px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .pasos a{text-decoration:none;display:flex;flex-direction:column;gap:4px;min-width:0}
 .pasos a span{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mostaza)}
@@ -198,12 +205,12 @@ img{display:block;max-width:100%;height:auto}
     document.documentElement.style.setProperty('--bloque-txt', b.tinta || '#17140f');
     document.body.classList.toggle('cerrado', estado === 'luego');
 
-    var cuenta = [['video','Vídeos',s.videos.length],['pdf','PDFs',s.pdfs.length],['texto','Textos',s.textos.length],['app','Apps',s.apps.length],['fisico','Para llevar',s.fisico.length]];
+    var cuenta = [['video','Vídeos',s.videos.length],['pdf','PDFs',s.pdfs.length],['texto','Textos',s.textos.length],['fisico','Para llevar',s.fisico.length]];
     var h = '';
     h += '<header class="panel cab"><span class="num display" aria-hidden="true">'+String(s.n).padStart(2,'0')+'</span><div class="wrap"><div>';
     h += '<div class="meta label"><span class="chip">'+esc(b.nombre||'')+'</span><span class="chip">'+esc(nombre)+'</span><span class="estado '+estado+'">'+esc(estadoTxt)+'</span><span class="chip">'+(dentro==='online'?'Online':'Presencial')+'</span></div>';
     h += '<h1 class="display">'+esc(s.titulo)+'</h1><p class="script fecha">'+esc(fechaTxt)+'</p><p class="resumen">'+esc(s.resumen)+'</p>';
-    h += '<div class="indice">'+cuenta.map(function(c){ return '<button type="button" data-ir="'+c[0]+'">'+c[1]+'<b>'+c[2]+'</b></button>'; }).join('')+'</div>';
+    h += '<div class="indice">'+cuenta.map(function(c){ return '<button type="button" data-ir="'+c[0]+'">'+c[1]+'<b>'+c[2]+'</b></button>'; }).join('')+'<button type="button" data-ir="herramientas">Herramientas<b>↓</b></button></div>';
     h += '</div>'+(b.figura ? '<div class="figura"><img src="../assets/img/'+esc(b.figura)+'" alt=""></div>' : '')+'</div></header>';
 
     h += '<section class="panel cont">';
@@ -230,13 +237,6 @@ img{display:block;max-width:100%;height:auto}
     h += s.textos.length ? s.textos.map(function(t){ return '<article class="texto"><h3>'+esc(t.t)+'</h3>'+t.html+'</article>'; }).join('') : '<p class="vacio">En esta sesión no hay textos.</p>';
     h += '</div>';
 
-    // apps
-    h += '<div class="cajon" id="app"><div class="cajon-cab"><span class="damero"></span><h2 class="display">Apps</h2><span class="script">herramientas del lab</span></div>';
-    h += s.apps.length ? '<div class="apps">'+s.apps.map(function(a){
-      return '<div class="app"><div class="marco" aria-hidden="true"></div><h3>'+esc(a.t)+'</h3><p>'+esc(a.desc)+'</p>'+enlace(a.url,'Abrir app')+'</div>';
-    }).join('')+'</div>' : '<p class="vacio">En esta sesión no hay apps.</p>';
-    h += '</div>';
-
     // físico
     h += '<div class="cajon fisico" id="fisico"><div class="cajon-cab"><span class="damero"></span><h2 class="display">Para llevar</h2><span class="script">material físico</span></div>';
     h += s.fisico.length ? '<ul class="lista">'+s.fisico.map(function(m){
@@ -246,6 +246,14 @@ img{display:block;max-width:100%;height:auto}
 
     h += '<p class="aviso">MAQUETA · Todo el contenido es de ejemplo. Se edita en el archivo datos-sesiones.js.</p>';
     h += '</div></section>';
+
+    // caja de herramientas: fija para todo el curso, nunca se difumina
+    var herr = LAB.herramientas || [], volver = '?desde=sesion.html%23s'+s.n;
+    h += '<section class="panel caja" id="herramientas"><div class="wrap"><div class="cajon-cab"><span class="damero"></span><h2 class="display">Caja de herramientas</h2><span class="script">abierta todo el curso</span><p>Las apps no van por sesiones: están aquí desde el primer miércoles y siguen cuando acabe el lab. <a href="apps/index.html">Ver la caja entera ↗</a></p></div>';
+    h += '<div class="herrs">'+herr.map(function(x, k){
+      var tag = x.url ? 'a' : 'div', attr = x.url ? ' href="'+esc(x.url + volver)+'"' : ' aria-disabled="true"';
+      return '<'+tag+' class="herr'+(x.estado?' obras':'')+'"'+attr+'>'+(x.estado?'<span class="est">'+esc(x.estado)+'</span>':'')+'<span class="n">'+String(k+1).padStart(2,'0')+'</span><b>'+esc(x.t)+'</b>'+(x.para?'<span class="para">'+esc(x.para)+'</span>':'')+'<span class="d">'+esc(x.desc)+'</span>'+(x.url?'<span class="ir">Abrir →</span>':'')+'</'+tag+'>';
+    }).join('')+'</div></div></section>';
 
     // anterior / siguiente
     var ant = lista[i-1], sig = lista[i+1];

@@ -378,8 +378,25 @@ footer a{color:var(--mostaza)}
 @media (prefers-reduced-motion:reduce){
   .trasto img,.escena .pieza img{animation-duration:10s}
 }
-.caja-herr{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:18px 0}
-.caja-herr span{font-size:.85rem}
+/* caja de herramientas: cajón fijo, siempre abierto y a color, fuera del cronograma */
+.caja{position:relative;margin-top:30px;background:var(--tinta);color:var(--crema);border:1.5px solid var(--tinta);padding:clamp(26px,3.6vw,40px) clamp(16px,3vw,28px) clamp(18px,3vw,28px);box-shadow:8px 8px 0 var(--tomate)}
+.caja::before{content:"";position:absolute;top:-1.5px;left:50%;width:min(160px,36%);height:16px;transform:translateX(-50%);background:var(--crema);border:1.5px solid var(--tinta);border-top:0;border-radius:0 0 12px 12px}
+.caja .cab-c{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px 24px}
+.caja h3{font-size:clamp(2.2rem,5vw,4rem)}
+.caja h3 .script{display:block;text-transform:none;color:var(--mostaza);font-size:.5em}
+.caja .cab-c p{max-width:40ch;font-size:.88rem}
+.caja .cab-c a{color:var(--mostaza)}
+.herrs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:16px;margin-top:22px}
+.herr{position:relative;display:flex;flex-direction:column;gap:8px;min-width:0;background:var(--papel);color:var(--tinta);border:1.5px solid var(--crema);padding:16px 14px 14px;text-decoration:none;transform:rotate(-.8deg);transition:transform .2s,box-shadow .2s}
+.herr:nth-child(even){transform:rotate(.8deg)}
+a.herr:hover{transform:translate(-3px,-3px) rotate(-1.5deg);box-shadow:6px 6px 0 var(--mostaza)}
+.herr .n{font:400 2.2rem/1 var(--display);color:var(--tomate)}
+.herr b{font:400 1.45rem/1 var(--display);text-transform:uppercase;overflow-wrap:anywhere}
+.herr .para{font:italic 400 1.05rem/1.1 var(--serif);color:var(--tomate)}
+.herr span.d{font-size:.84rem;line-height:1.35}
+.herr .ir{margin-top:auto;font:700 .72rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--tomate)}
+.herr .est{position:absolute;top:12px;right:10px}
+.herr.obras{background:repeating-linear-gradient(-45deg,var(--papel) 0 12px,var(--crema-2) 12px 24px)}
 </style>
 </head>
 <body>
@@ -660,7 +677,7 @@ footer a{color:var(--mostaza)}
     <div class="wrap">
       <div class="cab label"><span class="num">07</span><span>Solo para la gente del lab</span></div>
       <h2 class="display rv"><span class="script">el altillo de</span>Recursos</h2>
-      <p class="lead">Temario, material, apps y grabaciones, ordenados en el tiempo. Lo que ya ha pasado se queda a color, lo de esta semana brilla y lo que viene espera en blanco y negro.</p>
+      <p class="lead">Temario, material y grabaciones, ordenados en el tiempo. Lo que ya ha pasado se queda a color, lo de esta semana brilla y lo que viene espera en blanco y negro. Las apps van aparte, en una caja de herramientas que está abierta desde el primer día.</p>
       <p class="aviso">MAQUETA · En este prototipo la clave no protege nada: solo sirve para ver cómo quedaría. Para probarla, usuario cualquiera y clave «altillo».</p>
       <div class="login" id="login-box">
         <form class="form" id="f-login" novalidate>
@@ -676,7 +693,7 @@ footer a{color:var(--mostaza)}
         <ul class="que-hay">
           <li><span class="damero crema"></span><b>Temario</b><span>Lo que toca cada sesión, para saber dónde estás.</span></li>
           <li><span class="damero crema"></span><b>Material</b><span>Digital (Drive) y físico: cuadernos, cancioneros impresos.</span></li>
-          <li><span class="damero crema"></span><b>Apps web</b><span>Juegos y herramientas que hacemos para el curso.</span></li>
+          <li><span class="damero crema"></span><b>Herramientas</b><span>Las apps del lab, abiertas todo el curso.</span></li>
           <li><span class="damero crema"></span><b>Grabaciones</b><span>Cada clase en vídeo, para repasar o ponerte al día.</span></li>
         </ul>
       </div>
@@ -700,9 +717,15 @@ footer a{color:var(--mostaza)}
             <button class="btn contorno sm" type="button" id="c-out">Cerrar el altillo</button>
           </div>
         </div>
-        <p class="caja-herr"><a class="btn" href="apps/index.html">Caja de herramientas ↗</a><span>Coetus, Revisión, Armonía y lo que venga, siempre a mano.</span></p>
         <div class="scroller" tabindex="0" aria-label="Cronograma, desplázalo en horizontal">
           <div class="grid-c" id="grid-c"></div>
+        </div>
+        <div class="caja" id="herramientas">
+          <div class="cab-c">
+            <h3 class="display"><span class="script">abierta todo el curso</span>Caja de herramientas</h3>
+            <p>Estas no van por sesiones: úsalas desde el primer miércoles hasta mucho después de la muestra. <a href="apps/index.html">Ver la caja entera ↗</a></p>
+          </div>
+          <div class="herrs" id="herrs"></div>
         </div>
       </div>
     </div>
@@ -820,10 +843,9 @@ footer a{color:var(--mostaza)}
     {k:'tem', t:'Temario', col:'#d4261a', sec:'resumen', pick:function(d){ return d.titulo; }},
     {k:'dig', t:'Material digital', col:'#17140f', sec:'pdf', pick:function(d){ return (d.pdfs[0]||d.textos[0]||{}).t; }},
     {k:'fis', t:'Material físico', col:'#E8694F', sec:'fisico', pick:function(d){ return (d.fisico[0]||{}).t; }},
-    {k:'app', t:'Apps web', col:'#F5B700', sec:'app', pick:function(d){ return (d.apps[0]||{}).t; }},
     {k:'vid', t:'Grabación', col:'#ede5d0', sec:'video', pick:function(d){ return (d.videos[0]||{}).t; }}
   ];
-  var KIND = {tem:'Temario', dig:'PDF y Drive', fis:'Para llevar', app:'App web', vid:'Vídeo'};
+  var KIND = {tem:'Temario', dig:'PDF y Drive', fis:'Para llevar', vid:'Vídeo'};
   var MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   function fmt(d){ return d.getDate()+' '+MES[d.getMonth()]; }
   function esc(t){ return String(t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
@@ -844,7 +866,7 @@ footer a{color:var(--mostaza)}
         var txt = L.pick(s.d);
         h += '<div class="cell">';
         if(txt){
-          var claro = (L.k==='app'||L.k==='vid'||L.k==='fis');
+          var claro = (L.k==='vid'||L.k==='fis');
           h += '<a class="rec" href="sesion.html#s'+s.n+'-'+L.sec+'" data-n="'+s.n+'"><span class="k" style="background:'+L.col+';color:'+(claro?'#17140f':'#ede5d0')+'">'+KIND[L.k]+'</span><br>'+esc(txt)+'<small>ejemplo</small><span class="estado"></span></a>';
         }
         h += '</div>';
@@ -852,6 +874,10 @@ footer a{color:var(--mostaza)}
     });
     h += '<div class="hoyline" id="hoyline" aria-hidden="true"></div>';
     grid.innerHTML = h;
+    document.getElementById('herrs').innerHTML = (LAB.herramientas||[]).map(function(x, i){
+      var tag = x.url ? 'a' : 'div', attr = x.url ? ' href="'+esc(x.url)+'"' : ' aria-disabled="true"';
+      return '<'+tag+' class="herr'+(x.estado?' obras':'')+'"'+attr+'>'+(x.estado?'<span class="provisional est">'+esc(x.estado)+'</span>':'')+'<span class="n">'+String(i+1).padStart(2,'0')+'</span><b>'+esc(x.t)+'</b>'+(x.para?'<span class="para">'+esc(x.para)+'</span>':'')+'<span class="d">'+esc(x.desc)+'</span>'+(x.url?'<span class="ir">Abrir →</span>':'')+'</'+tag+'>';
+    }).join('');
   })();
 
   var sim = document.getElementById('sim'), out = document.getElementById('sim-out');
