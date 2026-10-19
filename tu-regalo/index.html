@@ -54,14 +54,30 @@ h1,h2,p{margin:0}
 @media (prefers-reduced-motion:reduce){.portada-en{opacity:1;transform:none;animation:none}}
 @keyframes aparece{to{opacity:1;transform:none}}
 .portada .eyebrow{color:var(--crema);opacity:.85;margin-bottom:1.1rem}
-.portada h1{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.88;letter-spacing:-.01em;font-size:clamp(3.4rem,13vw,8.5rem);color:var(--crema)}
-.portada .sub{margin-top:1.3rem;font-size:clamp(1.15rem,2.6vw,1.6rem);max-width:34ch;color:var(--crema)}
+.portada h1{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.95;letter-spacing:-.01em;font-size:clamp(2.3rem,6.4vw,4.4rem);color:var(--crema)}
+.portada .pregon{margin-top:1.1rem;font-family:var(--display);text-transform:uppercase;letter-spacing:.02em;line-height:1.25;font-size:clamp(1.05rem,2.4vw,1.6rem);color:var(--crema)}
+.portada .sub{margin:1.4rem auto 0;font-size:clamp(1.15rem,2.6vw,1.6rem);max-width:40ch;color:var(--crema)}
 .portada .flecha{margin-top:clamp(36px,7vw,64px);display:inline-flex;flex-direction:column;align-items:center;gap:10px;color:var(--crema);opacity:.85}
 .portada .flecha svg{width:18px;height:24px;animation:baja 1.6s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.portada .flecha svg{animation:none}}
 @keyframes baja{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 .portada-mono{position:absolute;top:14px;right:14px;width:clamp(64px,9vw,112px);z-index:2;transform:rotate(9deg);filter:drop-shadow(3px 4px 0 rgba(0,0,0,.22))}
-.portada-ariana{position:absolute;left:-24px;bottom:-18px;width:clamp(210px,32vw,380px);z-index:1;transform:rotate(-3deg);filter:drop-shadow(4px 6px 0 rgba(0,0,0,.18))}
+/* collage: portada del disco en el centro, fotos de Ariana y David alrededor */
+.portada-collage{position:relative;width:min(1000px,94vw,112svh);aspect-ratio:2/1;margin:0 auto clamp(28px,5vw,48px)}
+.pc{position:absolute;height:auto;border:clamp(4px,.7vw,8px) solid var(--crema);box-shadow:4px 6px 0 rgba(0,0,0,.22)}
+.pc-disco{left:50%;top:2%;width:38%;z-index:3;transform:translateX(-50%) rotate(-2deg)}
+.pc-club{left:3%;top:4%;width:19%;z-index:2;transform:rotate(-6deg)}
+.pc-esquina{right:3%;top:2%;width:19%;z-index:2;transform:rotate(5deg)}
+.pc-alfombra{left:17%;bottom:0;width:27%;z-index:1;transform:rotate(3deg)}
+.pc-senalando{right:16%;bottom:2%;width:26%;z-index:1;transform:rotate(-4deg)}
+@media (max-width:640px){
+  .portada-collage{width:94vw;aspect-ratio:1/1.1}
+  .pc-disco{width:62%;top:3%}
+  .pc-club{left:-2%;top:44%;width:30%}
+  .pc-esquina{right:-2%;top:40%;width:30%}
+  .pc-alfombra{left:4%;bottom:0;width:48%;z-index:4}
+  .pc-senalando{right:3%;bottom:4%;width:44%;z-index:4}
+}
 
 /* --- divisor de flores ------------------------------------------ */
 .divisor-flores{text-align:center;padding-top:clamp(20px,4vw,32px);background:var(--crema)}
@@ -110,6 +126,9 @@ h1,h2,p{margin:0}
 
 /* --- pie ------------------------------------------------------- */
 .pie{padding-block:clamp(32px,6vw,48px);border-top:1.5px solid var(--tinta);text-align:center}
+.pie-mensaje{max-width:56ch;margin:0 auto clamp(24px,5vw,40px);display:grid;gap:.9rem}
+.pie-mensaje a{color:var(--tomate);word-break:break-word}
+.pie .pie-mensaje .script{font-size:clamp(1.5rem,3vw,2rem);color:var(--tomate)}
 .pie-figuritas{display:flex;justify-content:center;align-items:flex-end;gap:clamp(6px,2.4vw,20px);margin-bottom:clamp(14px,3vw,24px)}
 .pie-figuritas img{height:clamp(58px,8.5vw,104px);width:auto;filter:drop-shadow(3px 4px 0 rgba(23,20,15,.15))}
 .pie-figuritas img:nth-child(1){transform:rotate(-4deg)}
@@ -125,11 +144,18 @@ h1,h2,p{margin:0}
 
 <section class="portada">
   <img class="portada-mono" src="assets/collage/mono.webp" alt="" aria-hidden="true" loading="lazy">
-  <img class="portada-ariana" src="assets/collage/ariana-v2.webp" alt="Ariana, de Altillo, descansando" loading="lazy">
+  <div class="portada-collage portada-en">
+    <img class="pc pc-club" src="assets/portada/club-altillo.webp" alt="Ariana y David, de Altillo, bajo el cartel del Club Altillo" width="640" height="1001">
+    <img class="pc pc-esquina" src="assets/portada/esquina.webp" alt="Ariana y David, espalda con espalda en una esquina" width="640" height="958">
+    <img class="pc pc-alfombra" src="assets/portada/alfombra.webp" alt="Ariana y David tumbados en una alfombra con gafas de sol" width="900" height="505">
+    <img class="pc pc-senalando" src="assets/portada/senalando.webp" alt="Ariana y David señalando al cielo frente a un edificio" width="900" height="675">
+    <img class="pc pc-disco" src="assets/portada/disco.webp" alt="Portada del disco Cualquier cosa combina, de Altillo" width="760" height="756">
+  </div>
   <div class="wrap portada-en">
     <p class="label eyebrow">esto no está en la carta</p>
-    <h1>La<br>sobremesa</h1>
-    <p class="script sub">Ya has comido. Ahora quédate un rato con nosotras.</p>
+    <h1>Se hace saber..<br>¡Que cualquier cosa combina!</h1>
+    <p class="pregon">¡Veganismo y purpurina! ¡Pranayama con cecina!<br>¡Tomen asiento en la mesa, la discordia está servida!<br>Pasen, pasen.. Pasen y posen.</p>
+    <p class="script sub">Aquí te dejamos nuestros temas para que los escuches en línea o los descargues y los metas en tu MP3 más rechulón.</p>
     <span class="flecha">
       <span class="label">dale al play</span>
       <svg viewBox="0 0 18 24" fill="none" aria-hidden="true"><path d="M9 1v20M2 15l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -219,20 +245,20 @@ h1,h2,p{margin:0}
     <article class="trago" role="listitem">
       <p class="trago-num">04</p>
       <div class="trago-cuerpo">
-        <h3 class="trago-titulo">PEÑA SANTA</h3>
-        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de PEÑA SANTA" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+        <h3 class="trago-titulo">PENA SANTA</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de PENA SANTA" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
           <div class="trago-barra-relleno" data-relleno></div>
         </div>
       </div>
-      <button class="trago-play" data-toggle type="button" aria-label="Reproducir PEÑA SANTA">
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir PENA SANTA">
         <span class="ico-play"></span><span class="ico-pausa"></span>
       </button>
       <p class="trago-tiempo" data-tiempo>0:00</p>
       <p class="trago-dur" data-duracion>–:–</p>
       <p class="trago-desc">
         <span class="trago-desc-label">Descargar</span>
-        <a href="/04-pena-santa.mp3" download="04 PEÑA SANTA - Altillo.mp3" aria-label="Descargar PEÑA SANTA en MP3">MP3 <span>2.0 MB</span></a>
-        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/04.PENA.SANTA.wav" download aria-label="Descargar PEÑA SANTA en WAV, calidad máxima">WAV <span>18 MB</span></a>
+        <a href="/04-pena-santa.mp3" download="04 PENA SANTA - Altillo.mp3" aria-label="Descargar PENA SANTA en MP3">MP3 <span>2.0 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/04.PENA.SANTA.wav" download aria-label="Descargar PENA SANTA en WAV, calidad máxima">WAV <span>18 MB</span></a>
       </p>
       <audio data-audio preload="metadata" src="/04-pena-santa.mp3"></audio>
     </article>
@@ -389,6 +415,11 @@ h1,h2,p{margin:0}
 </section>
 
 <footer class="pie wrap">
+  <div class="pie-mensaje">
+    <p>Muchas gracias, de corazón, por adquirir una de nuestras cintas. Juntas, hemos evitado un objeticidio&nbsp;:)</p>
+    <p>Si quieres donarnos cassettes o cintas VHS para que sigamos haciendo merchan sin generar nuevos objetos en este mundo sobre-saturado, contacta con nosotras aquí: <a href="mailto:altillomusica.oficial@gmail.com">altillomusica.oficial@gmail.com</a></p>
+    <p class="script">Salud y gazpacho</p>
+  </div>
   <div class="pie-figuritas" aria-hidden="true">
     <img src="assets/collage/sillon-loro.webp" alt="" loading="lazy">
     <img src="assets/collage/burro.webp" alt="" loading="lazy">
@@ -398,6 +429,8 @@ h1,h2,p{margin:0}
   <nav>
     <a href="../index.html">Volver a la carta</a>
     <a href="https://www.instagram.com/altillomusica/">Instagram</a>
+    <a href="https://www.youtube.com/channel/UCUPfdS8AhfqtHSKqLbsm5ug">Videoclips</a>
+    <a href="https://open.spotify.com/intl-es/artist/3B3zpXF4fBkyD6c1JtYlQa">Música</a>
   </nav>
 </footer>
 
