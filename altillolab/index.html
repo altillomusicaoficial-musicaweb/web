@@ -134,6 +134,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .manif .l{font:400 clamp(1.9rem,5vw,4.4rem)/.92 var(--display);text-transform:uppercase;color:var(--tinta);opacity:.16;transition:opacity .5s, color .5s;max-width:30ch}
 .manif .l.on{opacity:1}
 .manif .l em{font:italic 400 1.05em var(--serif);text-transform:none;color:var(--tomate)}
+.manif .l .mono{font:700 .6em/1 var(--mono);letter-spacing:.04em;color:var(--tomate-osc);vertical-align:.18em}
+.manif .l mark{background:var(--mostaza);color:var(--tinta);padding:0 .12em;margin:0 .02em;transform:rotate(-1.5deg);display:inline-block}
+.manif .l em.rojo2{color:var(--tomate-osc)}
+.manif .l del{text-decoration:none;font:italic 400 1.05em var(--serif);text-transform:none;color:var(--tomate);background:linear-gradient(var(--tomate),var(--tomate)) 0 55%/100% .07em no-repeat}
+.manif .l .tenue{color:#8a7d63}
 .manif .lines{display:grid;gap:8px}
 .manif .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,.35fr);gap:30px;align-items:end}
 .manif .nota{font-size:1.6rem;line-height:1.1;color:var(--tomate);transform:rotate(-3deg)}
@@ -458,7 +463,7 @@ a.herr:hover{transform:translate(-3px,-3px) rotate(-1.5deg);box-shadow:6px 6px 0
       <div class="cab label"><span class="num">00</span><span>Manifiesto de bolsillo</span></div>
       <div class="grid">
         <div class="lines">
-          <p class="l">La creatividad tiene más que ver con una predisposición al juego y al riesgo que con un don divino repartido a unas pocas agraciadas.</p>
+          <p class="l">La <em>creatividad</em> tiene más que ver con una <span class="mono">predisposición</span> al <mark>juego</mark> y al <em class="rojo2">riesgo</em> que con un <del>don divino</del> repartido a <span class="tenue">unas pocas agraciadas.</span></p>
         </div>
         <div>
           <span class="trasto" data-par="60" aria-hidden="true"><img src="../assets/img/figura-burro.webp" alt="" width="560" height="458" style="--g:-4deg"></span>
