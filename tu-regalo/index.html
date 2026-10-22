@@ -61,23 +61,21 @@ h1,h2,p{margin:0}
 .portada .flecha svg{width:18px;height:24px;animation:baja 1.6s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.portada .flecha svg{animation:none}}
 @keyframes baja{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
-.portada-mono{position:absolute;top:14px;right:14px;width:clamp(64px,9vw,112px);z-index:2;transform:rotate(9deg);filter:drop-shadow(3px 4px 0 rgba(0,0,0,.22))}
-/* collage: portada del disco en el centro, fotos de Ariana y David alrededor */
-.portada-collage{position:relative;width:min(1000px,94vw,112svh);aspect-ratio:2/1;margin:0 auto clamp(28px,5vw,48px)}
-.pc{position:absolute;height:auto;border:clamp(4px,.7vw,8px) solid var(--crema);box-shadow:4px 6px 0 rgba(0,0,0,.22)}
-.pc-disco{left:50%;top:2%;width:38%;z-index:3;transform:translateX(-50%) rotate(-2deg)}
-.pc-club{left:3%;top:4%;width:19%;z-index:2;transform:rotate(-6deg)}
-.pc-esquina{right:3%;top:2%;width:19%;z-index:2;transform:rotate(5deg)}
-.pc-alfombra{left:17%;bottom:0;width:27%;z-index:1;transform:rotate(3deg)}
-.pc-senalando{right:16%;bottom:2%;width:26%;z-index:1;transform:rotate(-4deg)}
-@media (max-width:640px){
-  .portada-collage{width:94vw;aspect-ratio:1/1.1}
-  .pc-disco{width:62%;top:3%}
-  .pc-club{left:-2%;top:44%;width:30%}
-  .pc-esquina{right:-2%;top:40%;width:30%}
-  .pc-alfombra{left:4%;bottom:0;width:48%;z-index:4}
-  .pc-senalando{right:3%;bottom:4%;width:44%;z-index:4}
+.portada-ariana{position:absolute;left:-24px;bottom:-18px;width:clamp(210px,30vw,380px);z-index:1;transform:rotate(-3deg);filter:drop-shadow(4px 6px 0 rgba(0,0,0,.18))}
+/* cassette en su funda a cada lado del texto */
+.portada-cuerpo{position:relative;z-index:2;width:min(1200px,100%);padding-inline:clamp(20px,4vw,32px);display:grid;grid-template-columns:auto minmax(0,720px) auto;justify-content:center;align-items:center;gap:clamp(16px,3vw,40px)}
+.portada-cassette{justify-self:center;width:clamp(130px,14vw,200px);height:auto;filter:drop-shadow(5px 7px 0 rgba(0,0,0,.25))}
+.portada-cassette-izq{transform:rotate(-7deg)}
+.portada-cassette-der{transform:rotate(6deg)}
+@media (max-width:760px){
+  .portada{padding-bottom:clamp(150px,40vw,220px)}
+  .portada-cuerpo{grid-template-columns:1fr 1fr;row-gap:22px;margin-top:clamp(48px,12vw,72px)}
+  .portada-cuerpo .wrap{grid-column:1 / -1;order:2;padding-inline:0}
+  .portada-cassette{width:min(34vw,140px)}
+  .portada-cassette-izq{justify-self:end}
+  .portada-cassette-der{justify-self:start}
 }
+.portada-mono{position:absolute;top:14px;right:14px;width:clamp(64px,9vw,112px);z-index:2;transform:rotate(9deg);filter:drop-shadow(3px 4px 0 rgba(0,0,0,.22))}
 
 /* --- divisor de flores ------------------------------------------ */
 .divisor-flores{text-align:center;padding-top:clamp(20px,4vw,32px);background:var(--crema)}
@@ -144,14 +142,10 @@ h1,h2,p{margin:0}
 
 <section class="portada">
   <img class="portada-mono" src="assets/collage/mono.webp" alt="" aria-hidden="true" loading="lazy">
-  <div class="portada-collage portada-en">
-    <img class="pc pc-club" src="assets/portada/club-altillo.webp" alt="Ariana y David, de Altillo, bajo el cartel del Club Altillo" width="640" height="1001">
-    <img class="pc pc-esquina" src="assets/portada/esquina.webp" alt="Ariana y David, espalda con espalda en una esquina" width="640" height="958">
-    <img class="pc pc-alfombra" src="assets/portada/alfombra.webp" alt="Ariana y David tumbados en una alfombra con gafas de sol" width="900" height="505">
-    <img class="pc pc-senalando" src="assets/portada/senalando.webp" alt="Ariana y David señalando al cielo frente a un edificio" width="900" height="675">
-    <img class="pc pc-disco" src="assets/portada/disco.webp" alt="Portada del disco Cualquier cosa combina, de Altillo" width="760" height="756">
-  </div>
-  <div class="wrap portada-en">
+  <img class="portada-ariana" src="assets/collage/ariana-v3.webp" alt="Ariana, de Altillo, sentada con gafas de sol" width="900" height="626" loading="lazy">
+  <div class="portada-cuerpo portada-en">
+  <img class="portada-cassette portada-cassette-izq" src="assets/portada/cassette-estuche.webp" alt="Cassette de Altillo en su estuche" width="249" height="385">
+  <div class="wrap">
     <p class="label eyebrow">esto no está en la carta</p>
     <h1>Se hace saber..<br>¡Que cualquier cosa combina!</h1>
     <p class="pregon">¡Veganismo y purpurina! ¡Pranayama con cecina!<br>¡Tomen asiento en la mesa, la discordia está servida!<br>Pasen, pasen.. Pasen y posen.</p>
@@ -160,6 +154,8 @@ h1,h2,p{margin:0}
       <span class="label">dale al play</span>
       <svg viewBox="0 0 18 24" fill="none" aria-hidden="true"><path d="M9 1v20M2 15l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </span>
+  </div>
+  <img class="portada-cassette portada-cassette-der" src="assets/portada/cassette-presentacion.webp" alt="Cassette de Altillo con su faja de presentación" width="253" height="384">
   </div>
 </section>
 
@@ -170,7 +166,7 @@ h1,h2,p{margin:0}
 <section class="sobremesa wrap" aria-labelledby="sobremesa-titulo">
   <header class="sobremesa-cab">
     <div class="sobremesa-cab-texto">
-      <p class="label eyebrow">once temas, para llevar</p>
+      <p class="label eyebrow">nueve temas, para llevar</p>
       <h2 id="sobremesa-titulo">Lo que te has ganado</h2>
       <p>Esto es lo que suena cuando le das la vuelta al cassette. Sin prisa, en el orden que te apetezca.</p>
     </div>
@@ -308,48 +304,6 @@ h1,h2,p{margin:0}
     <article class="trago" role="listitem">
       <p class="trago-num">07</p>
       <div class="trago-cuerpo">
-        <h3 class="trago-titulo">Paseito</h3>
-        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Paseito" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
-          <div class="trago-barra-relleno" data-relleno></div>
-        </div>
-      </div>
-      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Paseito">
-        <span class="ico-play"></span><span class="ico-pausa"></span>
-      </button>
-      <p class="trago-tiempo" data-tiempo>0:00</p>
-      <p class="trago-dur" data-duracion>–:–</p>
-      <p class="trago-desc">
-        <span class="trago-desc-label">Descargar</span>
-        <a href="/07-paseito.mp3" download="07 Paseito - Altillo.mp3" aria-label="Descargar Paseito en MP3">MP3 <span>6.1 MB</span></a>
-        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/07.Paseito.wav" download aria-label="Descargar Paseito en WAV, calidad máxima">WAV <span>50 MB</span></a>
-      </p>
-      <audio data-audio preload="metadata" src="/07-paseito.mp3"></audio>
-    </article>
-
-    <article class="trago" role="listitem">
-      <p class="trago-num">08</p>
-      <div class="trago-cuerpo">
-        <h3 class="trago-titulo">Respirar</h3>
-        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Respirar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
-          <div class="trago-barra-relleno" data-relleno></div>
-        </div>
-      </div>
-      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Respirar">
-        <span class="ico-play"></span><span class="ico-pausa"></span>
-      </button>
-      <p class="trago-tiempo" data-tiempo>0:00</p>
-      <p class="trago-dur" data-duracion>–:–</p>
-      <p class="trago-desc">
-        <span class="trago-desc-label">Descargar</span>
-        <a href="/08-respirar.mp3" download="08 Respirar - Altillo.mp3" aria-label="Descargar Respirar en MP3">MP3 <span>8.3 MB</span></a>
-        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/08.Respirar.wav" download aria-label="Descargar Respirar en WAV, calidad máxima">WAV <span>69 MB</span></a>
-      </p>
-      <audio data-audio preload="metadata" src="/08-respirar.mp3"></audio>
-    </article>
-
-    <article class="trago" role="listitem">
-      <p class="trago-num">09</p>
-      <div class="trago-cuerpo">
         <h3 class="trago-titulo">Empecinadas</h3>
         <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Empecinadas" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
           <div class="trago-barra-relleno" data-relleno></div>
@@ -369,7 +323,7 @@ h1,h2,p{margin:0}
     </article>
 
     <article class="trago" role="listitem">
-      <p class="trago-num">10</p>
+      <p class="trago-num">08</p>
       <div class="trago-cuerpo">
         <h3 class="trago-titulo">Yoga y Panceta</h3>
         <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Yoga y Panceta" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
@@ -390,7 +344,7 @@ h1,h2,p{margin:0}
     </article>
 
     <article class="trago" role="listitem">
-      <p class="trago-num">11</p>
+      <p class="trago-num">09</p>
       <div class="trago-cuerpo">
         <h3 class="trago-titulo">La Marea (outro)</h3>
         <div class="trago-barra" data-barra role="slider" aria-label="Progreso de La Marea (outro)" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
@@ -418,6 +372,7 @@ h1,h2,p{margin:0}
   <div class="pie-mensaje">
     <p>Muchas gracias, de corazón, por adquirir una de nuestras cintas. Juntas, hemos evitado un objeticidio&nbsp;:)</p>
     <p>Si quieres donarnos cassettes o cintas VHS para que sigamos haciendo merchan sin generar nuevos objetos en este mundo sobre-saturado, contacta con nosotras aquí: <a href="mailto:altillomusica.oficial@gmail.com">altillomusica.oficial@gmail.com</a></p>
+    <p>Esperamos que hayas disfrutado de esta sobremesa con nosotras,</p>
     <p class="script">Salud y gazpacho</p>
   </div>
   <div class="pie-figuritas" aria-hidden="true">
