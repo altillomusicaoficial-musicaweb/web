@@ -554,6 +554,13 @@ button.chip{cursor:pointer}
 .ta.script{min-height:300px;line-height:1.5}
 .chk.shot{flex-wrap:wrap}
 .chk.shot input[type=text]{flex:1 1 150px}
+.pcode{flex:none;align-self:center;font:600 .66rem var(--f-mono);letter-spacing:.02em;padding:2px 6px;border-radius:5px;background:var(--ink);color:var(--paper);white-space:nowrap}
+.chk.shot.d .pcode{opacity:.45}
+.chk.shot select.pl-esc{flex:0 1 150px;min-width:0;font-size:.72rem;padding:3px 6px}
+.esc-pl{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin:-2px 0 2px 62px;font:500 .64rem var(--f-mono);color:var(--ink-3)}
+.esc-pl b{font-weight:600;color:var(--red)}
+.esc-pl span{padding:1px 5px;border:1px solid var(--hair);border-radius:4px;color:var(--ink-2)}
+.esc-pl.none{opacity:.7}
 .lta{display:block;resize:none;overflow:hidden;font:inherit;line-height:1.3;white-space:pre-wrap;overflow-wrap:anywhere;min-height:1.9em}
 .run-r textarea.rl{flex:1;min-width:0;border:0;border-bottom:1.5px solid var(--hair);background:transparent;color:var(--ink);font:600 .92rem/1.3 var(--f-body);padding:3px 2px;outline:0}
 .chk.shot textarea.lta{flex:1 1 150px;min-width:0;border:0;border-bottom:1.5px solid transparent;background:transparent;color:var(--ink);font:inherit;padding:2px 2px;outline:0}
@@ -1629,7 +1636,7 @@ function lGrow(el){if(!el)return;el.style.height='auto';el.style.height=el.scrol
 function lGrowAll(root){(root||document).querySelectorAll('textarea.lta').forEach(lGrow)}
 function lsCtl(k,i){return `<button type="button" class="x" data-act="ls-up" data-ls="${k}" data-v="${i}" aria-label="Subir">↑</button><button type="button" class="x" data-act="ls-down" data-ls="${k}" data-v="${i}" aria-label="Bajar">↓</button><button type="button" class="x" data-act="ls-del" data-ls="${k}" data-v="${i}" aria-label="Quitar">×</button>`}
 function lsEdit(k,fn){if(!SH)return;const l=(SH.draft[k]||[]).map(r=>Object.assign({},r));fn(l);SH.draft[k]=l;touch(true);drawSheet()}
-function lsAdd(k,rows){lsEdit(k,l=>{(rows||[{}]).forEach(r=>l.push(Object.assign({id:uid('x')},r)))});setTimeout(()=>{const e=$$('#sheet [data-ls="'+k+'"][data-lk="t"]'),x=e[e.length-1];if(x)x.focus()},0)}
+function lsAdd(k,rows){lsEdit(k,l=>{(rows||[k==='shots'&&l.length&&l[l.length-1].esc?{esc:l[l.length-1].esc}:{}]).forEach(r=>l.push(Object.assign({id:uid('x')},r)))});setTimeout(()=>{const e=$$('#sheet [data-ls="'+k+'"][data-lk="t"]'),x=e[e.length-1];if(x)x.focus()},0)}
 
 /* ---------- escribir a la vez: lo que cambia la otra persona entra solo en la ficha abierta ---------- */
 const LIVE_LAB={title:'el título',idea:'la idea',hook:'el gancho',script:'el guion',esc:'la escaleta',shots:'los planos',rot:'los rótulos',cap:'el texto de publicación',cta:'la llamada a la acción',audio:'el audio',note:'las notas',like:'lo que nos gusta',adapt:'cómo lo adaptamos',coverT:'la portada',coverN:'la portada',stage:'la fase',date:'la fecha',who:'quién lo hace',links:'los enlaces',checks:'los pasos',mc:'Metricool',tags:'las etiquetas'};
@@ -1689,18 +1696,24 @@ function vTabGuion(d){
   <div class="run-sum">${scStat(d.script,d.durT)}</div>
   ${String(d.script||'').trim()?'':`<div><button type="button" class="btn sm" data-act="script-tpl" data-w>Empezar con una estructura</button></div>`}
   <span class="hint">La voz cuenta unas 150 palabras por minuto de lo hablado. Cada imagen o plano entre [corchetes] suma 3 segundos, que es lo normal para que se entienda. Las palabras de los corchetes entran en el total.</span>`}
+/* códigos de plano: Esc_<escena>_<plano> (se recalculan solos al reordenar) */
+const escNum=(d,id)=>{const i=(d.esc||[]).findIndex(r=>r.id===id);return i+1};
+function shotCodes(d){const c={};return (d.shots||[]).map(s=>{const n=escNum(d,s.esc);c[n]=(c[n]||0)+1;return n>0?`Esc_${n}_${c[n]}`:`Extra_${c[n]}`})}
+const escLab=(r,i)=>'Esc_'+(i+1)+' · '+String(r.t||'sin título').slice(0,34)+(String(r.t||'').length>34?'…':'');
 function vTabEsc(d){const l=d.esc||[];let acc=0;
-  const rows=l.map((r,i)=>{const t0=fmtDur(acc);acc+=Number(r.dur)||0;return `<div class="run-r"><span class="t0">${t0}</span><span class="n">${i+1}</span><textarea rows="1" class="rl lta" id="ls-esc-${r.id}-t" data-ls="esc" data-li="${r.id}" data-lk="t" placeholder="Qué pasa en esta escena" autocomplete="off">${esc(r.t||'')}</textarea><input class="dur-in" id="ls-esc-${r.id}-d" data-ls="esc" data-li="${r.id}" data-lk="dur" data-ld="1" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="0:05" inputmode="numeric" autocomplete="off" aria-label="Duración">${lsCtl('esc',i)}</div>`}).join('');
+  const cds=shotCodes(d),pl={};(d.shots||[]).forEach((s,j)=>{if(s.esc)(pl[s.esc]=pl[s.esc]||[]).push(cds[j])});
+  const rows=l.map((r,i)=>{const t0=fmtDur(acc);acc+=Number(r.dur)||0;return `<div class="run-r"><span class="t0">${t0}</span><span class="n">${i+1}</span><textarea rows="1" class="rl lta" id="ls-esc-${r.id}-t" data-ls="esc" data-li="${r.id}" data-lk="t" placeholder="Qué pasa en esta escena" autocomplete="off">${esc(r.t||'')}</textarea><input class="dur-in" id="ls-esc-${r.id}-d" data-ls="esc" data-li="${r.id}" data-lk="dur" data-ld="1" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="0:05" inputmode="numeric" autocomplete="off" aria-label="Duración">${lsCtl('esc',i)}</div>${pl[r.id]?`<div class="esc-pl"><b>Esc_${i+1}</b> ${pl[r.id].map(c=>`<span>${c}</span>`).join('')}</div>`:`<div class="esc-pl none"><b>Esc_${i+1}</b> sin planos</div>`}`}).join('');
   const dd=d.durT>0?acc-d.durT:0;
   return `<div class="run-sum"><b>${l.length?fmtDur(acc):'—'}</b><span>${l.length} ${l.length===1?'escena':'escenas'}${d.durT>0?` · objetivo ${fmtDur(d.durT)}${l.length?(dd>0?` · te pasas ${fmtDur(dd)}`:dd<0?` · sobran ${fmtDur(-dd)}`:' · clavado'):''}`:''}</span></div>
   <div class="run">${rows||'<div class="empty" style="padding:12px">La escaleta es el orden de las escenas con su duración. Añade la primera o empieza por una estructura.</div>'}</div>
   <div class="row-btns"><button type="button" class="btn sm" data-act="ls-add" data-ls="esc" data-w>+ Escena</button>${l.length?'':`<button type="button" class="btn sm" data-act="esc-tpl" data-w>Gancho · desarrollo · cierre</button>`}</div>`}
-function vTabPlanos(d){const l=d.shots||[],dn=l.filter(x=>x.d).length;
-  const rows=l.map((r,i)=>`<div class="chk shot${r.d?' d':''}"><input type="checkbox" data-ls="shots" data-li="${r.id}" data-lchk="1" ${r.d?'checked':''} aria-label="Grabado"><textarea rows="1" class="lta" id="ls-shots-${r.id}-t" data-ls="shots" data-li="${r.id}" data-lk="t" placeholder="Plano (qué se ve)" autocomplete="off">${esc(r.t||'')}</textarea><textarea rows="1" class="lta shot-n" id="ls-shots-${r.id}-n" data-ls="shots" data-li="${r.id}" data-lk="n" placeholder="Dónde / con qué" autocomplete="off">${esc(r.n||'')}</textarea>${lsCtl('shots',i)}</div>`).join('');
+function vTabPlanos(d){const l=d.shots||[],dn=l.filter(x=>x.d).length,cds=shotCodes(d),em=Object.fromEntries((d.esc||[]).map((r,i)=>[r.id,escLab(r,i)]));
+  const rows=l.map((r,i)=>`<div class="chk shot${r.d?' d':''}"><input type="checkbox" data-ls="shots" data-li="${r.id}" data-lchk="1" ${r.d?'checked':''} aria-label="Grabado"><span class="pcode" title="Código del plano">${cds[i]}</span><textarea rows="1" class="lta" id="ls-shots-${r.id}-t" data-ls="shots" data-li="${r.id}" data-lk="t" placeholder="Plano (qué se ve)" autocomplete="off">${esc(r.t||'')}</textarea><textarea rows="1" class="lta shot-n" id="ls-shots-${r.id}-n" data-ls="shots" data-li="${r.id}" data-lk="n" placeholder="Dónde / con qué" autocomplete="off">${esc(r.n||'')}</textarea><select class="sel pl-esc" id="ls-shots-${r.id}-esc" data-ls="shots" data-li="${r.id}" data-lk="esc" aria-label="Escena de este plano">${opts(em,r.esc||'','Sin escena')}</select>${lsCtl('shots',i)}</div>`).join('');
   return `<div class="run-sum"><b>${l.length?dn+'/'+l.length:'—'}</b><span>${l.length?(dn===l.length?'todos grabados':(l.length-dn)+' por grabar'):'planos a grabar'}</span></div>
   ${l.length?`<div class="vprog"><i style="width:${Math.round(dn/l.length*100)}%"></i></div>`:''}
   <div class="checks">${rows||'<div class="empty" style="padding:12px">Lista de todo lo que hay que tener grabado. Marca cada plano cuando lo tengáis.</div>'}</div>
-  <div class="row-btns"><button type="button" class="btn sm" data-act="ls-add" data-ls="shots" data-w>+ Plano</button><button type="button" class="btn sm" data-act="shots-base" data-w>Añadir planos habituales</button></div>`}
+  <div class="row-btns"><button type="button" class="btn sm" data-act="ls-add" data-ls="shots" data-w>+ Plano</button><button type="button" class="btn sm" data-act="shots-base" data-w>Añadir planos habituales</button>${l.length?`<button type="button" class="btn sm" data-act="shots-sort" data-w>Ordenar por escena</button><button type="button" class="btn sm" data-act="shots-copy" data-w>Copiar lista con códigos</button>`:''}</div>
+  <span class="hint">Cada plano tiene un código con su escena y su orden dentro de ella (Esc_3_2 = escena 3, plano 2). Se recalcula solo si cambias el orden.</span>`}
 function vTabRot(d){const l=d.rot||[];
   const rows=l.map((r,i)=>`<div class="run-r"><span class="n">${i+1}</span><input class="dur-in" id="ls-rot-${r.id}-a" data-ls="rot" data-li="${r.id}" data-lk="at" value="${esc(r.at||'')}" placeholder="0:05" autocomplete="off" aria-label="Cuándo sale"><textarea rows="1" class="rl lta" id="ls-rot-${r.id}-t" data-ls="rot" data-li="${r.id}" data-lk="t" placeholder="Texto que sale en pantalla" autocomplete="off">${esc(r.t||'')}</textarea>${lsCtl('rot',i)}</div>`).join('');
   return `<div class="run">${rows||'<div class="empty" style="padding:12px">Los rótulos son el texto que sale en pantalla: títulos, nombres, frases clave y la llamada a la acción. Apunta cuándo sale cada uno.</div>'}</div>
@@ -2103,6 +2116,11 @@ const ACT={
   'ls-down':t=>lsEdit(t.dataset.ls,l=>{const i=Number(t.dataset.v);if(i<l.length-1){const x=l[i+1];l[i+1]=l[i];l[i]=x}}),
   'ls-del':t=>lsEdit(t.dataset.ls,l=>{l.splice(Number(t.dataset.v),1)}),
   'esc-tpl':()=>lsAdd('esc',ESC_TPL.map(([t,dur])=>({t,dur}))),
+  'shots-sort':()=>{if(!SH)return;const d=SH.draft,ix=Object.fromEntries((d.esc||[]).map((r,i)=>[r.id,i+1]));lsEdit('shots',l=>{const o=l.map((r,i)=>[r,i]);o.sort((a,b)=>((ix[a[0].esc]||999)-(ix[b[0].esc]||999))||a[1]-b[1]);l.splice(0,l.length,...o.map(x=>x[0]))});toast('Planos ordenados por escena.')},
+  'shots-copy':async()=>{if(!SH)return;const d=SH.draft,cds=shotCodes(d),out=[`${d.title||'Vídeo'} · planos`];
+    (d.esc||[]).forEach((r,i)=>{const own=(d.shots||[]).map((s,j)=>[s,cds[j]]).filter(([s])=>s.esc===r.id);out.push('',`Esc_${i+1} · ${r.t||''} (${fmtDur(Number(r.dur)||0)})`);own.forEach(([s,c])=>out.push(`  ${c} | ${s.t||''}${s.n?' | '+s.n:''}${s.d?' | GRABADO':''}`))});
+    const ex=(d.shots||[]).map((s,j)=>[s,cds[j]]).filter(([s])=>!escNum(d,s.esc));if(ex.length){out.push('','Sin escena');ex.forEach(([s,c])=>out.push(`  ${c} | ${s.t||''}${s.n?' | '+s.n:''}${s.d?' | GRABADO':''}`))}
+    const tx=out.join('\n');try{await navigator.clipboard.writeText(tx);toast('Lista copiada con los códigos.')}catch(e){const ta=document.createElement('textarea');ta.value=tx;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Lista copiada con los códigos.')}catch(_){toast('No se pudo copiar.')}ta.remove()}},
   'shots-base':()=>{const have=new Set((SH.draft.shots||[]).map(x=>norm(x.t)));lsAdd('shots',SHOTS_BASE.filter(t=>!have.has(norm(t))).map(t=>({t,n:'',d:false})))},
   'rot-base':()=>{const have=new Set((SH.draft.rot||[]).map(x=>norm(x.t)));lsAdd('rot',ROT_TPL.filter(t=>!have.has(norm(t))).map(t=>({t,at:''})))},
   'script-tpl':()=>{if(!SH)return;SH.draft.script=SCRIPT_TPL;touch(true);drawSheet()},
@@ -2159,7 +2177,7 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.classList&&t.classList.contains('lta'))lGrow(t);
   if(t.dataset.ls&&t.dataset.li){const k=t.dataset.ls,l=(SH.draft[k]||[]).map(r=>Object.assign({},r)),r=l.find(x=>x.id===t.dataset.li);if(!r)return;
     if(t.dataset.lchk){r.d=t.checked;SH.draft[k]=l;touch(true);drawSheet();return}
-    if(t.dataset.ld)return;r[t.dataset.lk]=t.value;SH.draft[k]=l;touch();return}
+    if(t.dataset.ld)return;r[t.dataset.lk]=t.value;SH.draft[k]=l;if(t.tagName==='SELECT'){touch(true);drawSheet();return}touch();return}
   if(t.dataset.f){const f=t.dataset.f;let v=t.type==='checkbox'?t.checked:t.value;if(f==='stage')v=Number(v);if(f==='dur'||f==='durT'){const q=parseDur(v);if(q===undefined)return;v=q||null}if(f==='qty')v=Math.max(1,Math.floor(Number(v))||1);if((f==='date'||f==='end'||f==='due'||f==='start'||f==='goal'||f==='song'||f==='gig'||f==='cajon')&&!v)v=null;
     SH.draft[f]=v;if(SH.type==='goal'&&(f==='start'||f==='due')&&SH.draft.start&&SH.draft.due&&SH.draft.start>SH.draft.due){if(f==='start')SH.draft.due=v;else SH.draft.start=v;touch(true);drawSheet();return}
     if(t.classList.contains('ttl-in')){t.style.height='auto';t.style.height=t.scrollHeight+'px'}
