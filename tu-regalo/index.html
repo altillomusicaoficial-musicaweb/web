@@ -54,14 +54,28 @@ h1,h2,p{margin:0}
 @media (prefers-reduced-motion:reduce){.portada-en{opacity:1;transform:none;animation:none}}
 @keyframes aparece{to{opacity:1;transform:none}}
 .portada .eyebrow{color:var(--crema);opacity:.85;margin-bottom:1.1rem}
-.portada h1{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.88;letter-spacing:-.01em;font-size:clamp(3.4rem,13vw,8.5rem);color:var(--crema)}
-.portada .sub{margin-top:1.3rem;font-size:clamp(1.15rem,2.6vw,1.6rem);max-width:34ch;color:var(--crema)}
+.portada h1{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.95;letter-spacing:-.01em;font-size:clamp(2.3rem,6.4vw,4.4rem);color:var(--crema)}
+.portada .pregon{margin-top:1.1rem;font-family:var(--display);text-transform:uppercase;letter-spacing:.02em;line-height:1.25;font-size:clamp(1.05rem,2.4vw,1.6rem);color:var(--crema)}
+.portada .sub{margin:1.4rem auto 0;font-size:clamp(1.15rem,2.6vw,1.6rem);max-width:40ch;color:var(--crema)}
 .portada .flecha{margin-top:clamp(36px,7vw,64px);display:inline-flex;flex-direction:column;align-items:center;gap:10px;color:var(--crema);opacity:.85}
 .portada .flecha svg{width:18px;height:24px;animation:baja 1.6s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.portada .flecha svg{animation:none}}
 @keyframes baja{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+.portada-ariana{position:absolute;left:-24px;bottom:-18px;width:clamp(210px,30vw,380px);z-index:1;transform:rotate(-3deg);filter:drop-shadow(4px 6px 0 rgba(0,0,0,.18))}
+/* cassette en su funda a cada lado del texto */
+.portada-cuerpo{position:relative;z-index:2;width:min(1200px,100%);padding-inline:clamp(20px,4vw,32px);display:grid;grid-template-columns:auto minmax(0,720px) auto;justify-content:center;align-items:center;gap:clamp(16px,3vw,40px)}
+.portada-cassette{justify-self:center;width:clamp(130px,14vw,200px);height:auto;filter:drop-shadow(5px 7px 0 rgba(0,0,0,.25))}
+.portada-cassette-izq{transform:rotate(-7deg)}
+.portada-cassette-der{transform:rotate(3deg)}
+@media (max-width:760px){
+  .portada{padding-bottom:clamp(150px,40vw,220px)}
+  .portada-cuerpo{grid-template-columns:1fr 1fr;row-gap:22px;margin-top:clamp(48px,12vw,72px)}
+  .portada-cuerpo .wrap{grid-column:1 / -1;order:2;padding-inline:0}
+  .portada-cassette{width:min(34vw,140px)}
+  .portada-cassette-izq{justify-self:end}
+  .portada-cassette-der{justify-self:start}
+}
 .portada-mono{position:absolute;top:14px;right:14px;width:clamp(64px,9vw,112px);z-index:2;transform:rotate(9deg);filter:drop-shadow(3px 4px 0 rgba(0,0,0,.22))}
-.portada-ariana{position:absolute;left:-24px;bottom:-18px;width:clamp(210px,32vw,380px);z-index:1;transform:rotate(-3deg);filter:drop-shadow(4px 6px 0 rgba(0,0,0,.18))}
 
 /* --- divisor de flores ------------------------------------------ */
 .divisor-flores{text-align:center;padding-top:clamp(20px,4vw,32px);background:var(--crema)}
@@ -110,6 +124,9 @@ h1,h2,p{margin:0}
 
 /* --- pie ------------------------------------------------------- */
 .pie{padding-block:clamp(32px,6vw,48px);border-top:1.5px solid var(--tinta);text-align:center}
+.pie-mensaje{max-width:56ch;margin:0 auto clamp(24px,5vw,40px);display:grid;gap:.9rem}
+.pie-mensaje a{color:var(--tomate);word-break:break-word}
+.pie .pie-mensaje .script{font-size:clamp(1.5rem,3vw,2rem);color:var(--tomate)}
 .pie-figuritas{display:flex;justify-content:center;align-items:flex-end;gap:clamp(6px,2.4vw,20px);margin-bottom:clamp(14px,3vw,24px)}
 .pie-figuritas img{height:clamp(58px,8.5vw,104px);width:auto;filter:drop-shadow(3px 4px 0 rgba(23,20,15,.15))}
 .pie-figuritas img:nth-child(1){transform:rotate(-4deg)}
@@ -125,15 +142,20 @@ h1,h2,p{margin:0}
 
 <section class="portada">
   <img class="portada-mono" src="assets/collage/mono.webp" alt="" aria-hidden="true" loading="lazy">
-  <img class="portada-ariana" src="assets/collage/ariana-v2.webp" alt="Ariana, de Altillo, descansando" loading="lazy">
-  <div class="wrap portada-en">
+  <img class="portada-ariana" src="assets/collage/ariana-v3.webp" alt="Ariana, de Altillo, sentada con gafas de sol" width="900" height="626" loading="lazy">
+  <div class="portada-cuerpo portada-en">
+  <img class="portada-cassette portada-cassette-izq" src="assets/portada/cassette-estuche.webp" alt="Cassette de Altillo en su estuche" width="440" height="673">
+  <div class="wrap">
     <p class="label eyebrow">esto no está en la carta</p>
-    <h1>La<br>sobremesa</h1>
-    <p class="script sub">Ya has comido. Ahora quédate un rato con nosotras.</p>
+    <h1>Se hace saber..<br>¡Que cualquier cosa combina!</h1>
+    <p class="pregon">¡Veganismo y purpurina! ¡Pranayama con cecina!<br>¡Tomen asiento en la mesa, la discordia está servida!<br>Pasen, pasen.. Pasen y posen.</p>
+    <p class="script sub">Aquí te dejamos nuestros temas para que los escuches en línea o los descargues y los metas en tu MP3 más rechulón.</p>
     <span class="flecha">
       <span class="label">dale al play</span>
       <svg viewBox="0 0 18 24" fill="none" aria-hidden="true"><path d="M9 1v20M2 15l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </span>
+  </div>
+  <img class="portada-cassette portada-cassette-der" src="assets/portada/cassette-presentacion.webp" alt="Cassette de Altillo con su faja de presentación" width="615" height="922">
   </div>
 </section>
 
@@ -144,7 +166,7 @@ h1,h2,p{margin:0}
 <section class="sobremesa wrap" aria-labelledby="sobremesa-titulo">
   <header class="sobremesa-cab">
     <div class="sobremesa-cab-texto">
-      <p class="label eyebrow">once temas, para llevar</p>
+      <p class="label eyebrow">nueve temas, para llevar</p>
       <h2 id="sobremesa-titulo">Lo que te has ganado</h2>
       <p>Esto es lo que suena cuando le das la vuelta al cassette. Sin prisa, en el orden que te apetezca.</p>
     </div>
@@ -219,20 +241,20 @@ h1,h2,p{margin:0}
     <article class="trago" role="listitem">
       <p class="trago-num">04</p>
       <div class="trago-cuerpo">
-        <h3 class="trago-titulo">PEÑA SANTA</h3>
-        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de PEÑA SANTA" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+        <h3 class="trago-titulo">PENA SANTA</h3>
+        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de PENA SANTA" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
           <div class="trago-barra-relleno" data-relleno></div>
         </div>
       </div>
-      <button class="trago-play" data-toggle type="button" aria-label="Reproducir PEÑA SANTA">
+      <button class="trago-play" data-toggle type="button" aria-label="Reproducir PENA SANTA">
         <span class="ico-play"></span><span class="ico-pausa"></span>
       </button>
       <p class="trago-tiempo" data-tiempo>0:00</p>
       <p class="trago-dur" data-duracion>–:–</p>
       <p class="trago-desc">
         <span class="trago-desc-label">Descargar</span>
-        <a href="/04-pena-santa.mp3" download="04 PEÑA SANTA - Altillo.mp3" aria-label="Descargar PEÑA SANTA en MP3">MP3 <span>2.0 MB</span></a>
-        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/04.PENA.SANTA.wav" download aria-label="Descargar PEÑA SANTA en WAV, calidad máxima">WAV <span>18 MB</span></a>
+        <a href="/04-pena-santa.mp3" download="04 PENA SANTA - Altillo.mp3" aria-label="Descargar PENA SANTA en MP3">MP3 <span>2.0 MB</span></a>
+        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/04.PENA.SANTA.wav" download aria-label="Descargar PENA SANTA en WAV, calidad máxima">WAV <span>18 MB</span></a>
       </p>
       <audio data-audio preload="metadata" src="/04-pena-santa.mp3"></audio>
     </article>
@@ -282,48 +304,6 @@ h1,h2,p{margin:0}
     <article class="trago" role="listitem">
       <p class="trago-num">07</p>
       <div class="trago-cuerpo">
-        <h3 class="trago-titulo">Paseito</h3>
-        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Paseito" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
-          <div class="trago-barra-relleno" data-relleno></div>
-        </div>
-      </div>
-      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Paseito">
-        <span class="ico-play"></span><span class="ico-pausa"></span>
-      </button>
-      <p class="trago-tiempo" data-tiempo>0:00</p>
-      <p class="trago-dur" data-duracion>–:–</p>
-      <p class="trago-desc">
-        <span class="trago-desc-label">Descargar</span>
-        <a href="/07-paseito.mp3" download="07 Paseito - Altillo.mp3" aria-label="Descargar Paseito en MP3">MP3 <span>6.1 MB</span></a>
-        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/07.Paseito.wav" download aria-label="Descargar Paseito en WAV, calidad máxima">WAV <span>50 MB</span></a>
-      </p>
-      <audio data-audio preload="metadata" src="/07-paseito.mp3"></audio>
-    </article>
-
-    <article class="trago" role="listitem">
-      <p class="trago-num">08</p>
-      <div class="trago-cuerpo">
-        <h3 class="trago-titulo">Respirar</h3>
-        <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Respirar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
-          <div class="trago-barra-relleno" data-relleno></div>
-        </div>
-      </div>
-      <button class="trago-play" data-toggle type="button" aria-label="Reproducir Respirar">
-        <span class="ico-play"></span><span class="ico-pausa"></span>
-      </button>
-      <p class="trago-tiempo" data-tiempo>0:00</p>
-      <p class="trago-dur" data-duracion>–:–</p>
-      <p class="trago-desc">
-        <span class="trago-desc-label">Descargar</span>
-        <a href="/08-respirar.mp3" download="08 Respirar - Altillo.mp3" aria-label="Descargar Respirar en MP3">MP3 <span>8.3 MB</span></a>
-        <a href="https://github.com/altillomusicaoficial-musicaweb/web/releases/download/audio-tu-regalo/08.Respirar.wav" download aria-label="Descargar Respirar en WAV, calidad máxima">WAV <span>69 MB</span></a>
-      </p>
-      <audio data-audio preload="metadata" src="/08-respirar.mp3"></audio>
-    </article>
-
-    <article class="trago" role="listitem">
-      <p class="trago-num">09</p>
-      <div class="trago-cuerpo">
         <h3 class="trago-titulo">Empecinadas</h3>
         <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Empecinadas" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
           <div class="trago-barra-relleno" data-relleno></div>
@@ -343,7 +323,7 @@ h1,h2,p{margin:0}
     </article>
 
     <article class="trago" role="listitem">
-      <p class="trago-num">10</p>
+      <p class="trago-num">08</p>
       <div class="trago-cuerpo">
         <h3 class="trago-titulo">Yoga y Panceta</h3>
         <div class="trago-barra" data-barra role="slider" aria-label="Progreso de Yoga y Panceta" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
@@ -364,7 +344,7 @@ h1,h2,p{margin:0}
     </article>
 
     <article class="trago" role="listitem">
-      <p class="trago-num">11</p>
+      <p class="trago-num">09</p>
       <div class="trago-cuerpo">
         <h3 class="trago-titulo">La Marea (outro)</h3>
         <div class="trago-barra" data-barra role="slider" aria-label="Progreso de La Marea (outro)" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
@@ -389,6 +369,12 @@ h1,h2,p{margin:0}
 </section>
 
 <footer class="pie wrap">
+  <div class="pie-mensaje">
+    <p>Muchas gracias, de corazón, por adquirir una de nuestras cintas. Juntas, hemos evitado un objeticidio&nbsp;:)</p>
+    <p>Si quieres donarnos cassettes o cintas VHS para que sigamos haciendo merchan sin generar nuevos objetos en este mundo sobre-saturado, contacta con nosotras aquí: <a href="mailto:altillomusica.oficial@gmail.com">altillomusica.oficial@gmail.com</a></p>
+    <p>Esperamos que hayas disfrutado de esta sobremesa con nosotras,</p>
+    <p class="script">Salud y gazpacho</p>
+  </div>
   <div class="pie-figuritas" aria-hidden="true">
     <img src="assets/collage/sillon-loro.webp" alt="" loading="lazy">
     <img src="assets/collage/burro.webp" alt="" loading="lazy">
@@ -398,6 +384,8 @@ h1,h2,p{margin:0}
   <nav>
     <a href="../index.html">Volver a la carta</a>
     <a href="https://www.instagram.com/altillomusica/">Instagram</a>
+    <a href="https://www.youtube.com/channel/UCUPfdS8AhfqtHSKqLbsm5ug">Videoclips</a>
+    <a href="https://open.spotify.com/intl-es/artist/3B3zpXF4fBkyD6c1JtYlQa">Música</a>
   </nav>
 </footer>
 
