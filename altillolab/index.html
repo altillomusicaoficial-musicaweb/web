@@ -678,7 +678,6 @@ a.herr:hover{transform:translate(-3px,-3px) rotate(-1.5deg);box-shadow:6px 6px 0
       <div class="cab label"><span class="num">07</span><span>Solo para la gente del lab</span></div>
       <h2 class="display rv"><span class="script">el altillo de</span>Recursos</h2>
       <p class="lead">Temario, material y grabaciones, ordenados en el tiempo. Lo que ya ha pasado se queda a color, lo de esta semana brilla y lo que viene espera en blanco y negro. Las apps van aparte, en una caja de herramientas que está abierta desde el primer día.</p>
-      <p class="aviso">MAQUETA · En este prototipo la clave no protege nada: solo sirve para ver cómo quedaría. Para probarla, usuario cualquiera y clave «altillo».</p>
       <div class="login" id="login-box">
         <form class="form" id="f-login" novalidate>
           <div class="modo" role="group" aria-label="Modalidad">
@@ -913,7 +912,7 @@ a.herr:hover{transform:translate(-3px,-3px) rotate(-1.5deg);box-shadow:6px 6px 0
   var crono = document.getElementById('crono'), fl = document.getElementById('f-login'), lm = document.getElementById('l-msg');
   fl.addEventListener('submit', function(ev){
     ev.preventDefault();
-    if(document.getElementById('l-pass').value.trim().toLowerCase() !== 'altillo'){ lm.textContent = 'Esa clave no abre el altillo. En la maqueta es «altillo».'; return; }
+    if(document.getElementById('l-pass').value.trim().toLowerCase() !== 'altillo'){ lm.textContent = 'Esa clave no abre el altillo.'; return; }
     lm.textContent = '';
     document.getElementById('c-hola').textContent = modo==='online' ? 'Hola. Esto es tu altillo online' : 'Hola. Esto es tu altillo presencial';
     document.getElementById('login-box').hidden = true;
