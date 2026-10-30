@@ -127,6 +127,12 @@ ul,ol{padding:0;list-style:none}
 .cifra small{font-size:.7rem;opacity:.75;margin-top:auto}
 .cifra[hidden]{display:none}
 .ticket{margin-top:10px;font-size:.8rem;opacity:.75}
+.fuego{margin-top:22px;border:1.5px solid var(--tinta);border-left:8px solid var(--tomate);padding:18px 18px 20px;background:var(--crema-2)}
+.fuego h3{font-size:clamp(1.7rem,6.5vw,2.6rem);margin:.5rem 0 .8rem}
+.fuego ul{margin-top:.9rem}
+.fuego li{padding:.5em 0;border-top:1px dashed var(--linea);font-size:.92rem}
+.fuego li b{display:inline-block;min-width:8.5em;color:var(--tomate);text-transform:uppercase;font-size:.8rem;letter-spacing:.05em}
+.fuego .nota{margin-top:.9rem}
 
 /* escenarios */
 .escenarios{display:grid;gap:22px}
@@ -145,7 +151,7 @@ ul,ol{padding:0;list-style:none}
 .resenas p{font-family:var(--serif);font-style:italic;font-size:clamp(1.35rem,5vw,1.7rem);line-height:1.15}
 .resenas cite{display:block;font-style:normal;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;margin-top:.5em;color:var(--tomate);font-weight:700}
 .medios{display:flex;flex-wrap:wrap;gap:8px;margin-top:1.4rem}
-.medios a{display:inline-block;border:1.5px solid var(--tinta);padding:.4em .7em;font-size:.8rem;text-decoration:none;font-weight:700}
+.medios a,.medios .medio{display:inline-block;border:1.5px solid var(--tinta);padding:.4em .7em;font-size:.8rem;text-decoration:none;font-weight:700}
 .medios a:hover{background:var(--tinta);color:var(--crema)}
 
 /* vídeos */
@@ -250,15 +256,26 @@ ul,ol{padding:0;list-style:none}
     <div class="cifras">
       <div class="cifra" data-valor="+50"><b>+50</b><span>bolos servidos</span><small>Madrid, Portugal y lo que venga</small></div>
       <div class="cifra" data-valor="Sold out"><b>Sold out</b><span>Presentación del disco en Café La Palma</span><small>Noviembre 2025</small></div>
-      <a class="cifra" data-valor="" href="https://open.spotify.com/artist/3B3zpXF4fBkyD6c1JtYlQa" target="_blank" rel="noopener noreferrer"><b></b><span>oyentes mensuales en Spotify</span><small>Spotify</small></a>
-      <a class="cifra" data-valor="" href="https://open.spotify.com/artist/3B3zpXF4fBkyD6c1JtYlQa" target="_blank" rel="noopener noreferrer"><b></b><span>escuchas de «Cualquier cosa combina» con Bewis de la Rosa</span><small>Spotify</small></a>
-      <a class="cifra" data-valor="" href="https://www.youtube.com/channel/UCUPfdS8AhfqtHSKqLbsm5ug" target="_blank" rel="noopener noreferrer"><b></b><span>suscriptores en YouTube</span><small>@Altillomusic</small></a>
-      <a class="cifra" data-valor="" href="https://www.youtube.com/watch?v=dBPO1cB4ebE" target="_blank" rel="noopener noreferrer"><b></b><span>visualizaciones de los videoclips</span><small>YouTube</small></a>
-      <a class="cifra" data-valor="" href="https://www.instagram.com/altillomusica/" target="_blank" rel="noopener noreferrer"><b></b><span>seguidores en Instagram</span><small>@altillomusica</small></a>
-      <a class="cifra" data-valor="" href="https://www.tiktok.com/@altillomusica" target="_blank" rel="noopener noreferrer"><b></b><span>seguidores en TikTok</span><small>@altillomusica</small></a>
+      <a class="cifra" data-valor="20.944" href="https://open.spotify.com/artist/3B3zpXF4fBkyD6c1JtYlQa" target="_blank" rel="noopener noreferrer"><b></b><span>escuchas de «Cualquier cosa combina» con Bewis de la Rosa</span><small>Spotify</small></a>
+      <a class="cifra" data-valor="2.326" href="https://www.instagram.com/altillomusica/" target="_blank" rel="noopener noreferrer"><b></b><span>seguidores en Instagram</span><small>@altillomusica</small></a>
+      <a class="cifra" data-valor="+1.000" href="https://www.youtube.com/channel/UCUPfdS8AhfqtHSKqLbsm5ug" target="_blank" rel="noopener noreferrer"><b></b><span>suscriptores en YouTube</span><small>@Altillomusic · 21 vídeos</small></a>
       <div class="cifra" data-valor="16"><b>16</b><span>medios han probado el menú</span><small>Radio 3, SER, RTVE, Canal Red…</small></div>
+      <a class="cifra" data-valor="" href="https://open.spotify.com/artist/3B3zpXF4fBkyD6c1JtYlQa" target="_blank" rel="noopener noreferrer"><b></b><span>oyentes mensuales en Spotify</span><small>Spotify</small></a>
+      <a class="cifra" data-valor="" href="https://www.youtube.com/watch?v=dBPO1cB4ebE" target="_blank" rel="noopener noreferrer"><b></b><span>visualizaciones de los videoclips</span><small>YouTube</small></a>
+      <a class="cifra" data-valor="" href="https://www.tiktok.com/@altillomusica" target="_blank" rel="noopener noreferrer"><b></b><span>seguidores en TikTok</span><small>@altillomusica</small></a>
     </div>
-    <p class="ticket">Ticket emitido en octubre de 2026.</p>
+    <p class="ticket">Ticket emitido el 30 de octubre de 2026.</p>
+    <div class="fuego">
+      <p class="label rojo"><strong>Lo que se está cocinando · 2026–2027</strong></p>
+      <h3 class="display">Hasta aquí, a fuego lento.<br><span class="rojo">Desde ahora, a fuego vivo.</span></h3>
+      <p>Estos números se hicieron sin algoritmo a favor: el disco vivió primero en cassette reciclado y sobre el escenario, de boca en boca. A partir de este año ALTILLO trabaja con una estrategia de crecimiento artístico para que las cifras acompañen a lo que ya pasa en directo.</p>
+      <ul>
+        <li><b>Noviembre 2026</b> «Cualquier cosa combina» llega completo a todas las plataformas.</li>
+        <li><b>Nuevo EP</b> «A la orden p'al desorden», con «Paseíto» como primer adelanto y nuevos videoclips.</li>
+        <li><b>Equipo</b> management con Artes Búho y prensa con PromoSapiens.</li>
+      </ul>
+      <p class="nota">Quien nos programa ahora se sienta a la mesa antes de que se llene.</p>
+    </div>
   </section>
 
   <!-- 03 · Dónde se ha servido -->
@@ -272,6 +289,8 @@ ul,ol{padding:0;list-style:none}
       </figure>
       <ul class="sitios">
         <li><strong>Café La Palma <span class="sello">Sold out</span></strong><span>Madrid · Presentación de «Cualquier cosa combina», noviembre 2025. Volvemos el 3 de diciembre de 2026.</span></li>
+        <li><strong>Festival AL FRESCO</strong><span>Plasencia, Cáceres · Encuentro de cultura y cine en el mundo rural, 4 de septiembre de 2026.</span></li>
+        <li><strong>«Saca nocturna»</strong><span>Madrid · Homenaje a Lorca a los 90 años de su asesinato, dentro de Cultura Orgullosa 2026. Agosto 2026.</span></li>
         <li><strong>Santo Desmadre Fest</strong><span>Madrid · Sala Villanos, 2026.</span></li>
         <li><strong>MateFestival</strong><span>Coimbra, Portugal · Showcase internacional, 2024.</span></li>
         <li><strong>+50 bolos</strong><span>Salas, festivales, plazas y sobremesas largas.</span></li>
@@ -288,6 +307,7 @@ ul,ol{padding:0;list-style:none}
       <blockquote><p>«Gazpacho sonoro y escénico que invita a reflexionar sin renunciar nunca a la alegría.»</p><cite>Radio 3 · RNE</cite></blockquote>
     </div>
     <div class="medios" aria-label="Medios en los que ha salido ALTILLO">
+      <span class="medio">Radio 3 · La Folkería (agosto 2026)</span>
       <a href="https://www.rtve.es/play/audios/en-un-mundo-feliz/mundo-feliz-17-11-25/16817850/" target="_blank" rel="noopener noreferrer">Radio 3 · En un mundo feliz</a>
       <a href="https://www.rtve.es/play/audios/resuena-la-tierra/resuena-meseta-parte-1/16790623/" target="_blank" rel="noopener noreferrer">Radio 3 · Resuena la tierra</a>
       <a href="https://www.rtve.es/play/audios/capitan-demo/lord-malvo-presenta-su-disco-cuanto-cuesta-15-11-25/16816952/" target="_blank" rel="noopener noreferrer">Radio 3 · Capitán Demo</a>
