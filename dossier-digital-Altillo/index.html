@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ALTILLO · Dossier digital · Menú degustación para programadores</title>
+<meta name="description" content="ALTILLO en dos minutos: concierto performativo de folklore transgénico. Vídeos, cifras, escenarios, prensa, documentos y contacto para festivales y salas.">
+<meta property="og:title" content="ALTILLO · Dossier digital">
+<meta property="og:description" content="Folklore transgénico: concierto performativo, crítico y bailable. Vídeos, cifras, escenarios, prensa y contacto en dos minutos.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ALTILLO">
+<meta property="og:locale" content="es_ES">
+<meta property="og:url" content="https://altillomusica.com/dossier-digital-Altillo/">
+<meta property="og:image" content="https://altillomusica.com/dossier-digital-Altillo/og-dossier.jpg">
+<meta property="og:image:secure_url" content="https://altillomusica.com/dossier-digital-Altillo/og-dossier.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ALTILLO en directo ante el público, con el rótulo Dossier digital">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ALTILLO · Dossier digital">
+<meta name="twitter:description" content="Folklore transgénico: concierto performativo, crítico y bailable.">
+<meta name="twitter:image" content="https://altillomusica.com/dossier-digital-Altillo/og-dossier.jpg">
+<link rel="canonical" href="https://altillomusica.com/dossier-digital-Altillo/">
+<meta name="theme-color" content="#d4261a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ede5d0'/%3E%3Crect x='4' y='4' width='12' height='12' fill='%23d4261a'/%3E%3Crect x='16' y='16' width='12' height='12' fill='%23d4261a'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* ============================================================
+   ALTILLO — dossier digital (menú degustación)
+   Misma carta que index.html: crema, tomate, tinta.
+   Pensado para abrirse desde WhatsApp en el móvil.
+   ============================================================ */
+@font-face{font-family:"Altillo Display";src:url(../assets/fonts/NimbusSansNarrow-Bold.otf) format("opentype");font-weight:700;font-display:swap}
+@font-face{font-family:"Altillo Serif";src:url(../assets/fonts/NimbusRoman-Italic.otf) format("opentype");font-style:italic;font-display:swap}
+
+:root{
+  --crema:#ede5d0;
+  --crema-2:#e4dbc3;
+  --tomate:#d4261a;
+  --tomate-oscuro:#9e1810;
+  --tinta:#17140f;
+  --linea:#b6aa92;
+  --display:"Anton","Altillo Display",Impact,"Arial Narrow",sans-serif;
+  --serif:"Instrument Serif","Altillo Serif",Georgia,"Times New Roman",serif;
+  --mono:"Courier Prime","Courier New",Courier,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--crema);color:var(--tinta);font-family:var(--mono);font-size:1rem;line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.16;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+a{color:inherit}
+img{display:block;max-width:100%;height:auto}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+h1,h2,h3,p,ul,ol,dl,figure,blockquote{margin:0}
+ul,ol{padding:0;list-style:none}
+:where(a,button):focus-visible{outline:3px solid var(--tomate);outline-offset:4px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+.display{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.9;letter-spacing:-.01em}
+.script{font-family:var(--serif);font-style:italic;font-weight:400;line-height:1.02;letter-spacing:-.015em}
+.label{font-family:var(--mono);font-size:.8125rem;letter-spacing:.06em;text-transform:uppercase;line-height:1.35}
+.rojo{color:var(--tomate)}
+.wrap{width:min(980px,100%);margin-inline:auto;padding-inline:clamp(16px,4vw,48px)}
+.damero{display:inline-block;width:26px;height:26px;flex:none;background:
+  conic-gradient(var(--tomate) 25%,transparent 0 50%,var(--tomate) 0 75%,transparent 0) 0 0/13px 13px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6em;min-height:48px;padding:.85em 1.4em;border:1.5px solid var(--tomate);background:var(--tomate);color:#fff4e4;font-family:var(--mono);font-weight:700;font-size:.8125rem;letter-spacing:.06em;text-transform:uppercase;text-align:center;text-decoration:none;transition:background .15s,color .15s,border-color .15s}
+.btn:hover{background:var(--tinta);border-color:var(--tinta);color:var(--crema)}
+.btn.contorno{background:transparent;color:var(--tinta);border-color:var(--tinta)}
+.btn.contorno:hover{background:var(--tinta);color:var(--crema)}
+.btn.claro{background:transparent;color:var(--crema);border-color:var(--crema)}
+.btn.claro:hover{background:var(--crema);color:var(--tinta)}
+.btn svg{width:.9em;height:.9em;flex:none}
+.acciones{display:flex;flex-wrap:wrap;gap:10px;margin-top:1.4rem}
+
+/* --- portada ------------------------------------------------ */
+.portada{padding-block:clamp(22px,5vw,48px) 0}
+.portada-cab{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1.5px solid var(--tinta);padding-bottom:10px}
+.portada-cab a{text-decoration:none}
+.portada h1{font-size:clamp(4.6rem,22vw,11rem);margin-top:.3em;color:var(--tomate)}
+.portada .sub{font-size:clamp(1.9rem,7vw,3.2rem);margin-top:.15em}
+.portada .gancho{max-width:40em;margin-top:1.1rem;font-size:1.02rem}
+.portada .gancho strong{background:var(--tinta);color:var(--crema);padding:0 .25em;font-weight:700}
+
+/* --- vídeos (se cargan solo al pulsar) ---------------------- */
+.video{position:relative;display:block;width:100%;aspect-ratio:16/9;background:var(--tinta);overflow:hidden;border:1.5px solid var(--tinta)}
+.video img{width:100%;height:100%;object-fit:cover;opacity:.88;transition:opacity .2s,transform .4s}
+.video:hover img{opacity:1;transform:scale(1.02)}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video .play{position:absolute;inset:0;display:grid;place-items:center}
+.video .play span{width:72px;height:72px;border-radius:50%;background:var(--tomate);display:grid;place-items:center;box-shadow:0 0 0 6px rgba(237,229,208,.35)}
+.video .play svg{width:26px;height:26px;fill:#fff4e4;margin-left:4px}
+.video .etiqueta{position:absolute;left:0;bottom:0;background:var(--crema);color:var(--tinta);padding:.35em .7em;font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.portada .video{margin-top:1.6rem}
+
+/* --- platos (secciones) ------------------------------------- */
+.plato{padding-block:clamp(44px,8vw,80px) 0}
+.plato-cab{display:flex;gap:.6em;align-items:baseline;font-family:var(--mono);font-size:.8125rem;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px dashed var(--linea);padding-bottom:8px;margin-bottom:1rem}
+.plato-cab .num{color:var(--tomate);font-weight:700}
+.plato h2.script{font-size:clamp(2.4rem,8vw,3.8rem);margin-bottom:1.1rem}
+.plato p+p{margin-top:.8rem}
+
+/* la receta */
+.receta{display:grid;gap:22px}
+@media (min-width:760px){.receta{grid-template-columns:1.25fr 1fr;align-items:start}}
+.ingredientes li{display:flex;gap:.7em;padding:.55em 0;border-bottom:1px dashed var(--linea)}
+.ingredientes li::before{content:"✳";color:var(--tomate)}
+.formatos div{display:flex;align-items:baseline;gap:.5em;padding:.45em 0}
+.formatos dt{font-weight:700}
+.formatos .puntos{flex:1;border-bottom:2px dotted var(--linea);transform:translateY(-.3em)}
+.formatos dd{margin:0;white-space:nowrap}
+.col-titulo{font-family:var(--display);text-transform:uppercase;font-size:1.4rem;margin-bottom:.4rem}
+.nota{font-family:var(--serif);font-style:italic;font-size:1.25rem;line-height:1.2;margin-top:1rem}
+
+/* la cuenta (cifras) */
+.cifras{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (min-width:760px){.cifras{grid-template-columns:repeat(3,1fr)}}
+.cifra{background:var(--tinta);color:var(--crema);padding:16px 14px 14px;display:flex;flex-direction:column;gap:6px;min-height:132px;text-decoration:none}
+.cifra:nth-child(3n+2){background:var(--tomate);color:#fff4e4}
+.cifra b{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,9vw,3rem);line-height:.95}
+.cifra span{font-size:.8rem;letter-spacing:.04em;text-transform:uppercase;line-height:1.3}
+.cifra small{font-size:.7rem;opacity:.75;margin-top:auto}
+.cifra[hidden]{display:none}
+.ticket{margin-top:10px;font-size:.8rem;opacity:.75}
+
+/* escenarios */
+.escenarios{display:grid;gap:22px}
+@media (min-width:760px){.escenarios{grid-template-columns:1fr 1fr;align-items:start}}
+.escenarios figure img{width:100%;aspect-ratio:4/3;object-fit:cover;border:1.5px solid var(--tinta)}
+.escenarios figcaption{font-size:.75rem;margin-top:6px;opacity:.75}
+.sitios li{padding:.8em 0;border-bottom:1px dashed var(--linea)}
+.sitios strong{display:block;font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:1.45rem;line-height:1.05}
+.sitios span{font-size:.92rem}
+.sitios .sello{display:inline-block;background:var(--tomate);color:#fff4e4;font-size:.7rem;font-weight:700;letter-spacing:.06em;padding:.1em .45em;margin-left:.3em;vertical-align:middle;text-transform:uppercase}
+
+/* crítica */
+.resenas{display:grid;gap:14px}
+@media (min-width:760px){.resenas{grid-template-columns:1fr 1fr}}
+.resenas blockquote{border-left:4px solid var(--tomate);padding:.2em 0 .2em 1em}
+.resenas p{font-family:var(--serif);font-style:italic;font-size:clamp(1.35rem,5vw,1.7rem);line-height:1.15}
+.resenas cite{display:block;font-style:normal;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;margin-top:.5em;color:var(--tomate);font-weight:700}
+.medios{display:flex;flex-wrap:wrap;gap:8px;margin-top:1.4rem}
+.medios a{display:inline-block;border:1.5px solid var(--tinta);padding:.4em .7em;font-size:.8rem;text-decoration:none;font-weight:700}
+.medios a:hover{background:var(--tinta);color:var(--crema)}
+
+/* vídeos */
+.videos{display:grid;gap:14px}
+@media (min-width:760px){.videos{grid-template-columns:1fr 1fr}}
+.videos h3{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:1.3rem;margin-top:.55rem;line-height:1.05}
+.videos p{font-size:.88rem}
+
+/* listas de enlaces (para llevar, sobremesa) */
+.carta-enlaces li a{display:flex;align-items:baseline;gap:.5em;padding:.75em 0;border-bottom:1px dashed var(--linea);text-decoration:none}
+.carta-enlaces li a:hover .nombre{color:var(--tomate)}
+.carta-enlaces .nombre{font-weight:700}
+.carta-enlaces .puntos{flex:1;border-bottom:2px dotted var(--linea);transform:translateY(-.3em);min-width:12px}
+.carta-enlaces .tipo{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;color:var(--tomate)}
+.dos-col{display:grid;gap:8px 40px}
+@media (min-width:760px){.dos-col{grid-template-columns:1fr 1fr}}
+.casa{display:grid;gap:12px;margin-bottom:1.4rem}
+@media (min-width:760px){.casa{grid-template-columns:1fr 1fr}}
+.casa a{display:block;border:1.5px solid var(--tinta);padding:16px;text-decoration:none;background:var(--crema-2)}
+.casa a:hover{background:var(--tinta);color:var(--crema)}
+.casa b{display:block;font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:1.6rem;line-height:1}
+.casa span{display:block;font-size:.88rem;margin-top:.4rem}
+.casa .label{color:var(--tomate);margin-top:.6rem}
+
+/* reservas */
+.reservas{background:var(--tomate);color:#fff4e4;margin-top:clamp(52px,9vw,90px);padding-block:clamp(40px,7vw,70px)}
+.reservas h2{font-size:clamp(3rem,13vw,6rem)}
+.reservas .lema{font-family:var(--serif);font-style:italic;font-size:clamp(1.4rem,5vw,1.9rem);margin-top:.4rem}
+.contactos{display:grid;gap:12px;margin-top:1.6rem}
+@media (min-width:760px){.contactos{grid-template-columns:1fr 1fr}}
+.contacto{border:1.5px solid #fff4e4;padding:16px}
+.contacto .label{opacity:.85}
+.contacto b{display:block;font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:1.5rem;margin-top:.2rem}
+.contacto a{display:inline-block;margin-top:.35rem;font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+.contacto .fila{display:flex;flex-wrap:wrap;gap:6px 16px}
+.reservas .btn{background:#fff4e4;color:var(--tomate);border-color:#fff4e4}
+.reservas .btn:hover{background:var(--tinta);color:var(--crema);border-color:var(--tinta)}
+.reservas .btn.claro{background:transparent;color:#fff4e4}
+
+.pie{background:var(--tinta);color:var(--crema);padding-block:22px;font-size:.8rem}
+.pie .wrap{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between}
+.pie a{text-decoration:none;border-bottom:1px solid currentColor}
+</style>
+</head>
+<body>
+
+<header class="portada wrap">
+  <div class="portada-cab label">
+    <span>Dossier digital · Menú degustación</span>
+    <a href="https://altillomusica.com/" aria-label="Ir a la web de ALTILLO">altillomusica.com</a>
+  </div>
+  <h1 class="display">ALTILLO</h1>
+  <p class="sub script">Folklore transgénico</p>
+  <p class="gancho">Concierto performativo de raíz ibérica y latina, electrónica y letras ácidas. <strong>Se canta, se cuenta, se baila</strong> y, de paso, se piensa. Un dúo de Madrid que convierte la crítica en fiesta.</p>
+
+  <button class="video" type="button" data-youtube="qTfbxBdEPdw" aria-label="Ver ALTILLO en directo en la Sala Villanos">
+    <img src="img/directo-publico.jpg" alt="" width="1400" height="934" fetchpriority="high">
+    <span class="play" aria-hidden="true"><span><svg viewBox="0 0 24 24"><path d="M5 3l16 9-16 9z"/></svg></span></span>
+    <span class="etiqueta">Aperitivo · En directo, Sala Villanos 2026</span>
+  </button>
+
+  <div class="acciones">
+    <a class="btn" href="#reservas">Reservar mesa (contratar) <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M7 1h2v8.6l3.3-3.3 1.4 1.4L8 13.4 2.3 7.7l1.4-1.4L7 9.6zM2 13h12v2H2z"/></svg></a>
+    <a class="btn contorno" href="https://open.spotify.com/artist/3B3zpXF4fBkyD6c1JtYlQa" target="_blank" rel="noopener noreferrer">Escuchar en Spotify</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- 01 · La receta -->
+  <section class="plato wrap" aria-labelledby="t-receta">
+    <p class="plato-cab"><span class="num">01</span><span>/</span><span>Qué es ALTILLO</span></p>
+    <h2 class="script" id="t-receta">La receta de la casa</h2>
+    <div class="receta">
+      <div>
+        <p>Ariana Calahorro (voz, performance, composición; formada en teatro en la RESAD y en danza en la RAD) y David Monsalve (voz, guitarra, producción y diseño sonoro; al frente del estudio Artes Búho). Nacieron en el verano de 2023 dentro de un Volvo S90 y desde entonces cocinan su <em>Gazpacho Sonoro</em>.</p>
+        <ul class="ingredientes" style="margin-top:1rem">
+          <li>Raíz ibérica y latina pasada por electrónica.</li>
+          <li>Letras ácidas sobre el delirio turbocapitalista, la herencia y el deseo.</li>
+          <li>Teatro, relato, baile, beats y pandereta: un concierto que es también una función.</li>
+          <li>Disco en cassette reciclado con QR y NFC, porque reutilizar también es política.</li>
+        </ul>
+      </div>
+      <div>
+        <p class="col-titulo">Formatos</p>
+        <dl class="formatos">
+          <div><dt>Festivales y salas</dt><span class="puntos"></span><dd>45–60 min</dd></div>
+          <div><dt>Concierto performativo</dt><span class="puntos"></span><dd>75–90 min</dd></div>
+          <div><dt>Íntimo</dt><span class="puntos"></span><dd>30 min</dd></div>
+          <div><dt>En escena</dt><span class="puntos"></span><dd>dúo · trío · banda</dd></div>
+        </dl>
+        <p class="nota">Si la materia prima es buena, desearás que te repita, nena.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · La cuenta -->
+  <section class="plato wrap" aria-labelledby="t-cuenta">
+    <p class="plato-cab"><span class="num">02</span><span>/</span><span>Cifras</span></p>
+    <h2 class="script" id="t-cuenta">La cuenta, por favor</h2>
+    <!-- Cifras: una casilla vacía (data-valor="") no se muestra. Rellenar y fechar en "ticket". -->
+    <div class="cifras">
+      <div class="cifra" data-valor="+50"><b>+50</b><span>bolos servidos</span><small>Madrid, Portugal y lo que venga</small></div>
+      <div class="cifra" data-valor="Sold out"><b>Sold out</b><span>Presentación del disco en Café La Palma</span><small>Noviembre 2025</small></div>
+      <a class="cifra" data-valor="" href="https://open.spotify.com/artist/3B3zpXF4fBkyD6c1JtYlQa" target="_blank" rel="noopener noreferrer"><b></b><span>oyentes mensuales en Spotify</span><small>Spotify</small></a>
+      <a class="cifra" data-valor="" href="https://open.spotify.com/artist/3B3zpXF4fBkyD6c1JtYlQa" target="_blank" rel="noopener noreferrer"><b></b><span>escuchas de «Cualquier cosa combina» con Bewis de la Rosa</span><small>Spotify</small></a>
+      <a class="cifra" data-valor="" href="https://www.youtube.com/channel/UCUPfdS8AhfqtHSKqLbsm5ug" target="_blank" rel="noopener noreferrer"><b></b><span>suscriptores en YouTube</span><small>@Altillomusic</small></a>
+      <a class="cifra" data-valor="" href="https://www.youtube.com/watch?v=dBPO1cB4ebE" target="_blank" rel="noopener noreferrer"><b></b><span>visualizaciones de los videoclips</span><small>YouTube</small></a>
+      <a class="cifra" data-valor="" href="https://www.instagram.com/altillomusica/" target="_blank" rel="noopener noreferrer"><b></b><span>seguidores en Instagram</span><small>@altillomusica</small></a>
+      <a class="cifra" data-valor="" href="https://www.tiktok.com/@altillomusica" target="_blank" rel="noopener noreferrer"><b></b><span>seguidores en TikTok</span><small>@altillomusica</small></a>
+      <div class="cifra" data-valor="16"><b>16</b><span>medios han probado el menú</span><small>Radio 3, SER, RTVE, Canal Red…</small></div>
+    </div>
+    <p class="ticket">Ticket emitido en octubre de 2026.</p>
+  </section>
+
+  <!-- 03 · Dónde se ha servido -->
+  <section class="plato wrap" aria-labelledby="t-sitios">
+    <p class="plato-cab"><span class="num">03</span><span>/</span><span>Escenarios</span></p>
+    <h2 class="script" id="t-sitios">Dónde se ha servido</h2>
+    <div class="escenarios">
+      <figure>
+        <img src="img/duo-senalando.jpg" alt="Ariana y David señalando hacia los balcones de un edificio de Madrid" width="1200" height="772" loading="lazy">
+        <figcaption>Señalando el próximo escenario. ¿El tuyo?</figcaption>
+      </figure>
+      <ul class="sitios">
+        <li><strong>Café La Palma <span class="sello">Sold out</span></strong><span>Madrid · Presentación de «Cualquier cosa combina», noviembre 2025. Volvemos el 3 de diciembre de 2026.</span></li>
+        <li><strong>Santo Desmadre Fest</strong><span>Madrid · Sala Villanos, 2026.</span></li>
+        <li><strong>MateFestival</strong><span>Coimbra, Portugal · Showcase internacional, 2024.</span></li>
+        <li><strong>+50 bolos</strong><span>Salas, festivales, plazas y sobremesas largas.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 · La crítica -->
+  <section class="plato wrap" aria-labelledby="t-critica">
+    <p class="plato-cab"><span class="num">04</span><span>/</span><span>Prensa</span></p>
+    <h2 class="script" id="t-critica">Lo que dice la crítica gastronómica</h2>
+    <div class="resenas">
+      <blockquote><p>«Un dúo madrileño que busca incansablemente la coherencia dentro de su propia contradicción.»</p><cite>Efe Eme</cite></blockquote>
+      <blockquote><p>«Gazpacho sonoro y escénico que invita a reflexionar sin renunciar nunca a la alegría.»</p><cite>Radio 3 · RNE</cite></blockquote>
+    </div>
+    <div class="medios" aria-label="Medios en los que ha salido ALTILLO">
+      <a href="https://www.rtve.es/play/audios/en-un-mundo-feliz/mundo-feliz-17-11-25/16817850/" target="_blank" rel="noopener noreferrer">Radio 3 · En un mundo feliz</a>
+      <a href="https://www.rtve.es/play/audios/resuena-la-tierra/resuena-meseta-parte-1/16790623/" target="_blank" rel="noopener noreferrer">Radio 3 · Resuena la tierra</a>
+      <a href="https://www.rtve.es/play/audios/capitan-demo/lord-malvo-presenta-su-disco-cuanto-cuesta-15-11-25/16816952/" target="_blank" rel="noopener noreferrer">Radio 3 · Capitán Demo</a>
+      <a href="https://podcasts.apple.com/es/podcast/a-vivir-madrid-28-09-2025/id1272771292?i=1000728884142" target="_blank" rel="noopener noreferrer">Cadena SER · A vivir Madrid</a>
+      <a href="https://www.youtube.com/watch?v=GU4GdIPzH0w" target="_blank" rel="noopener noreferrer">Canal Red · El Tablero</a>
+      <a href="https://www.efeeme.com/tag/lanzamientos-discograficos/" target="_blank" rel="noopener noreferrer">Efe Eme</a>
+      <a href="https://planeta28.com/entrevista-a-altillo/" target="_blank" rel="noopener noreferrer">Planeta 28</a>
+      <a href="https://festivalea.es/altillo-estrena-cualquier-cosa-combina-un-himno-festivo-para-pensar-y-bailar/" target="_blank" rel="noopener noreferrer">Festivalea</a>
+      <a href="https://www.madridiario.es/actualidad-empresarial/altillo-presenta-su-segundo-single-de-adelanto-cualquier-cosa-combina-2575" target="_blank" rel="noopener noreferrer">Madrid Diario</a>
+      <a href="https://madridenvivo.com/evento/altillo/" target="_blank" rel="noopener noreferrer">Madrid en Vivo</a>
+      <a href="https://proximosingle.com/altillo-revoluciona-el-folklore-con-cualquier-cosa-combina-su-debut-en-cassette-reciclado/" target="_blank" rel="noopener noreferrer">Próximo Single</a>
+      <a href="https://youtu.be/4d_6uz-myqA" target="_blank" rel="noopener noreferrer">ExPERPENTO</a>
+    </div>
+  </section>
+
+  <!-- 05 · Para ver -->
+  <section class="plato wrap" aria-labelledby="t-ver">
+    <p class="plato-cab"><span class="num">05</span><span>/</span><span>Videoclips</span></p>
+    <h2 class="script" id="t-ver">Platos para ver</h2>
+    <div class="videos">
+      <div>
+        <button class="video" type="button" data-youtube="dBPO1cB4ebE" aria-label="Ver el videoclip de Cualquier cosa combina">
+          <img src="https://i.ytimg.com/vi/dBPO1cB4ebE/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+          <span class="play" aria-hidden="true"><span><svg viewBox="0 0 24 24"><path d="M5 3l16 9-16 9z"/></svg></span></span>
+        </button>
+        <h3>Cualquier cosa combina <span class="rojo">con Bewis de la Rosa</span></h3>
+        <p>El himno de la casa: festivo para bailar, ácido para pensar.</p>
+      </div>
+      <div>
+        <button class="video" type="button" data-youtube="hK0c5fvO0U4" aria-label="Ver el videoclip de Paseíto">
+          <img src="https://i.ytimg.com/vi/hK0c5fvO0U4/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
+          <span class="play" aria-hidden="true"><span><svg viewBox="0 0 24 24"><path d="M5 3l16 9-16 9z"/></svg></span></span>
+        </button>
+        <h3>Paseíto <span class="rojo">por el centro de Madrid</span></h3>
+        <p>Primer adelanto del nuevo EP «A la orden p'al desorden».</p>
+      </div>
+    </div>
+    <p class="nota">Lo que viene: «Cualquier cosa combina» llega completo a plataformas a finales de noviembre de 2026, nuevo EP en camino y vuelta a Café La Palma el 3 de diciembre.</p>
+  </section>
+
+  <!-- 06 · Para llevar -->
+  <section class="plato wrap" aria-labelledby="t-llevar">
+    <p class="plato-cab"><span class="num">06</span><span>/</span><span>Documentos</span></p>
+    <h2 class="script" id="t-llevar">Para llevar</h2>
+    <ul class="carta-enlaces dos-col">
+      <li><a href="https://drive.google.com/file/d/12gOOE75_nnIk4YHWnKuadSWRQfJfWb3n/view" target="_blank" rel="noopener noreferrer"><span class="nombre">One-sheet 2026</span><span class="puntos"></span><span class="tipo">PDF</span></a></li>
+      <li><a href="../assets/docs/ALTILLO-dossier.pdf" target="_blank" rel="noopener"><span class="nombre">Dossier completo</span><span class="puntos"></span><span class="tipo">PDF</span></a></li>
+      <li><a href="https://drive.google.com/file/d/1ZnB0FyhAgJoPUOGRyQJWuaHCPfoK2Ty5/view" target="_blank" rel="noopener noreferrer"><span class="nombre">Rider técnico</span><span class="puntos"></span><span class="tipo">PDF</span></a></li>
+      <li><a href="https://drive.google.com/file/d/1DL6lKGewD7glNzInic-q_So528xqomW1/view" target="_blank" rel="noopener noreferrer"><span class="nombre">Bioreel 2026</span><span class="puntos"></span><span class="tipo">Vídeo</span></a></li>
+      <li><a href="https://drive.google.com/drive/folders/1N25y07OutepiPdbIkAEgdadrvREr-R_K" target="_blank" rel="noopener noreferrer"><span class="nombre">Fotos en alta</span><span class="puntos"></span><span class="tipo">Carpeta</span></a></li>
+      <li><a href="https://drive.google.com/drive/folders/1H1j1I_uvUNwsshrNHKRp53vbLLWwD7o3" target="_blank" rel="noopener noreferrer"><span class="nombre">Todo el material</span><span class="puntos"></span><span class="tipo">Drive</span></a></li>
+    </ul>
+  </section>
+
+  <!-- 07 · Sobremesa -->
+  <section class="plato wrap" aria-labelledby="t-sobremesa">
+    <p class="plato-cab"><span class="num">07</span><span>/</span><span>Web, laboratorio y redes</span></p>
+    <h2 class="script" id="t-sobremesa">Sobremesa</h2>
+    <div class="casa">
+      <a href="https://altillomusica.com/" target="_blank" rel="noopener"><b>La web</b><span>La carta completa: espectáculo, disco, mercadillo y el reproductor de Altillo.</span><span class="label">altillomusica.com</span></a>
+      <a href="https://altillomusica.com/altillolab/?v=2" target="_blank" rel="noopener"><b>ALTILLO LAB</b><span>Nuestro laboratorio de canciones: un taller en grupo donde cada cual compone, produce y canta lo suyo.</span><span class="label">El arte también alimenta</span></a>
+    </div>
+    <ul class="carta-enlaces dos-col">
+      <li><a href="https://open.spotify.com/artist/3B3zpXF4fBkyD6c1JtYlQa" target="_blank" rel="noopener noreferrer"><span class="nombre">Spotify</span><span class="puntos"></span><span class="tipo">Escuchar</span></a></li>
+      <li><a href="https://www.youtube.com/channel/UCUPfdS8AhfqtHSKqLbsm5ug" target="_blank" rel="noopener noreferrer"><span class="nombre">YouTube</span><span class="puntos"></span><span class="tipo">@Altillomusic</span></a></li>
+      <li><a href="https://www.instagram.com/altillomusica/" target="_blank" rel="noopener noreferrer"><span class="nombre">Instagram</span><span class="puntos"></span><span class="tipo">@altillomusica</span></a></li>
+      <li><a href="https://www.tiktok.com/@altillomusica" target="_blank" rel="noopener noreferrer"><span class="nombre">TikTok</span><span class="puntos"></span><span class="tipo">@altillomusica</span></a></li>
+      <li><a href="https://tidal.com/artist/42996330" target="_blank" rel="noopener noreferrer"><span class="nombre">Tidal</span><span class="puntos"></span><span class="tipo">Escuchar</span></a></li>
+      <li><a href="https://www.facebook.com/profile.php?id=61556613982874" target="_blank" rel="noopener noreferrer"><span class="nombre">Facebook</span><span class="puntos"></span><span class="tipo">ALTILLO</span></a></li>
+      <li><a href="https://altillomusica.com/tu-regalo/" target="_blank" rel="noopener"><span class="nombre">El reproductor de Altillo</span><span class="puntos"></span><span class="tipo">Escuchar</span></a></li>
+      <li><a href="https://www.altillomusica.com/product-page/cassette" target="_blank" rel="noopener"><span class="nombre">Cassette reciclado</span><span class="puntos"></span><span class="tipo">Formato físico</span></a></li>
+    </ul>
+  </section>
+</main>
+
+<!-- Reservas -->
+<section class="reservas" id="reservas" aria-labelledby="t-reservas">
+  <div class="wrap">
+    <p class="label">Reservas</p>
+    <h2 class="display" id="t-reservas">Tomen asiento.</h2>
+    <p class="lema">La discordia está servida. ¿Lo combinamos?</p>
+    <div class="contactos">
+      <div class="contacto">
+        <p class="label">Dirección artística</p>
+        <b>Ariana Calahorro</b>
+        <div class="fila"><a href="tel:+34629788980">+34 629 78 89 80</a><a href="https://wa.me/34629788980" target="_blank" rel="noopener noreferrer">WhatsApp</a></div>
+      </div>
+      <div class="contacto">
+        <p class="label">Management · Artes Búho</p>
+        <b>Román García</b>
+        <div class="fila"><a href="tel:+34649635907">+34 649 63 59 07</a><a href="mailto:contratacion@artesbuho.com">contratacion@artesbuho.com</a></div>
+      </div>
+      <div class="contacto">
+        <p class="label">Técnica y rider</p>
+        <b>David Monsalve</b>
+        <div class="fila"><a href="tel:+34638527425">+34 638 52 74 25</a></div>
+      </div>
+      <div class="contacto">
+        <p class="label">Contratación</p>
+        <b>Correo de la casa</b>
+        <div class="fila"><a href="mailto:altillomusica.oficial@gmail.com">altillomusica.oficial@gmail.com</a></div>
+      </div>
+    </div>
+    <div class="acciones">
+      <a class="btn" href="https://app.altillomusica.com/contratar" target="_blank" rel="noopener noreferrer">Proponer un bolo</a>
+      <a class="btn claro" href="https://wa.me/34629788980?text=Hola%20Altillo%2C%20he%20visto%20vuestro%20dossier%20digital" target="_blank" rel="noopener noreferrer">Escribir por WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<footer class="pie">
+  <div class="wrap">
+    <span><span class="damero" aria-hidden="true" style="vertical-align:middle;margin-right:8px"></span>ALTILLO · Madrid – Medellín · Cualquier cosa combina</span>
+    <a href="https://altillomusica.com/">altillomusica.com</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  /* Cifras: se muestran solo las que tienen valor */
+  document.querySelectorAll(".cifra").forEach(function(c){
+    var v = c.getAttribute("data-valor");
+    if (!v) { c.hidden = true; return; }
+    c.querySelector("b").textContent = v;
+  });
+  /* YouTube: se carga solo al pulsar (sin cookies ni sonido automático) */
+  document.querySelectorAll("[data-youtube]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var f = document.createElement("iframe");
+      f.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(b.getAttribute("data-youtube")) + "?rel=0&modestbranding=1&playsinline=1&autoplay=1";
+      f.title = b.getAttribute("aria-label") || "Vídeo de ALTILLO";
+      f.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      f.setAttribute("allowfullscreen", "");
+      f.referrerPolicy = "strict-origin-when-cross-origin";
+      var d = document.createElement("div");
+      d.className = "video";
+      d.appendChild(f);
+      b.replaceWith(d);
+    }, { once: true });
+  });
+})();
+</script>
+</body>
+</html>
