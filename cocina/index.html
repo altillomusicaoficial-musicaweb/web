@@ -451,6 +451,19 @@ button.stk[aria-pressed="false"]{opacity:.45;transform:none;box-shadow:none}
 .run-r input.rl{flex:1;min-width:0;border:0;border-bottom:1.5px solid var(--hair);background:transparent;color:var(--ink);font:600 .92rem var(--f-body);padding:3px 2px}
 .run-r .dur-in{width:56px}
 .run-tabs{margin-bottom:12px;display:flex}
+.run-w{display:flex;flex-direction:column;gap:3px}
+.run-w.dragging{opacity:.55;box-shadow:0 6px 18px rgba(0,0,0,.18);position:relative;z-index:5}
+.run-r .rg{flex:none;width:20px;height:28px;border:0;background:none;color:var(--ink-3);cursor:grab;touch-action:none;font:700 1rem/1 var(--f-body);padding:0}
+.run-r .rk{flex:none;font:600 .6rem var(--f-mono);text-transform:uppercase;letter-spacing:.04em;color:var(--red);border:1.5px solid var(--red);border-radius:999px;padding:1px 7px}
+.run-r.an{border-color:var(--red)}
+.run-r .rm{flex:none}
+.run-n{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:0 6px 2px 28px}
+.run-n input.need{flex:1;min-width:150px;border:0;border-bottom:1.5px dashed var(--red);background:transparent;color:var(--ink);font:500 .8rem var(--f-body);padding:3px 2px}
+.run-n.ok input.need{text-decoration:line-through;border-bottom-color:var(--hair);color:var(--ink-3)}
+.run-n details{flex-basis:100%;font:400 .72rem/1.45 var(--f-mono);color:var(--ink-2)}
+.run-n summary{cursor:pointer;color:var(--ink-3)}
+.run.onlyp .run-w:not(.pend){display:none}
+@media(max-width:520px){.run-r.mo{flex-wrap:wrap}.run-r.mo input.rl,.run-r.mo textarea.rl{order:20;flex:1 1 100%;margin-left:26px}.run-r.mo .dur-in{margin-left:auto}}
 .dragging{opacity:.45;outline:2px dashed var(--red);outline-offset:2px}
 @media(max-width:1000px){.disc-w{grid-template-columns:1fr}.disc{position:static}}
 .stages{display:flex;gap:3px}
@@ -1484,7 +1497,7 @@ function vConciertos(){
       <div><span class="lbl">Preparación ${dn}/${ch.length}</span><div class="bar" style="--c:var(--c5);margin-top:4px"><i style="width:${ch.length?Math.round(dn/ch.length*100):0}%"></i></div></div>
       ${ens.length?`<div style="display:flex;flex-direction:column;gap:4px">${ens.map(i=>`<button class="chip" style="justify-content:flex-start" data-act="item" data-id="${i.id}">${esc(KINDS[i.kind]?.c||'')} · ${esc(i.title)} · ${esc(fmtD(i.date))}</button>`).join('')}</div>`:''}
       <div style="display:flex;gap:6px;flex-wrap:wrap" data-w><button class="btn sm" data-act="gig" data-id="${g.id}">Abrir</button><button class="btn sm" data-act="new-item" data-kind="ensayo" data-gig="${g.id}">+ Ensayo</button>${!past.includes(g)?`<button class="btn sm red" data-act="gen-gig" data-id="${g.id}">${g.planned?'Volver a generar plan':'Generar plan de preparación'}</button>`:''}</div></div>
-    <div class="gside"><span class="lbl">Setlist · ${set.length} temas${runStats(g).tot?' · ≈ '+fmtMin(runStats(g).tot):''}</span>${miss.length?`<div class="warn">Faltan por montar: ${miss.map(s=>esc(s.title)).join(', ')}</div>`:set.length?'<div class="hint">Todo el setlist está montado.</div>':''}
+    <div class="gside"><span class="lbl">Setlist · ${set.length} temas${runStats(g).tot?' · ≈ '+fmtMin(runStats(g).tot):''}</span>${(()=>{const n=runOf(g).filter(r=>r.need&&!r.ok).length;return n?`<div class="warn">${n} ${n===1?'cosa':'cosas'} por preproducir en el repertorio del concierto</div>`:''})()}${miss.length?`<div class="warn">Faltan por montar: ${miss.map(s=>esc(s.title)).join(', ')}</div>`:set.length?'<div class="hint">Todo el setlist está montado.</div>':''}
       ${set.length?`<ol class="setl">${set.map(s=>`<li>${esc(s.title)}<span class="live ${s.live||'falta'}">${LIVE[s.live]||'Sin montar'}</span></li>`).join('')}</ol>`:'<div class="empty" style="padding:10px">Sin setlist. Ábrelo para elegir temas.</div>'}</div></article>`;};
   return vhd('Los conciertos','Preparación, ensayos y temas que faltan por montar',`<button class="btn red" data-act="new-gig" data-w>+ Concierto</button>`)+
    `<div class="gigs">${up.length?up.map(gcard).join(''):'<div class="empty">Ningún concierto por delante. Añade el siguiente.</div>'}</div>`+
@@ -1508,17 +1521,41 @@ const clockAdd=(t,sec)=>{const m=String(t||'').match(/^(\d{1,2})[:.h](\d{2})$/);
 function runH(d){const st=runStats(d),l=st.l,inRun=new Set(l.map(r=>r.song).filter(Boolean));let acc=0,sn=0;
   const rows=l.map((r,i)=>{const du=rowDur(r),t0=fmtDur(acc);acc+=du;
     const ctr=`<button type="button" class="x" data-act="run-up" data-v="${i}" aria-label="Subir">↑</button><button type="button" class="x" data-act="run-down" data-v="${i}" aria-label="Bajar">↓</button><button type="button" class="x" data-act="run-del" data-v="${i}" aria-label="Quitar">×</button>`;
-    if(r.song){const sg=S.songs[r.song];return `<div class="run-r"><span class="t0">${t0}</span><span class="n">${++sn}</span><span class="tt">${sg?esc(sg.title)+`<span class="live ${sg.live||'falta'}">${LIVE[sg.live]||'Sin montar'}</span>`:'<em>(tema borrado)</em>'}</span>${sg?`<input class="dur-in" id="rd-${r.song}" data-sdur="${r.song}" value="${sg.dur>0?fmtDur(sg.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración de ${esc(sg.title)}">`:''}${ctr}</div>`}
-    return `<div class="run-r mo"><span class="t0">${t0}</span><span class="n">✳</span><input class="rl" id="rl-${r.id}" data-rl="${r.id}" value="${esc(r.t||'')}" placeholder="Momento (hablar, acting…)" autocomplete="off" aria-label="Nombre del momento"><input class="dur-in" id="rdu-${r.id}" data-rd="${r.id}" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración del momento">${ctr}</div>`}).join('');
-  const end=clockAdd(d.time,st.tot);
+    const hdl=`<button type="button" class="rg" data-rg="${i}" aria-label="Arrastrar para cambiar de sitio" title="Arrastra">⠿</button>`,
+      opn=`<button type="button" class="x rm" data-act="run-open" data-v="${i}" aria-label="Qué falta y apuntes" title="Qué falta preproducir y apuntes">✎</button>`,
+      pend=!!(r.need&&!r.ok),nl=needH(r,i),ww=h=>`<div class="run-w${pend?' pend':''}" data-ri="${i}">${h}${nl}</div>`;
+    if(r.song){const sg=S.songs[r.song];return ww(`<div class="run-r">${hdl}<span class="t0">${t0}</span><span class="n">${++sn}</span><span class="tt">${sg?esc(sg.title)+`<span class="live ${sg.live||'falta'}">${LIVE[sg.live]||'Sin montar'}</span>`:'<em>(tema borrado)</em>'}</span>${sg?`<input class="dur-in" id="rd-${r.song}" data-sdur="${r.song}" value="${sg.dur>0?fmtDur(sg.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración de ${esc(sg.title)}">`:''}${opn}${ctr}</div>`)}
+    return ww(`<div class="run-r mo${r.k?' an':''}">${hdl}<span class="t0">${t0}</span><span class="n">✳</span>${r.k?`<span class="rk">${r.k==='anim'?'Animación':'Anuncio'}</span>`:''}<input class="rl" id="rl-${r.id}" data-rl="${r.id}" value="${esc(r.t||'')}" placeholder="Momento (hablar, acting…)" autocomplete="off" aria-label="Nombre del momento"><input class="dur-in" id="rdu-${r.id}" data-rd="${r.id}" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración del momento">${opn}${ctr}</div>`)}).join('');
+  const end=clockAdd(d.time,st.tot),npend=l.filter(r=>r.need&&!r.ok).length;
   const rest=arr('songs').filter(x=>!inRun.has(x.id)),byP={};rest.forEach(x=>{(byP[x.project||'Sin proyecto']=byP[x.project||'Sin proyecto']||[]).push(x)});
   const sel=Object.entries(byP).map(([p,ls])=>`<optgroup label="${esc(p)}">${ls.sort((a,b)=>(a.order??99)-(b.order??99)||String(a.title).localeCompare(b.title)).map(x=>`<option value="${x.id}">${esc(x.title)}${x.live!=='montado'?' (sin montar)':''}${x.dur>0?' · '+fmtDur(x.dur):''}</option>`).join('')}</optgroup>`).join('');
   const nm=rest.filter(x=>x.live==='montado').length;
-  return `<div class="run-sum"><b>${st.tot?'≈ '+fmtMin(st.tot):'—'}</b><span>${st.nS} ${st.nS===1?'tema':'temas'} ${fmtDur(st.sg)}${st.nM?` · ${st.nM} ${st.nM===1?'momento':'momentos'} ${fmtDur(st.mo)}`:''}${st.nod?` · ${st.nod} sin duración`:''}${end?` · empieza ${esc(d.time)} · acaba ≈ ${end}`:''}</span></div>
-  <div class="run">${rows||'<div class="empty" style="padding:12px">Aún no hay nada. Añade temas del repertorio y momentos entre medias.</div>'}</div>
+  return `<div class="run-sum"><b>${st.tot?'≈ '+fmtMin(st.tot):'—'}</b><span>${st.nS} ${st.nS===1?'tema':'temas'} ${fmtDur(st.sg)}${st.nM?` · ${st.nM} ${st.nM===1?'momento':'momentos'} ${fmtDur(st.mo)}`:''}${st.nod?` · ${st.nod} sin duración`:''}${npend?` · <strong>${npend} por preproducir</strong>`:''}${end?` · empieza ${esc(d.time)} · acaba ≈ ${end}`:''}</span></div>
+  <div class="run${RUNF?' onlyp':''}">${rows||'<div class="empty" style="padding:12px">Aún no hay nada. Añade temas del repertorio y momentos entre medias.</div>'}</div>
   <select class="sel" id="f-addsong" aria-label="Añadir tema"><option value="">+ Añadir tema del repertorio…</option>${sel}</select>
-  <div class="row-btns" style="margin-top:2px"><button type="button" class="btn sm" data-act="run-seg" data-t="Hablar" data-dur="60">+ Hablar</button><button type="button" class="btn sm" data-act="run-seg" data-t="Acting" data-dur="120">+ Acting</button><button type="button" class="btn sm" data-act="run-seg" data-t="Cambio / afinar" data-dur="60">+ Cambio</button><button type="button" class="btn sm" data-act="run-seg" data-t="" data-dur="60">+ Otro momento</button>${nm?`<button type="button" class="btn sm ghost" data-act="run-all">Añadir los ${nm} montados</button>`:''}</div>
-  <span class="hint">La duración de cada tema es la misma que en el repertorio: si la cambias aquí, se cambia allí. Los momentos son solo de este concierto.</span>`}
+  <div class="row-btns" style="margin-top:2px"><button type="button" class="btn sm" data-act="run-seg" data-t="Hablar" data-dur="60">+ Hablar</button><button type="button" class="btn sm" data-act="run-seg" data-t="Acting" data-dur="120">+ Acting</button><button type="button" class="btn sm" data-act="run-seg" data-t="Cambio / afinar" data-dur="60">+ Cambio</button><button type="button" class="btn sm" data-act="run-seg" data-t="Anuncio: " data-dur="90" data-k="anuncio">+ Anuncio</button><button type="button" class="btn sm" data-act="run-seg" data-t="Animación: " data-dur="60" data-k="anim">+ Animación</button><button type="button" class="btn sm" data-act="run-seg" data-t="" data-dur="60">+ Otro momento</button>${npend||RUNF?`<button type="button" class="btn sm${RUNF?' red':' ghost'}" data-act="run-filter" aria-pressed="${RUNF}">${RUNF?'Ver todo':'Solo lo que falta ('+npend+')'}</button>`:''}${nm?`<button type="button" class="btn sm ghost" data-act="run-all">Añadir los ${nm} montados</button>`:''}</div>
+  <span class="hint">La duración de cada tema es la misma que en el repertorio: si la cambias aquí, se cambia allí. Los momentos son solo de este concierto. Arrastra ⠿ para cambiar el orden, y con ✎ apunta qué falta por preproducir en cada fila (coros, animación, base en la MPC…).</span>`}
+let RUNF=false;const RUNO=new Set();
+function needH(r,i){const open=RUNO.has(r.id);if(!open&&!r.need)return '';
+  return `<div class="run-n${r.ok?' ok':''}">${r.need||open?`<button type="button" class="chip" data-act="run-ok" data-v="${i}" aria-pressed="${!!r.ok}">${r.ok?'✓ Listo':'☐ Falta'}</button><input class="need" id="rn-${r.id}" data-rn="${r.id}" value="${esc(r.need||'')}" placeholder="Qué falta preproducir…" autocomplete="off" aria-label="Qué falta preproducir">`:''}${open&&r.note?`<details open><summary>Apuntes del sheet</summary>${esc(r.note)}</details>`:''}</div>`}
+/* arrastrar filas del repertorio del concierto */
+let RG=null;
+document.addEventListener('pointerdown',e=>{if(e.button!==0)return;const h=e.target.closest&&e.target.closest('[data-rg]');if(!h||!SH||SH.type!=='gig')return;
+  const w=h.closest('.run-w');if(!w)return;RG={w,box:w.parentNode,sx:e.clientX,sy:e.clientY,py:e.clientY,on:false,pid:e.pointerId,iv:null,sp:h.closest('.sh-b')}});
+document.addEventListener('pointermove',e=>{if(!RG)return;const d=RG;
+  if(!d.on){if(Math.hypot(e.clientX-d.sx,e.clientY-d.sy)<6)return;d.on=true;try{document.body.setPointerCapture(d.pid)}catch(err){}d.w.classList.add('dragging');
+    d.iv=setInterval(()=>{const sp=d.sp;if(!sp)return;const r=sp.getBoundingClientRect();if(d.py<r.top+60)sp.scrollTop-=14;else if(d.py>r.bottom-60)sp.scrollTop+=14},16)}
+  e.preventDefault();d.py=e.clientY;
+  const sibs=[...d.box.children].filter(c=>c!==d.w&&c.offsetParent!==null);
+  for(const c of sibs){const r=c.getBoundingClientRect(),mid=r.top+r.height/2;
+    if(e.clientY<mid){if(c.previousElementSibling!==d.w)d.box.insertBefore(d.w,c);return}}
+  if(sibs.length&&d.box.lastElementChild!==d.w)d.box.appendChild(d.w)},{passive:false});
+function rgEnd(cancel){const d=RG;if(!d)return;RG=null;clearInterval(d.iv);try{document.body.releasePointerCapture(d.pid)}catch(err){}
+  if(!d.on)return;d.w.classList.remove('dragging');
+  if(cancel){drawSheet();return}
+  const order=[...d.box.children].map(c=>Number(c.dataset.ri));
+  if(order.some((v,k)=>v!==k))runEdit(l=>{const n=order.map(i=>l[i]);l.splice(0,l.length,...n)});else drawSheet()}
+document.addEventListener('pointerup',()=>rgEnd(false));document.addEventListener('pointercancel',()=>rgEnd(true));
 function runEdit(fn){if(!SH||SH.type!=='gig')return;const l=runOf(SH.draft).map(r=>Object.assign({},r));fn(l);SH.draft.run=l;SH.draft.setlist=l.filter(r=>r.song).map(r=>r.song);touch(true);drawSheet()}
 function vRepertorio(){
   const ss=arr('songs');const projs=[...new Set(ss.map(s=>s.project||'Sin proyecto'))];
@@ -2083,7 +2120,10 @@ const ACT={
   'run-up':t=>{runEdit(l=>{const i=Number(t.dataset.v);if(i>0)[l[i-1],l[i]]=[l[i],l[i-1]]})},
   'run-down':t=>{runEdit(l=>{const i=Number(t.dataset.v);if(i<l.length-1)[l[i+1],l[i]]=[l[i],l[i+1]]})},
   'run-del':t=>{runEdit(l=>{l.splice(Number(t.dataset.v),1)})},
-  'run-seg':t=>{const id=uid('r');runEdit(l=>{l.push({id,t:t.dataset.t,dur:Number(t.dataset.dur)||0})});if(!t.dataset.t)setTimeout(()=>{const i=$('#rl-'+id);if(i)i.focus()},30)},
+  'run-seg':t=>{const id=uid('r'),k=t.dataset.k;runEdit(l=>{const r={id,t:t.dataset.t,dur:Number(t.dataset.dur)||0};if(k){r.k=k;r.need='Componer y animar para proyectar'}l.push(r)});if(!t.dataset.t||k)setTimeout(()=>{const i=$('#rl-'+id);if(i){i.focus();const n=i.value.length;try{i.setSelectionRange(n,n)}catch(err){}}},30)},
+  'run-ok':t=>{runEdit(l=>{const r=l[Number(t.dataset.v)];if(r)r.ok=!r.ok})},
+  'run-open':t=>{let id=null;runEdit(l=>{const r=l[Number(t.dataset.v)];if(!r)return;id=r.id;if(RUNO.has(r.id))RUNO.delete(r.id);else RUNO.add(r.id)});setTimeout(()=>{const i=id&&$('#rn-'+id);if(i)i.focus()},30)},
+  'run-filter':()=>{RUNF=!RUNF;drawSheet()},
   'run-all':()=>{if(!SH)return;const inR=new Set(runOf(SH.draft).map(r=>r.song).filter(Boolean));const add=arr('songs').filter(x=>x.live==='montado'&&!inR.has(x.id)).sort((a,b)=>String(a.project||'').localeCompare(String(b.project||''))||(a.order??99)-(b.order??99));runEdit(l=>{add.forEach(x=>l.push({id:uid('r'),song:x.id}))})},
   color:t=>{SH.draft.color=t.dataset.v;touch();drawSheet()},
   'sk-color':t=>{const s=S.stickers[t.dataset.id];if(s){write('stickers',t.dataset.id,Object.assign({},s,{color:t.dataset.v}));setTimeout(drawSheet,0)}},
@@ -2171,6 +2211,7 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.id==='q-in'){qaPreview(t,$('#q-prev'));return}
   if(t.id==='f-lbl'&&SH&&SH.type==='link'){clearTimeout(t._t);const id=SH.id,idx=SH.draft.idx,v=t.value.trim();t._t=setTimeout(()=>{const c=S.cajones[id];if(!c||!c.links||!c.links[idx])return;const ls=c.links.map((x,i)=>i===idx?Object.assign({},x,{label:v}):x);write('cajones',id,Object.assign({},c,{links:ls}))},500);return}
   if(!SH||!$('#sheet').contains(t))return;
+  if(t.dataset.rn){const l=runOf(SH.draft).map(r=>Object.assign({},r)),r=l.find(x=>x.id===t.dataset.rn);if(r){r.need=t.value;SH.draft.run=l;SH.draft.setlist=l.filter(x=>x.song).map(x=>x.song);touch()}return}
   if(t.dataset.rl){const l=runOf(SH.draft).map(r=>Object.assign({},r)),r=l.find(x=>x.id===t.dataset.rl);if(r){r.t=t.value;SH.draft.run=l;SH.draft.setlist=l.filter(x=>x.song).map(x=>x.song);touch()}return}
   if(t.dataset.lot){const l=lotsOf(SH.draft).find(x=>x.id===t.dataset.lot);if(l){const f=t.dataset.lf;l[f]=(f==='made'||f==='sold')?Math.max(0,Math.floor(Number(t.value)||0)):t.value;touch()}return}
   if(t.dataset.ql!=null){const ln=Object.assign({},SH.draft.lines||{});const n=Math.max(0,Math.floor(Number(t.value)||0));if(n)ln[t.dataset.ql]=n;else delete ln[t.dataset.ql];SH.draft.lines=ln;touch();return}
