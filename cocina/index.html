@@ -451,6 +451,12 @@ button.stk[aria-pressed="false"]{opacity:.45;transform:none;box-shadow:none}
 .run-r input.rl{flex:1;min-width:0;border:0;border-bottom:1.5px solid var(--hair);background:transparent;color:var(--ink);font:600 .92rem var(--f-body);padding:3px 2px}
 .run-r .dur-in{width:56px}
 .run-tabs{margin-bottom:12px;display:flex}
+.rmini{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px;font-size:.85rem}
+.rmini li{display:flex;gap:6px;align-items:baseline}.rmini li b{flex:none;width:18px;text-align:right;font:600 .68rem var(--f-mono);color:var(--red)}
+.rmini li span{flex:1;min-width:0}.rmini li.mo span{color:var(--ink-2)}.rmini li i{flex:none;font:500 .68rem var(--f-mono);color:var(--ink-3);font-style:normal}.rmini li em{flex:none;color:var(--red);font-style:normal}
+.rep-gigs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.rep-gig{display:flex;flex-direction:column;gap:2px;text-align:left;border:2px solid var(--rule);border-radius:12px;background:var(--card);padding:10px 14px;cursor:pointer;color:var(--ink);font:inherit}
+.rep-gig b{font:400 1.25rem/1.1 var(--f-disp);text-transform:uppercase}.rep-gig span{font:500 .72rem var(--f-mono);color:var(--ink-2)}.rep-gig:hover{border-color:var(--red)}
 .run-w{display:flex;flex-direction:column;gap:3px}
 .run-w.dragging{opacity:.55;box-shadow:0 6px 18px rgba(0,0,0,.18);position:relative;z-index:5}
 .run-r .rg{flex:none;width:20px;height:28px;border:0;background:none;color:var(--ink-3);cursor:grab;touch-action:none;font:700 1rem/1 var(--f-body);padding:0}
@@ -1497,8 +1503,8 @@ function vConciertos(){
       <div><span class="lbl">Preparación ${dn}/${ch.length}</span><div class="bar" style="--c:var(--c5);margin-top:4px"><i style="width:${ch.length?Math.round(dn/ch.length*100):0}%"></i></div></div>
       ${ens.length?`<div style="display:flex;flex-direction:column;gap:4px">${ens.map(i=>`<button class="chip" style="justify-content:flex-start" data-act="item" data-id="${i.id}">${esc(KINDS[i.kind]?.c||'')} · ${esc(i.title)} · ${esc(fmtD(i.date))}</button>`).join('')}</div>`:''}
       <div style="display:flex;gap:6px;flex-wrap:wrap" data-w><button class="btn sm" data-act="gig" data-id="${g.id}">Abrir</button><button class="btn sm" data-act="new-item" data-kind="ensayo" data-gig="${g.id}">+ Ensayo</button>${!past.includes(g)?`<button class="btn sm red" data-act="gen-gig" data-id="${g.id}">${g.planned?'Volver a generar plan':'Generar plan de preparación'}</button>`:''}</div></div>
-    <div class="gside"><span class="lbl">Setlist · ${set.length} temas${runStats(g).tot?' · ≈ '+fmtMin(runStats(g).tot):''}</span>${(()=>{const n=runOf(g).filter(r=>r.need&&!r.ok).length;return n?`<div class="warn">${n} ${n===1?'cosa':'cosas'} por preproducir en el repertorio del concierto</div>`:''})()}${miss.length?`<div class="warn">Faltan por montar: ${miss.map(s=>esc(s.title)).join(', ')}</div>`:set.length?'<div class="hint">Todo el setlist está montado.</div>':''}
-      ${set.length?`<ol class="setl">${set.map(s=>`<li>${esc(s.title)}<span class="live ${s.live||'falta'}">${LIVE[s.live]||'Sin montar'}</span></li>`).join('')}</ol>`:'<div class="empty" style="padding:10px">Sin setlist. Ábrelo para elegir temas.</div>'}</div></article>`;};
+    <div class="gside"><span class="lbl">Repertorio · ${set.length} temas${runStats(g).nM?' + '+runStats(g).nM+' momentos':''}${runStats(g).tot?' · ≈ '+fmtMin(runStats(g).tot):''}</span>${(()=>{const n=runOf(g).filter(r=>r.need&&!r.ok).length;return n?`<div class="warn">${n} ${n===1?'cosa':'cosas'} por preproducir en el repertorio del concierto</div>`:''})()}${miss.length?`<div class="warn">Faltan por montar: ${miss.map(s=>esc(s.title)).join(', ')}</div>`:set.length?'<div class="hint">Todo el setlist está montado.</div>':''}
+      ${miniRun(g)}<button type="button" class="btn sm red" data-act="gig-rep" data-id="${g.id}" data-w>Abrir repertorio del concierto →</button></div></article>`;};
   return vhd('Los conciertos','Preparación, ensayos y temas que faltan por montar',`<button class="btn red" data-act="new-gig" data-w>+ Concierto</button>`)+
    `<div class="gigs">${up.length?up.map(gcard).join(''):'<div class="empty">Ningún concierto por delante. Añade el siguiente.</div>'}</div>`+
    (past.length?`<section class="proj" style="margin-top:28px"><h2>Ya servidos</h2><div class="gigs">${past.map(gcard).join('')}</div></section>`:'');
@@ -1518,6 +1524,13 @@ const rowDur=r=>r.song?(Number((S.songs[r.song]||{}).dur)||0):(Number(r.dur)||0)
 function runStats(g){const l=runOf(g);let sg=0,mo=0,nS=0,nM=0,nod=0;l.forEach(r=>{const d=rowDur(r);if(r.song){if(S.songs[r.song]){nS++;sg+=d;if(!d)nod++}}else{nM++;mo+=d}});return {l,sg,mo,nS,nM,nod,tot:sg+mo}}
 const fmtMin=n=>{n=Math.round(n/60);return n>=60?Math.floor(n/60)+' h '+String(n%60).padStart(2,'0')+' min':n+' min'};
 const clockAdd=(t,sec)=>{const m=String(t||'').match(/^(\d{1,2})[:.h](\d{2})$/);if(!m)return null;const x=(Number(m[1])*60+Number(m[2])+Math.round(sec/60))%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')};
+function miniRun(g){const l=runOf(g);if(!l.length)return '<div class="empty" style="padding:10px">Sin repertorio. Ábrelo para elegir temas.</div>';let n=0;
+  return `<ol class="rmini">${l.map(r=>{const du=rowDur(r),p=r.need&&!r.ok?'<em title="Falta preproducir">☐</em>':'';
+    if(r.song){const sg=S.songs[r.song];return `<li><b>${++n}</b><span>${sg?esc(sg.title)+`<span class="live ${sg.live||'falta'}">${LIVE[sg.live]||'Sin montar'}</span>`:'<em>(tema borrado)</em>'}</span>${du?`<i>${fmtDur(du)}</i>`:''}${p}</li>`}
+    return `<li class="mo"><b>✳</b><span>${esc(r.t||'Momento')}</span>${du?`<i>${fmtDur(du)}</i>`:''}${p}</li>`}).join('')}</ol>`}
+function repGigsH(){const ti=iso(today()),gs=arr('gigs').filter(g=>g.status!=='hecha'&&(!g.date||g.date>=ti)&&(g.run||(g.setlist||[]).length)).sort((a,b)=>(a.date||'9999')<(b.date||'9999')?-1:1);if(!gs.length)return '';
+  return `<div class="lbl" style="margin-bottom:6px">Repertorio de cada concierto · ordénalo y apunta lo que falta</div><div class="rep-gigs">${gs.map(g=>{const st=runStats(g),n=runOf(g).filter(r=>r.need&&!r.ok).length,d=g.date?pd(g.date):null;
+    return `<button type="button" class="rep-gig" data-act="gig-rep" data-id="${g.id}"><b>${esc(g.name)}</b><span>${d?d.getDate()+' '+MES3[d.getMonth()]+' · ':''}${st.l.length} filas${st.tot?' · ≈ '+fmtMin(st.tot):''}${n?' · '+n+' por preproducir':''}</span><span>Abrir y ordenar →</span></button>`}).join('')}</div>`}
 function runH(d){const st=runStats(d),l=st.l,inRun=new Set(l.map(r=>r.song).filter(Boolean));let acc=0,sn=0;
   const rows=l.map((r,i)=>{const du=rowDur(r),t0=fmtDur(acc);acc+=du;
     const ctr=`<button type="button" class="x" data-act="run-up" data-v="${i}" aria-label="Subir">↑</button><button type="button" class="x" data-act="run-down" data-v="${i}" aria-label="Bajar">↓</button><button type="button" class="x" data-act="run-del" data-v="${i}" aria-label="Quitar">×</button>`;
@@ -1570,7 +1583,7 @@ function vRepertorio(){
   const orow=(s,k,n)=>`<li data-rid="${s.id}"><button class="og" data-rmove="${s.id}" aria-label="Arrastrar para cambiar el orden" title="Arrastra">⠿</button><span class="on">${k+1}</span><button class="ot" data-act="song" data-id="${s.id}" title="${esc(s.title)}">${esc(s.title)}</button><input class="dur-in" id="sd-${s.id}" data-sdur="${s.id}" value="${s.dur>0?fmtDur(s.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración de ${esc(s.title)}"><span class="ob"><button data-act="song-mv" data-id="${s.id}" data-d="-1" data-w aria-label="Subir"${k===0?' disabled':''}>▲</button><button data-act="song-mv" data-id="${s.id}" data-d="1" data-w aria-label="Bajar"${k===n-1?' disabled':''}>▼</button></span></li>`;
   const filt=`<div class="toolbar"><span class="lbl">Proyecto</span><div class="seg"><button data-act="proj" data-v="all" aria-pressed="${F.proj==='all'}">Todo</button>${projs.map(p=>`<button data-act="proj" data-v="${esc(p)}" aria-pressed="${F.proj===p}">${esc(p)}</button>`).join('')}</div></div>`;
   const shown=F.proj==='all'?projs:[F.proj];
-  return vhd('El repertorio','Arrastra los temas por el título para fijar el orden del disco; a la derecha ves la lista y su duración',`<button class="btn red" data-act="new-song" data-w>+ Tema</button>`)+(ss.length?filt:'')+
+  return vhd('El repertorio','Arrastra los temas por el título para fijar el orden del disco; a la derecha ves la lista y su duración',`<button class="btn red" data-act="new-song" data-w>+ Tema</button>`)+repGigsH()+(ss.length?filt:'')+
    (ss.length?shown.map(p=>{const l=songsOf(p);
      const pend=l.filter(s=>(s.stage??0)<6).length;return `<section class="proj" data-proj="${esc(p)}"><h2><button class="pren" data-act="proj-ren" data-p="${esc(p)}" title="Pulsa para cambiar el nombre">${esc(p)}<span aria-hidden="true">✎</span></button></h2><p>${l.length} temas · ${pend?pend+' sin publicar':'todo publicado'} · ${l.filter(s=>s.live==='montado').length} montados para directo</p><div class="disc-w"><div class="songs">${l.map(scard).join('')}</div>
        <aside class="disc" aria-label="Orden del disco"><h3>Orden del disco</h3><p>Duración aproximada de cada tema</p><ol class="ord">${l.map((s,k)=>orow(s,k,l.length)).join('')}</ol><div class="ord-tot">${discTot(l)}</div></aside></div></section>`}).join('')
@@ -2053,6 +2066,7 @@ const ACT={
   'new-goal':t=>{const p=t.dataset.period||'mes';openSheet('goal','goals',uid('g'),{title:'',period:p,due:periodDue(p),note:'',done:false},true)},
   'goal-done':t=>{const g=S.goals[t.dataset.id];if(g)write('goals',t.dataset.id,Object.assign({},g,{done:!g.done}))},
   gig:t=>{const g=get('gigs',t.dataset.id);if(g)openSheet('gig','gigs',g.id,g)},
+  'gig-rep':t=>{const g=get('gigs',t.dataset.id);if(!g)return;openSheet('gig','gigs',g.id,g);SH.tab='rep';drawSheet();const b=$('.sh-b');if(b)b.scrollTop=0},
   'new-gig':t=>openSheet('gig','gigs',uid('gig'),{name:'',date:t.dataset.date||null,status:'tentativa',venue:'',city:'',time:'',setlist:[],checks:GIG_CHECKS.map(x=>({t:x,d:false})),note:''},true),
   'gen-gig':t=>genGig(t.dataset.id),
   prod:t=>{const p=get('prods',t.dataset.id);if(p)openSheet('prod','prods',p.id,p)},
