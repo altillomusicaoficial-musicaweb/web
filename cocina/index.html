@@ -405,6 +405,10 @@ button.stk[aria-pressed="false"]{opacity:.45;transform:none;box-shadow:none}
 .live.montado{background:color-mix(in srgb,var(--ok) 22%,var(--card));color:var(--ink)}
 .live.medio{background:color-mix(in srgb,var(--c2) 35%,var(--card));color:var(--ink)}
 .live.falta{background:var(--red);color:var(--on-red)}
+.live.none{background:var(--card);color:var(--ink-3);outline:1px dashed var(--hair)}
+button.live{cursor:pointer;border:0;font-family:var(--f-mono);white-space:nowrap}
+button.live.none{border:0}
+.run-r .lvb{flex:none;margin-left:0}
 
 /* ---------- repertorio ---------- */
 .proj{margin-bottom:26px}
@@ -1503,7 +1507,7 @@ function vConciertos(){
       <div><span class="lbl">Preparación ${dn}/${ch.length}</span><div class="bar" style="--c:var(--c5);margin-top:4px"><i style="width:${ch.length?Math.round(dn/ch.length*100):0}%"></i></div></div>
       ${ens.length?`<div style="display:flex;flex-direction:column;gap:4px">${ens.map(i=>`<button class="chip" style="justify-content:flex-start" data-act="item" data-id="${i.id}">${esc(KINDS[i.kind]?.c||'')} · ${esc(i.title)} · ${esc(fmtD(i.date))}</button>`).join('')}</div>`:''}
       <div style="display:flex;gap:6px;flex-wrap:wrap" data-w><button class="btn sm" data-act="gig" data-id="${g.id}">Abrir</button><button class="btn sm" data-act="new-item" data-kind="ensayo" data-gig="${g.id}">+ Ensayo</button>${!past.includes(g)?`<button class="btn sm red" data-act="gen-gig" data-id="${g.id}">${g.planned?'Volver a generar plan':'Generar plan de preparación'}</button>`:''}</div></div>
-    <div class="gside"><span class="lbl">Repertorio · ${set.length} temas${runStats(g).nM?' + '+runStats(g).nM+' momentos':''}${runStats(g).tot?' · ≈ '+fmtMin(runStats(g).tot):''}</span>${(()=>{const n=runOf(g).filter(r=>r.need&&!r.ok).length;return n?`<div class="warn">${n} ${n===1?'cosa':'cosas'} por preproducir en el repertorio del concierto</div>`:''})()}${miss.length?`<div class="warn">Faltan por montar: ${miss.map(s=>esc(s.title)).join(', ')}</div>`:set.length?'<div class="hint">Todo el setlist está montado.</div>':''}
+    <div class="gside"><span class="lbl">Repertorio · ${set.length} temas${runStats(g).nM?' + '+runStats(g).nM+' momentos':''}${runStats(g).tot?' · ≈ '+fmtMin(runStats(g).tot):''}</span>${(()=>{const n=runOf(g).filter(r=>isPend(r)).length;return n?`<div class="warn">${n} ${n===1?'cosa':'cosas'} por preproducir en el repertorio del concierto</div>`:''})()}${miss.length?`<div class="warn">Faltan por montar: ${miss.map(s=>esc(s.title)).join(', ')}</div>`:set.length?'<div class="hint">Todo el setlist está montado.</div>':''}
       ${miniRun(g)}<button type="button" class="btn sm red" data-act="gig-rep" data-id="${g.id}" data-w>Abrir repertorio del concierto →</button></div></article>`;};
   return vhd('Los conciertos','Preparación, ensayos y temas que faltan por montar',`<button class="btn red" data-act="new-gig" data-w>+ Concierto</button>`)+
    `<div class="gigs">${up.length?up.map(gcard).join(''):'<div class="empty">Ningún concierto por delante. Añade el siguiente.</div>'}</div>`+
@@ -1520,26 +1524,29 @@ const songsOf=p=>arr('songs').filter(s=>(s.project||'Sin proyecto')===p).sort((a
 function discTot(l){const t=l.reduce((a,s)=>a+(Number(s.dur)||0),0),n=l.filter(s=>!(Number(s.dur)>0)).length;
   return `<span>Total aprox.${n?`<small>${n} ${n===1?'tema sin':'temas sin'} duración</small>`:''}</span><b>${t?(t>=3600?Math.floor(t/3600)+' h '+String(Math.round(t%3600/60)).padStart(2,'0')+' min':fmtDur(t)+' min'):'—'}</b>`}
 const runOf=g=>Array.isArray(g.run)?g.run:(g.setlist||[]).map(id=>({id:'r-'+id,song:id}));
+const isPend=r=>!!(r.need&&!r.ok&&r.st!=='montado');
+const LIVE_NEXT={falta:'medio',medio:'montado',montado:'falta'};
 const rowDur=r=>r.song?(Number((S.songs[r.song]||{}).dur)||0):(Number(r.dur)||0);
 function runStats(g){const l=runOf(g);let sg=0,mo=0,nS=0,nM=0,nod=0;l.forEach(r=>{const d=rowDur(r);if(r.song){if(S.songs[r.song]){nS++;sg+=d;if(!d)nod++}}else{nM++;mo+=d}});return {l,sg,mo,nS,nM,nod,tot:sg+mo}}
 const fmtMin=n=>{n=Math.round(n/60);return n>=60?Math.floor(n/60)+' h '+String(n%60).padStart(2,'0')+' min':n+' min'};
 const clockAdd=(t,sec)=>{const m=String(t||'').match(/^(\d{1,2})[:.h](\d{2})$/);if(!m)return null;const x=(Number(m[1])*60+Number(m[2])+Math.round(sec/60))%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')};
 function miniRun(g){const l=runOf(g);if(!l.length)return '<div class="empty" style="padding:10px">Sin repertorio. Ábrelo para elegir temas.</div>';let n=0;
-  return `<ol class="rmini">${l.map(r=>{const du=rowDur(r),p=r.need&&!r.ok?'<em title="Falta preproducir">☐</em>':'';
+  return `<ol class="rmini">${l.map(r=>{const du=rowDur(r),p=isPend(r)?'<em title="Falta preproducir">☐</em>':'';
     if(r.song){const sg=S.songs[r.song];return `<li><b>${++n}</b><span>${sg?esc(sg.title)+`<span class="live ${sg.live||'falta'}">${LIVE[sg.live]||'Sin montar'}</span>`:'<em>(tema borrado)</em>'}</span>${du?`<i>${fmtDur(du)}</i>`:''}${p}</li>`}
-    return `<li class="mo"><b>✳</b><span>${esc(r.t||'Momento')}</span>${du?`<i>${fmtDur(du)}</i>`:''}${p}</li>`}).join('')}</ol>`}
+    return `<li class="mo"><b>✳</b><span>${esc(r.t||'Momento')}${r.st?`<span class="live ${r.st}">${LIVE[r.st]}</span>`:''}</span>${du?`<i>${fmtDur(du)}</i>`:''}${p}</li>`}).join('')}</ol>`}
 function repGigsH(){const ti=iso(today()),gs=arr('gigs').filter(g=>g.status!=='hecha'&&(!g.date||g.date>=ti)&&(g.run||(g.setlist||[]).length)).sort((a,b)=>(a.date||'9999')<(b.date||'9999')?-1:1);if(!gs.length)return '';
-  return `<div class="lbl" style="margin-bottom:6px">Repertorio de cada concierto · ordénalo y apunta lo que falta</div><div class="rep-gigs">${gs.map(g=>{const st=runStats(g),n=runOf(g).filter(r=>r.need&&!r.ok).length,d=g.date?pd(g.date):null;
+  return `<div class="lbl" style="margin-bottom:6px">Repertorio de cada concierto · ordénalo y apunta lo que falta</div><div class="rep-gigs">${gs.map(g=>{const st=runStats(g),n=runOf(g).filter(r=>isPend(r)).length,d=g.date?pd(g.date):null;
     return `<button type="button" class="rep-gig" data-act="gig-rep" data-id="${g.id}"><b>${esc(g.name)}</b><span>${d?d.getDate()+' '+MES3[d.getMonth()]+' · ':''}${st.l.length} filas${st.tot?' · ≈ '+fmtMin(st.tot):''}${n?' · '+n+' por preproducir':''}</span><span>Abrir y ordenar →</span></button>`}).join('')}</div>`}
 function runH(d){const st=runStats(d),l=st.l,inRun=new Set(l.map(r=>r.song).filter(Boolean));let acc=0,sn=0;
   const rows=l.map((r,i)=>{const du=rowDur(r),t0=fmtDur(acc);acc+=du;
     const ctr=`<button type="button" class="x" data-act="run-up" data-v="${i}" aria-label="Subir">↑</button><button type="button" class="x" data-act="run-down" data-v="${i}" aria-label="Bajar">↓</button><button type="button" class="x" data-act="run-del" data-v="${i}" aria-label="Quitar">×</button>`;
     const hdl=`<button type="button" class="rg" data-rg="${i}" aria-label="Arrastrar para cambiar de sitio" title="Arrastra">⠿</button>`,
       opn=`<button type="button" class="x rm" data-act="run-open" data-v="${i}" aria-label="Qué falta y apuntes" title="Qué falta preproducir y apuntes">✎</button>`,
-      pend=!!(r.need&&!r.ok),nl=needH(r,i),ww=h=>`<div class="run-w${pend?' pend':''}" data-ri="${i}">${h}${nl}</div>`;
-    if(r.song){const sg=S.songs[r.song];return ww(`<div class="run-r">${hdl}<span class="t0">${t0}</span><span class="n">${++sn}</span><span class="tt">${sg?esc(sg.title)+`<span class="live ${sg.live||'falta'}">${LIVE[sg.live]||'Sin montar'}</span>`:'<em>(tema borrado)</em>'}</span>${sg?`<input class="dur-in" id="rd-${r.song}" data-sdur="${r.song}" value="${sg.dur>0?fmtDur(sg.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración de ${esc(sg.title)}">`:''}${opn}${ctr}</div>`)}
-    return ww(`<div class="run-r mo${r.k?' an':''}">${hdl}<span class="t0">${t0}</span><span class="n">✳</span>${r.k?`<span class="rk">${r.k==='anim'?'Animación':'Anuncio'}</span>`:''}<input class="rl" id="rl-${r.id}" data-rl="${r.id}" value="${esc(r.t||'')}" placeholder="Momento (hablar, acting…)" autocomplete="off" aria-label="Nombre del momento"><input class="dur-in" id="rdu-${r.id}" data-rd="${r.id}" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración del momento">${opn}${ctr}</div>`)}).join('');
-  const end=clockAdd(d.time,st.tot),npend=l.filter(r=>r.need&&!r.ok).length;
+      stb=`<button type="button" class="live ${r.st||'none'} lvb" data-act="run-st" data-v="${i}" title="Estado: pulsa para cambiarlo">${r.st?LIVE[r.st]:'Sin estado'}</button>`,
+      pend=isPend(r),nl=needH(r,i),ww=h=>`<div class="run-w${pend?' pend':''}" data-ri="${i}">${h}${nl}</div>`;
+    if(r.song){const sg=S.songs[r.song];return ww(`<div class="run-r">${hdl}<span class="t0">${t0}</span><span class="n">${++sn}</span><span class="tt">${sg?esc(sg.title)+`<button type="button" class="live ${sg.live||'falta'}" data-act="run-live" data-id="${r.song}" title="Pulsa para cambiar el estado del tema">${LIVE[sg.live]||'Sin montar'}</button>`:'<em>(tema borrado)</em>'}</span>${sg?`<input class="dur-in" id="rd-${r.song}" data-sdur="${r.song}" value="${sg.dur>0?fmtDur(sg.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración de ${esc(sg.title)}">`:''}${opn}${ctr}</div>`)}
+    return ww(`<div class="run-r mo${r.k?' an':''}">${hdl}<span class="t0">${t0}</span><span class="n">✳</span>${r.k?`<span class="rk">${r.k==='anim'?'Animación':'Anuncio'}</span>`:''}<input class="rl" id="rl-${r.id}" data-rl="${r.id}" value="${esc(r.t||'')}" placeholder="Momento (hablar, acting…)" autocomplete="off" aria-label="Nombre del momento">${stb}<input class="dur-in" id="rdu-${r.id}" data-rd="${r.id}" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración del momento">${opn}${ctr}</div>`)}).join('');
+  const end=clockAdd(d.time,st.tot),npend=l.filter(r=>isPend(r)).length;
   const rest=arr('songs').filter(x=>!inRun.has(x.id)),byP={};rest.forEach(x=>{(byP[x.project||'Sin proyecto']=byP[x.project||'Sin proyecto']||[]).push(x)});
   const sel=Object.entries(byP).map(([p,ls])=>`<optgroup label="${esc(p)}">${ls.sort((a,b)=>(a.order??99)-(b.order??99)||String(a.title).localeCompare(b.title)).map(x=>`<option value="${x.id}">${esc(x.title)}${x.live!=='montado'?' (sin montar)':''}${x.dur>0?' · '+fmtDur(x.dur):''}</option>`).join('')}</optgroup>`).join('');
   const nm=rest.filter(x=>x.live==='montado').length;
@@ -2135,7 +2142,9 @@ const ACT={
   'run-down':t=>{runEdit(l=>{const i=Number(t.dataset.v);if(i<l.length-1)[l[i+1],l[i]]=[l[i],l[i+1]]})},
   'run-del':t=>{runEdit(l=>{l.splice(Number(t.dataset.v),1)})},
   'run-seg':t=>{const id=uid('r'),k=t.dataset.k;runEdit(l=>{const r={id,t:t.dataset.t,dur:Number(t.dataset.dur)||0};if(k){r.k=k;r.need='Componer y animar para proyectar'}l.push(r)});if(!t.dataset.t||k)setTimeout(()=>{const i=$('#rl-'+id);if(i){i.focus();const n=i.value.length;try{i.setSelectionRange(n,n)}catch(err){}}},30)},
-  'run-ok':t=>{runEdit(l=>{const r=l[Number(t.dataset.v)];if(r)r.ok=!r.ok})},
+  'run-ok':t=>{runEdit(l=>{const r=l[Number(t.dataset.v)];if(!r)return;r.ok=!r.ok;if(!r.song){if(r.ok)r.st='montado';else if(r.st==='montado')r.st='medio'}})},
+  'run-st':t=>{runEdit(l=>{const r=l[Number(t.dataset.v)];if(!r)return;const p=r.st||'',n={'':'falta',falta:'medio',medio:'montado',montado:''}[p];if(n)r.st=n;else delete r.st;if(n==='montado')r.ok=true;else if(p==='montado')r.ok=false})},
+  'run-live':t=>{const id=t.dataset.id,sg=S.songs[id];if(!sg)return;write('songs',id,Object.assign({},sg,{live:LIVE_NEXT[sg.live||'falta']||'falta'}));drawSheet()},
   'run-open':t=>{let id=null;runEdit(l=>{const r=l[Number(t.dataset.v)];if(!r)return;id=r.id;if(RUNO.has(r.id))RUNO.delete(r.id);else RUNO.add(r.id)});setTimeout(()=>{const i=id&&$('#rn-'+id);if(i)i.focus()},30)},
   'run-filter':()=>{RUNF=!RUNF;drawSheet()},
   'run-all':()=>{if(!SH)return;const inR=new Set(runOf(SH.draft).map(r=>r.song).filter(Boolean));const add=arr('songs').filter(x=>x.live==='montado'&&!inR.has(x.id)).sort((a,b)=>String(a.project||'').localeCompare(String(b.project||''))||(a.order??99)-(b.order??99));runEdit(l=>{add.forEach(x=>l.push({id:uid('r'),song:x.id}))})},
