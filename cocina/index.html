@@ -466,6 +466,42 @@ button.live.none{border:0}
 .run-r .rg{flex:none;width:20px;height:28px;border:0;background:none;color:var(--ink-3);cursor:grab;touch-action:none;font:700 1rem/1 var(--f-body);padding:0}
 .run-r .rk{flex:none;font:600 .6rem var(--f-mono);text-transform:uppercase;letter-spacing:.04em;color:var(--red);border:1.5px solid var(--red);border-radius:999px;padding:1px 7px}
 .run-r.an{border-color:var(--red)}
+/* tipos de fila: color propio para temas, hablar, acting, anuncios, animaciones, cambios y otros momentos */
+.run .run-r[data-ty]{border-style:solid;border-left:6px solid var(--tc);background:color-mix(in srgb,var(--tc) 9%,var(--paper))}
+.run-r[data-ty] .n{color:var(--tc)}
+.run-r select.rk{appearance:none;-webkit-appearance:none;cursor:pointer;color:var(--tc);border-color:var(--tc);background:var(--card);padding:2px 8px}
+.ty-leg{display:flex;flex-wrap:wrap;gap:6px}
+.ty-leg span{display:inline-flex;align-items:center;gap:5px;font:500 .66rem var(--f-mono);text-transform:uppercase;letter-spacing:.04em;color:var(--ink-2);border:1.5px solid var(--hair);border-left:5px solid var(--tc);border-radius:6px;padding:2px 7px;background:color-mix(in srgb,var(--tc) 9%,var(--card))}
+.run-sum .ty-leg span b{color:var(--ink);font:600 .74rem var(--f-mono);text-transform:none}
+.run-sum .ty-leg{flex-basis:100%}
+select.live-sel{appearance:none;-webkit-appearance:none;cursor:pointer;border:0;font:500 .62rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 18px 3px 7px;border-radius:5px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 9px) 50%,calc(100% - 5px) 50%;background-size:4px 4px;background-repeat:no-repeat;flex:none}
+select.live-sel.montado{background-color:color-mix(in srgb,var(--ok) 22%,var(--card));color:var(--ink)}
+select.live-sel.medio{background-color:color-mix(in srgb,var(--c2) 35%,var(--card));color:var(--ink)}
+select.live-sel.falta{background-color:var(--red);color:var(--on-red)}
+select.live-sel.none{background-color:var(--card);color:var(--ink-3);outline:1px dashed var(--hair)}
+.run-r .tt select.live-sel{margin-left:6px;vertical-align:middle}
+.run-n textarea.rnote{flex-basis:100%;min-height:54px;border:1.5px solid var(--hair);border-radius:8px;background:var(--card);color:var(--ink);font:400 .8rem/1.45 var(--f-body);padding:6px 8px;resize:vertical}
+.run-n .lbl{flex-basis:100%;margin-top:2px}
+.run-r .x.rm.has{color:var(--red)}
+.rmini li{border-left:4px solid var(--tc,transparent);padding-left:5px}
+/* pestaña de visuales */
+.vis-sum{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:2px solid var(--rule);border-radius:12px;background:var(--card)}
+.vis-sum b{font:400 1.6rem/1 var(--f-disp);text-transform:uppercase}
+.vis-sum .bar{height:8px}
+.vis-list{display:flex;flex-direction:column;gap:6px}
+.vis-r{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;padding:7px 10px;border:1.5px solid var(--hair);border-left:6px solid var(--tc);border-radius:10px;background:color-mix(in srgb,var(--tc) 7%,var(--paper))}
+.vis-r .vt{font:600 .92rem/1.2 var(--f-body);min-width:0;overflow-wrap:anywhere}
+.vis-r .vt small{display:block;font:500 .62rem var(--f-mono);text-transform:uppercase;letter-spacing:.05em;color:var(--tc)}
+.vis-r .t0{font:500 .66rem var(--f-mono);color:var(--ink-3)}
+.vis-r textarea{grid-column:1/-1;min-height:40px;border:0;border-bottom:1.5px dashed var(--hair);background:transparent;color:var(--ink);font:400 .82rem/1.45 var(--f-body);padding:3px 2px;resize:vertical}
+.vis-r .vb{grid-column:1/-1;font:500 .64rem var(--f-mono);color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+.vis-r.no{opacity:.55}
+.vis-list.onlyp .vis-r.ok,.vis-list.onlyp .vis-r.no{display:none}
+select.vis-sel{appearance:none;-webkit-appearance:none;cursor:pointer;border:0;border-radius:5px;font:500 .62rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;background:var(--card);color:var(--ink-2);outline:1px dashed var(--hair)}
+select.vis-sel.falta{background:var(--red);color:var(--on-red);outline:0}
+select.vis-sel.medio{background:color-mix(in srgb,var(--c2) 35%,var(--card));color:var(--ink);outline:0}
+select.vis-sel.listo{background:color-mix(in srgb,var(--ok) 22%,var(--card));color:var(--ink);outline:0}
+select.vis-sel.no{background:transparent;color:var(--ink-3)}
 .run-r .rm{flex:none}
 .run-n{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:0 6px 2px 28px}
 .run-n input.need{flex:1;min-width:150px;border:0;border-bottom:1.5px dashed var(--red);background:transparent;color:var(--ink);font:500 .8rem var(--f-body);padding:3px 2px}
@@ -1526,14 +1562,24 @@ function discTot(l){const t=l.reduce((a,s)=>a+(Number(s.dur)||0),0),n=l.filter(s
 const runOf=g=>Array.isArray(g.run)?g.run:(g.setlist||[]).map(id=>({id:'r-'+id,song:id}));
 const isPend=r=>!!(r.need&&!r.ok&&r.st!=='montado');
 const LIVE_NEXT={falta:'medio',medio:'montado',montado:'falta'};
+const TY={tema:['Tema','c3'],habla:['Hablar','c2'],acting:['Acting','c5'],anuncio:['Anuncio','c1'],anim:['Animación','c6'],cambio:['Cambio','c4'],momento:['Momento','c7']};
+const guessTy=t=>{t=String(t||'').toLowerCase();if(/anuncio/.test(t))return'anuncio';if(/animaci/.test(t))return'anim';if(/speech|hablar|saludo|presentaci/.test(t))return'habla';if(/performance|acting|teatro|rifa/.test(t))return'acting';if(/cambio|afinar/.test(t))return'cambio';return'momento'};
+const tyOf=r=>r.song?'tema':(r.k&&TY[r.k]?r.k:guessTy(r.t));
+const tyVar=ty=>`--tc:var(--${(TY[ty]||TY.momento)[1]})`;
+const liveSel=(cls,attr,val,withNone)=>`<select class="live-sel ${val||'none'}" ${attr} aria-label="Estado">${withNone?`<option value=""${!val?' selected':''}>Sin estado</option>`:''}${Object.entries({falta:'Sin montar',medio:'A medias',montado:'Montado'}).map(([k,l])=>`<option value="${k}"${val===k?' selected':''}>${l}</option>`).join('')}</select>`;
+const VIS={'':'Sin definir',no:'No lleva',falta:'Falta hacer',medio:'En proceso',listo:'Lista'};
+const noteField=(n,k)=>{const m=String(n||'').split(' · ').find(x=>x.startsWith(k+': '));return m?m.slice(k.length+2):''};
+const visOf=r=>r.vis!==undefined?r.vis:((r.k==='anuncio'||r.k==='anim')?'falta':'');
+const visTxt=r=>r.visn!==undefined?r.visn:noteField(r.note,'Apuntes Video');
+function runPatch(id,fn){if(!SH||SH.type!=='gig')return;const l=runOf(SH.draft).map(r=>Object.assign({},r)),r=l.find(x=>x.id===id);if(!r)return;fn(r);SH.draft.run=l;SH.draft.setlist=l.filter(x=>x.song).map(x=>x.song);touch()}
 const rowDur=r=>r.song?(Number((S.songs[r.song]||{}).dur)||0):(Number(r.dur)||0);
 function runStats(g){const l=runOf(g);let sg=0,mo=0,nS=0,nM=0,nod=0;l.forEach(r=>{const d=rowDur(r);if(r.song){if(S.songs[r.song]){nS++;sg+=d;if(!d)nod++}}else{nM++;mo+=d}});return {l,sg,mo,nS,nM,nod,tot:sg+mo}}
 const fmtMin=n=>{n=Math.round(n/60);return n>=60?Math.floor(n/60)+' h '+String(n%60).padStart(2,'0')+' min':n+' min'};
 const clockAdd=(t,sec)=>{const m=String(t||'').match(/^(\d{1,2})[:.h](\d{2})$/);if(!m)return null;const x=(Number(m[1])*60+Number(m[2])+Math.round(sec/60))%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')};
 function miniRun(g){const l=runOf(g);if(!l.length)return '<div class="empty" style="padding:10px">Sin repertorio. Ábrelo para elegir temas.</div>';let n=0;
   return `<ol class="rmini">${l.map(r=>{const du=rowDur(r),p=isPend(r)?'<em title="Falta preproducir">☐</em>':'';
-    if(r.song){const sg=S.songs[r.song];return `<li><b>${++n}</b><span>${sg?esc(sg.title)+`<span class="live ${sg.live||'falta'}">${LIVE[sg.live]||'Sin montar'}</span>`:'<em>(tema borrado)</em>'}</span>${du?`<i>${fmtDur(du)}</i>`:''}${p}</li>`}
-    return `<li class="mo"><b>✳</b><span>${esc(r.t||'Momento')}${r.st?`<span class="live ${r.st}">${LIVE[r.st]}</span>`:''}</span>${du?`<i>${fmtDur(du)}</i>`:''}${p}</li>`}).join('')}</ol>`}
+    if(r.song){const sg=S.songs[r.song];return `<li style="${tyVar('tema')}"><b>${++n}</b><span>${sg?esc(sg.title)+`<span class="live ${sg.live||'falta'}">${LIVE[sg.live]||'Sin montar'}</span>`:'<em>(tema borrado)</em>'}</span>${du?`<i>${fmtDur(du)}</i>`:''}${p}</li>`}
+    return `<li class="mo" style="${tyVar(tyOf(r))}"><b>✳</b><span>${esc(r.t||'Momento')}${r.st?`<span class="live ${r.st}">${LIVE[r.st]}</span>`:''}</span>${du?`<i>${fmtDur(du)}</i>`:''}${p}</li>`}).join('')}</ol>`}
 function repGigsH(){const ti=iso(today()),gs=arr('gigs').filter(g=>g.status!=='hecha'&&(!g.date||g.date>=ti)&&(g.run||(g.setlist||[]).length)).sort((a,b)=>(a.date||'9999')<(b.date||'9999')?-1:1);if(!gs.length)return '';
   return `<div class="lbl" style="margin-bottom:6px">Repertorio de cada concierto · ordénalo y apunta lo que falta</div><div class="rep-gigs">${gs.map(g=>{const st=runStats(g),n=runOf(g).filter(r=>isPend(r)).length,d=g.date?pd(g.date):null;
     return `<button type="button" class="rep-gig" data-act="gig-rep" data-id="${g.id}"><b>${esc(g.name)}</b><span>${d?d.getDate()+' '+MES3[d.getMonth()]+' · ':''}${st.l.length} filas${st.tot?' · ≈ '+fmtMin(st.tot):''}${n?' · '+n+' por preproducir':''}</span><span>Abrir y ordenar →</span></button>`}).join('')}</div>`}
@@ -1541,23 +1587,37 @@ function runH(d){const st=runStats(d),l=st.l,inRun=new Set(l.map(r=>r.song).filt
   const rows=l.map((r,i)=>{const du=rowDur(r),t0=fmtDur(acc);acc+=du;
     const ctr=`<button type="button" class="x" data-act="run-up" data-v="${i}" aria-label="Subir">↑</button><button type="button" class="x" data-act="run-down" data-v="${i}" aria-label="Bajar">↓</button><button type="button" class="x" data-act="run-del" data-v="${i}" aria-label="Quitar">×</button>`;
     const hdl=`<button type="button" class="rg" data-rg="${i}" aria-label="Arrastrar para cambiar de sitio" title="Arrastra">⠿</button>`,
-      opn=`<button type="button" class="x rm" data-act="run-open" data-v="${i}" aria-label="Qué falta y apuntes" title="Qué falta preproducir y apuntes">✎</button>`,
-      stb=`<button type="button" class="live ${r.st||'none'} lvb" data-act="run-st" data-v="${i}" title="Estado: pulsa para cambiarlo">${r.st?LIVE[r.st]:'Sin estado'}</button>`,
+      opn=`<button type="button" class="x rm${r.note||r.need?' has':''}" data-act="run-open" data-v="${i}" aria-label="Qué falta y apuntes" title="Qué falta preproducir y apuntes">✎</button>`,
+      stb=liveSel('', `data-rst="${i}"`, r.st, true),ty=tyOf(r),
+      tyb=`<select class="rk" data-rty="${i}" aria-label="Tipo de momento">${Object.entries(TY).filter(([k])=>k!=='tema').map(([k,v])=>`<option value="${k}"${k===ty?' selected':''}>${v[0]}</option>`).join('')}</select>`,
       pend=isPend(r),nl=needH(r,i),ww=h=>`<div class="run-w${pend?' pend':''}" data-ri="${i}">${h}${nl}</div>`;
-    if(r.song){const sg=S.songs[r.song];return ww(`<div class="run-r">${hdl}<span class="t0">${t0}</span><span class="n">${++sn}</span><span class="tt">${sg?esc(sg.title)+`<button type="button" class="live ${sg.live||'falta'}" data-act="run-live" data-id="${r.song}" title="Pulsa para cambiar el estado del tema">${LIVE[sg.live]||'Sin montar'}</button>`:'<em>(tema borrado)</em>'}</span>${sg?`<input class="dur-in" id="rd-${r.song}" data-sdur="${r.song}" value="${sg.dur>0?fmtDur(sg.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración de ${esc(sg.title)}">`:''}${opn}${ctr}</div>`)}
-    return ww(`<div class="run-r mo${r.k?' an':''}">${hdl}<span class="t0">${t0}</span><span class="n">✳</span>${r.k?`<span class="rk">${r.k==='anim'?'Animación':'Anuncio'}</span>`:''}<input class="rl" id="rl-${r.id}" data-rl="${r.id}" value="${esc(r.t||'')}" placeholder="Momento (hablar, acting…)" autocomplete="off" aria-label="Nombre del momento">${stb}<input class="dur-in" id="rdu-${r.id}" data-rd="${r.id}" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración del momento">${opn}${ctr}</div>`)}).join('');
+    if(r.song){const sg=S.songs[r.song];return ww(`<div class="run-r" data-ty="tema" style="${tyVar('tema')}">${hdl}<span class="t0">${t0}</span><span class="n">${++sn}</span><span class="tt">${sg?esc(sg.title)+`${liveSel('', `data-slive="${r.song}"`, sg.live||'falta', false)}`:'<em>(tema borrado)</em>'}</span>${sg?`<input class="dur-in" id="rd-${r.song}" data-sdur="${r.song}" value="${sg.dur>0?fmtDur(sg.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración de ${esc(sg.title)}">`:''}${opn}${ctr}</div>`)}
+    return ww(`<div class="run-r mo" data-ty="${ty}" style="${tyVar(ty)}">${hdl}<span class="t0">${t0}</span><span class="n">✳</span>${tyb}<input class="rl" id="rl-${r.id}" data-rl="${r.id}" value="${esc(r.t||'')}" placeholder="Momento (hablar, acting…)" autocomplete="off" aria-label="Nombre del momento">${stb}<input class="dur-in" id="rdu-${r.id}" data-rd="${r.id}" value="${r.dur>0?fmtDur(r.dur):''}" placeholder="m:ss" inputmode="numeric" autocomplete="off" aria-label="Duración del momento">${opn}${ctr}</div>`)}).join('');
   const end=clockAdd(d.time,st.tot),npend=l.filter(r=>isPend(r)).length;
   const rest=arr('songs').filter(x=>!inRun.has(x.id)),byP={};rest.forEach(x=>{(byP[x.project||'Sin proyecto']=byP[x.project||'Sin proyecto']||[]).push(x)});
   const sel=Object.entries(byP).map(([p,ls])=>`<optgroup label="${esc(p)}">${ls.sort((a,b)=>(a.order??99)-(b.order??99)||String(a.title).localeCompare(b.title)).map(x=>`<option value="${x.id}">${esc(x.title)}${x.live!=='montado'?' (sin montar)':''}${x.dur>0?' · '+fmtDur(x.dur):''}</option>`).join('')}</optgroup>`).join('');
   const nm=rest.filter(x=>x.live==='montado').length;
-  return `<div class="run-sum"><b>${st.tot?'≈ '+fmtMin(st.tot):'—'}</b><span>${st.nS} ${st.nS===1?'tema':'temas'} ${fmtDur(st.sg)}${st.nM?` · ${st.nM} ${st.nM===1?'momento':'momentos'} ${fmtDur(st.mo)}`:''}${st.nod?` · ${st.nod} sin duración`:''}${npend?` · <strong>${npend} por preproducir</strong>`:''}${end?` · empieza ${esc(d.time)} · acaba ≈ ${end}`:''}</span></div>
+  const byTy={};l.forEach(r=>{const t=tyOf(r);(byTy[t]=byTy[t]||{n:0,d:0}).n++;byTy[t].d+=rowDur(r)});
+  const leg=`<div class="ty-leg" aria-label="Tipos de fila">${Object.keys(TY).filter(k=>byTy[k]).map(k=>`<span style="${tyVar(k)}">${TY[k][0]} <b>${byTy[k].n}</b> ${fmtDur(byTy[k].d)}</span>`).join('')}</div>`;
+  return `<div class="run-sum"><b>${st.tot?'≈ '+fmtMin(st.tot):'—'}</b><span>${st.nS} ${st.nS===1?'tema':'temas'} ${fmtDur(st.sg)}${st.nM?` · ${st.nM} ${st.nM===1?'momento':'momentos'} ${fmtDur(st.mo)}`:''}${st.nod?` · ${st.nod} sin duración`:''}${npend?` · <strong>${npend} por preproducir</strong>`:''}${end?` · empieza ${esc(d.time)} · acaba ≈ ${end}`:''}</span>${leg}</div>
   <div class="run${RUNF?' onlyp':''}">${rows||'<div class="empty" style="padding:12px">Aún no hay nada. Añade temas del repertorio y momentos entre medias.</div>'}</div>
   <select class="sel" id="f-addsong" aria-label="Añadir tema"><option value="">+ Añadir tema del repertorio…</option>${sel}</select>
-  <div class="row-btns" style="margin-top:2px"><button type="button" class="btn sm" data-act="run-seg" data-t="Hablar" data-dur="60">+ Hablar</button><button type="button" class="btn sm" data-act="run-seg" data-t="Acting" data-dur="120">+ Acting</button><button type="button" class="btn sm" data-act="run-seg" data-t="Cambio / afinar" data-dur="60">+ Cambio</button><button type="button" class="btn sm" data-act="run-seg" data-t="Anuncio: " data-dur="90" data-k="anuncio">+ Anuncio</button><button type="button" class="btn sm" data-act="run-seg" data-t="Animación: " data-dur="60" data-k="anim">+ Animación</button><button type="button" class="btn sm" data-act="run-seg" data-t="" data-dur="60">+ Otro momento</button>${npend||RUNF?`<button type="button" class="btn sm${RUNF?' red':' ghost'}" data-act="run-filter" aria-pressed="${RUNF}">${RUNF?'Ver todo':'Solo lo que falta ('+npend+')'}</button>`:''}${nm?`<button type="button" class="btn sm ghost" data-act="run-all">Añadir los ${nm} montados</button>`:''}</div>
+  <div class="row-btns" style="margin-top:2px"><button type="button" class="btn sm" data-act="run-seg" data-t="Hablar" data-dur="60" data-k="habla">+ Hablar</button><button type="button" class="btn sm" data-act="run-seg" data-t="Acting" data-dur="120" data-k="acting">+ Acting</button><button type="button" class="btn sm" data-act="run-seg" data-t="Cambio / afinar" data-dur="60" data-k="cambio">+ Cambio</button><button type="button" class="btn sm" data-act="run-seg" data-t="Anuncio: " data-dur="90" data-k="anuncio">+ Anuncio</button><button type="button" class="btn sm" data-act="run-seg" data-t="Animación: " data-dur="60" data-k="anim">+ Animación</button><button type="button" class="btn sm" data-act="run-seg" data-t="" data-dur="60">+ Otro momento</button>${npend||RUNF?`<button type="button" class="btn sm${RUNF?' red':' ghost'}" data-act="run-filter" aria-pressed="${RUNF}">${RUNF?'Ver todo':'Solo lo que falta ('+npend+')'}</button>`:''}${nm?`<button type="button" class="btn sm ghost" data-act="run-all">Añadir los ${nm} montados</button>`:''}</div>
   <span class="hint">La duración de cada tema es la misma que en el repertorio: si la cambias aquí, se cambia allí. Los momentos son solo de este concierto. Arrastra ⠿ para cambiar el orden, y con ✎ apunta qué falta por preproducir en cada fila (coros, animación, base en la MPC…).</span>`}
-let RUNF=false;const RUNO=new Set();
+let RUNF=false,VISF=false;const RUNO=new Set();
+function visStats(d){const l=runOf(d),c={'':0,no:0,falta:0,medio:0,listo:0};l.forEach(r=>{c[visOf(r)]=(c[visOf(r)]||0)+1});return {c,need:c.falta+c.medio+c.listo,ok:c.listo}}
+function visH(d){const l=runOf(d),vs=visStats(d),c=vs.c;let acc=0;
+  const rows=l.map((r,i)=>{const du=rowDur(r),t0=fmtDur(acc);acc+=du;const ty=tyOf(r),v=visOf(r),sg=r.song&&S.songs[r.song],base=noteField(r.note,'Visuales');
+    return `<div class="vis-r${v==='listo'?' ok':''}${v==='no'?' no':''}" style="${tyVar(ty)}"><span class="t0">${t0}</span><span class="vt"><small>${TY[ty][0]}</small>${esc(sg?sg.title:(r.t||'Momento'))}</span>
+      <select class="vis-sel ${v||'none'}" data-rvis="${i}" aria-label="Estado de la animación">${Object.entries(VIS).map(([k,lb])=>`<option value="${k}"${k===v?' selected':''}>${lb}</option>`).join('')}</select>
+      ${v==='no'?'':`<textarea data-rvisn="${r.id}" id="rvn-${r.id}" rows="1" placeholder="Qué se proyecta (animación, vídeo, imagen, loop…)" aria-label="Qué se proyecta">${esc(visTxt(r))}</textarea>${base?`<span class="vb">Base: ${esc(base)}</span>`:''}`}</div>`}).join('');
+  const pct=vs.need?Math.round(vs.ok/vs.need*100):0,pend=c.falta+c.medio+c['']; 
+  return `<div class="vis-sum"><b>${vs.need?vs.ok+' de '+vs.need+' visuales listos':'Visuales del concierto'}</b><span class="hint" style="margin:0">${c.falta} falta hacer · ${c.medio} en proceso · ${c.listo} listos · ${c.no} no llevan · ${c['']} sin definir</span><div class="bar" style="--c:var(--c6)"><i style="width:${pct}%"></i></div></div>
+  <div class="row-btns">${pend||VISF?`<button type="button" class="btn sm${VISF?' red':' ghost'}" data-act="vis-filter" aria-pressed="${VISF}">${VISF?'Ver todo':'Solo lo pendiente ('+pend+')'}</button>`:''}</div>
+  <div class="vis-list${VISF?' onlyp':''}">${rows||'<div class="empty" style="padding:12px">Primero añade filas en la pestaña Repertorio.</div>'}</div>
+  <span class="hint">Aquí va todo lo que se proyecta: animaciones, vídeos y anuncios de cada momento del concierto. Elige su estado y escribe qué es. Lo que pone «Sin definir» todavía no lo habéis decidido.</span>`}
 function needH(r,i){const open=RUNO.has(r.id);if(!open&&!r.need)return '';
-  return `<div class="run-n${r.ok?' ok':''}">${r.need||open?`<button type="button" class="chip" data-act="run-ok" data-v="${i}" aria-pressed="${!!r.ok}">${r.ok?'✓ Listo':'☐ Falta'}</button><input class="need" id="rn-${r.id}" data-rn="${r.id}" value="${esc(r.need||'')}" placeholder="Qué falta preproducir…" autocomplete="off" aria-label="Qué falta preproducir">`:''}${open&&r.note?`<details open><summary>Apuntes del sheet</summary>${esc(r.note)}</details>`:''}</div>`}
+  return `<div class="run-n${r.ok?' ok':''}">${r.need||open?`<button type="button" class="chip" data-act="run-ok" data-v="${i}" aria-pressed="${!!r.ok}">${r.ok?'✓ Listo':'☐ Falta'}</button><input class="need" id="rn-${r.id}" data-rn="${r.id}" value="${esc(r.need||'')}" placeholder="Qué falta preproducir…" autocomplete="off" aria-label="Qué falta preproducir">`:''}${open?`<span class="lbl">Apuntes (puedes editarlos)</span><textarea class="rnote" id="rnt-${r.id}" data-rnote="${r.id}" placeholder="Apuntes de vídeo, audio, voces, material…" aria-label="Apuntes">${esc(r.note||'')}</textarea>`:''}</div>`}
 /* arrastrar filas del repertorio del concierto */
 let RG=null;
 document.addEventListener('pointerdown',e=>{if(e.button!==0)return;const h=e.target.closest&&e.target.closest('[data-rg]');if(!h||!SH||SH.type!=='gig')return;
@@ -1926,8 +1986,8 @@ function drawSheet(first){
     ${SH.isNew?'':`<div class="fld"><span class="lbl">Acciones vinculadas</span>${goalProg(Object.assign({},d,{id:SH.id})).its.sort(byDate).map(i=>card(i,{noGoal:1,caj:1})).join('')||'<span class="hint">Ninguna todavía.</span>'}<button type="button" class="btn sm" data-act="new-item" data-goal="${SH.id}" data-w>+ Acción</button></div>`}`;}
   else if(SH.type==='gig'){title=d.kind==='colab'?'Colaboración':'Concierto';
     const set=(d.setlist||[]).map(id=>get('songs',id)).filter(Boolean),rest=arr('songs').filter(s=>!(d.setlist||[]).includes(s.id)).sort((a,b)=>String(a.title).localeCompare(b.title));
-    const rs=runStats(d),tabs=`<div class="seg run-tabs" role="group" aria-label="Secciones del concierto"><button type="button" data-act="gig-tab" data-v="datos" aria-pressed="${SH.tab!=='rep'}">Datos</button><button type="button" data-act="gig-tab" data-v="rep" aria-pressed="${SH.tab==='rep'}">Repertorio${rs.tot?' · '+fmtMin(rs.tot):''}</button></div>`;
-    body=`<textarea class="ta ttl-in" id="f-title" data-f="name" rows="1" placeholder="Nombre del concierto">${esc(d.name)}</textarea>${tabs}${SH.tab==='rep'?runH(d):`
+    const rs=runStats(d),tabs=`<div class="seg run-tabs" role="group" aria-label="Secciones del concierto"><button type="button" data-act="gig-tab" data-v="datos" aria-pressed="${SH.tab!=='rep'&&SH.tab!=='vis'}">Datos</button><button type="button" data-act="gig-tab" data-v="rep" aria-pressed="${SH.tab==='rep'}">Repertorio${rs.tot?' · '+fmtMin(rs.tot):''}</button><button type="button" data-act="gig-tab" data-v="vis" aria-pressed="${SH.tab==='vis'}">Visuales${(()=>{const v=visStats(d);return v.need?' · '+v.ok+'/'+v.need:''})()}</button></div>`;
+    body=`<textarea class="ta ttl-in" id="f-title" data-f="name" rows="1" placeholder="Nombre del concierto">${esc(d.name)}</textarea>${tabs}${SH.tab==='rep'?runH(d):SH.tab==='vis'?visH(d):`
     <div class="grid3"><div class="fld"><label for="f-date">Fecha</label><input class="in" type="date" id="f-date" data-f="date" value="${esc(d.date||'')}"></div><div class="fld"><label for="f-time">Hora</label><input class="in" id="f-time" data-f="time" value="${esc(d.time||'')}" placeholder="22:30"></div><div class="fld"><span class="lbl">Estado</span><select class="sel" id="f-status" data-f="status">${opts(GIGST,d.status||'tentativa')}</select></div></div>
     <div class="grid2"><div class="fld"><label for="f-venue">Sala o lugar</label><input class="in" id="f-venue" data-f="venue" value="${esc(d.venue||'')}"></div><div class="fld"><label for="f-city">Ciudad</label><input class="in" id="f-city" data-f="city" value="${esc(d.city||'')}"></div></div>
     <div class="fld"><span class="lbl">Tipo</span>${segF('kind',{'':'Concierto de Altillo',colab:'Colaboración'},d.kind||'')}</div>
@@ -2141,12 +2201,13 @@ const ACT={
   'run-up':t=>{runEdit(l=>{const i=Number(t.dataset.v);if(i>0)[l[i-1],l[i]]=[l[i],l[i-1]]})},
   'run-down':t=>{runEdit(l=>{const i=Number(t.dataset.v);if(i<l.length-1)[l[i+1],l[i]]=[l[i],l[i+1]]})},
   'run-del':t=>{runEdit(l=>{l.splice(Number(t.dataset.v),1)})},
-  'run-seg':t=>{const id=uid('r'),k=t.dataset.k;runEdit(l=>{const r={id,t:t.dataset.t,dur:Number(t.dataset.dur)||0};if(k){r.k=k;r.need='Componer y animar para proyectar'}l.push(r)});if(!t.dataset.t||k)setTimeout(()=>{const i=$('#rl-'+id);if(i){i.focus();const n=i.value.length;try{i.setSelectionRange(n,n)}catch(err){}}},30)},
+  'run-seg':t=>{const id=uid('r'),k=t.dataset.k;runEdit(l=>{const r={id,t:t.dataset.t,dur:Number(t.dataset.dur)||0};if(k){r.k=k;if(k==='anuncio'||k==='anim')r.need='Componer y animar para proyectar'}l.push(r)});if(!t.dataset.t||k==='anuncio'||k==='anim')setTimeout(()=>{const i=$('#rl-'+id);if(i){i.focus();const n=i.value.length;try{i.setSelectionRange(n,n)}catch(err){}}},30)},
   'run-ok':t=>{runEdit(l=>{const r=l[Number(t.dataset.v)];if(!r)return;r.ok=!r.ok;if(!r.song){if(r.ok)r.st='montado';else if(r.st==='montado')r.st='medio'}})},
   'run-st':t=>{runEdit(l=>{const r=l[Number(t.dataset.v)];if(!r)return;const p=r.st||'',n={'':'falta',falta:'medio',medio:'montado',montado:''}[p];if(n)r.st=n;else delete r.st;if(n==='montado')r.ok=true;else if(p==='montado')r.ok=false})},
   'run-live':t=>{const id=t.dataset.id,sg=S.songs[id];if(!sg)return;write('songs',id,Object.assign({},sg,{live:LIVE_NEXT[sg.live||'falta']||'falta'}));drawSheet()},
   'run-open':t=>{let id=null;runEdit(l=>{const r=l[Number(t.dataset.v)];if(!r)return;id=r.id;if(RUNO.has(r.id))RUNO.delete(r.id);else RUNO.add(r.id)});setTimeout(()=>{const i=id&&$('#rn-'+id);if(i)i.focus()},30)},
   'run-filter':()=>{RUNF=!RUNF;drawSheet()},
+  'vis-filter':()=>{VISF=!VISF;drawSheet()},
   'run-all':()=>{if(!SH)return;const inR=new Set(runOf(SH.draft).map(r=>r.song).filter(Boolean));const add=arr('songs').filter(x=>x.live==='montado'&&!inR.has(x.id)).sort((a,b)=>String(a.project||'').localeCompare(String(b.project||''))||(a.order??99)-(b.order??99));runEdit(l=>{add.forEach(x=>l.push({id:uid('r'),song:x.id}))})},
   color:t=>{SH.draft.color=t.dataset.v;touch();drawSheet()},
   'sk-color':t=>{const s=S.stickers[t.dataset.id];if(s){write('stickers',t.dataset.id,Object.assign({},s,{color:t.dataset.v}));setTimeout(drawSheet,0)}},
@@ -2234,6 +2295,8 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.id==='q-in'){qaPreview(t,$('#q-prev'));return}
   if(t.id==='f-lbl'&&SH&&SH.type==='link'){clearTimeout(t._t);const id=SH.id,idx=SH.draft.idx,v=t.value.trim();t._t=setTimeout(()=>{const c=S.cajones[id];if(!c||!c.links||!c.links[idx])return;const ls=c.links.map((x,i)=>i===idx?Object.assign({},x,{label:v}):x);write('cajones',id,Object.assign({},c,{links:ls}))},500);return}
   if(!SH||!$('#sheet').contains(t))return;
+  if(t.dataset.rnote){runPatch(t.dataset.rnote,r=>{r.note=t.value});return}
+  if(t.dataset.rvisn){runPatch(t.dataset.rvisn,r=>{r.visn=t.value});return}
   if(t.dataset.rn){const l=runOf(SH.draft).map(r=>Object.assign({},r)),r=l.find(x=>x.id===t.dataset.rn);if(r){r.need=t.value;SH.draft.run=l;SH.draft.setlist=l.filter(x=>x.song).map(x=>x.song);touch()}return}
   if(t.dataset.rl){const l=runOf(SH.draft).map(r=>Object.assign({},r)),r=l.find(x=>x.id===t.dataset.rl);if(r){r.t=t.value;SH.draft.run=l;SH.draft.setlist=l.filter(x=>x.song).map(x=>x.song);touch()}return}
   if(t.dataset.lot){const l=lotsOf(SH.draft).find(x=>x.id===t.dataset.lot);if(l){const f=t.dataset.lf;l[f]=(f==='made'||f==='sold')?Math.max(0,Math.floor(Number(t.value)||0)):t.value;touch()}return}
@@ -2270,6 +2333,12 @@ document.addEventListener('change',async e=>{const t=e.target;
   if(t.id==='lk-url'&&SH&&t.value.trim()){addLink(true);return}
   if(t.closest&&t.closest('form.add-in')&&t.value.trim()){const f=t.closest('form');f.requestSubmit?f.requestSubmit():f.dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}));return}
   if(t.id==='f-cnx'&&t.value&&SH){SH.draft.links=(SH.draft.links||[]).concat({to:t.value,label:''});touch(true);drawSheet();return}
+  if(SH&&SH.type==='gig'&&t.dataset){
+    if(t.dataset.rst!=null){const i=Number(t.dataset.rst),v=t.value;runEdit(l=>{const r=l[i];if(!r)return;const p=r.st||'';if(v)r.st=v;else delete r.st;if(v==='montado')r.ok=true;else if(p==='montado')r.ok=false});return}
+    if(t.dataset.rty!=null){const i=Number(t.dataset.rty),v=t.value;runEdit(l=>{const r=l[i];if(r)r.k=v});return}
+    if(t.dataset.rvis!=null){const i=Number(t.dataset.rvis),v=t.value;runEdit(l=>{const r=l[i];if(r)r.vis=v});return}
+    if(t.dataset.slive){const id=t.dataset.slive,sg=S.songs[id];if(sg&&t.value)write('songs',id,Object.assign({},sg,{live:t.value}));drawSheet();return}
+  }
   if(t.id==='f-addsong'&&t.value&&SH){const sid=t.value;runEdit(l=>{l.push({id:uid('r'),song:sid})});return}
   if(t.id==='f-up'&&SH){await uploadFiles(t);return}
   if(t.id==='imp'){await importJson(t);return}
