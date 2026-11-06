@@ -199,12 +199,20 @@ h1,h2,h3,p,ul,ol,dl{margin:0}
 
 /* 02 eventos */
 .eventos{display:grid;grid-template-columns:minmax(220px,3fr) minmax(0,5fr) minmax(0,4fr);gap:clamp(24px,4vw,64px);align-items:center}
-.calendario{position:relative;background:#f4eedd;border:1.5px solid var(--tinta);box-shadow:6px 6px 0 var(--tomate);transform:rotate(-2deg);padding:0 0 24px}
-.calendario .cabeza{background:var(--tomate);color:var(--crema);text-align:center;padding:14px 10px 10px;font-size:2.4rem;line-height:1}
-.calendario .agujero{width:12px;height:12px;border-radius:50%;background:var(--tinta);position:absolute;top:-6px}
-.calendario .agujero.a{left:22%}.calendario .agujero.b{right:22%}
-.calendario .fecha{font-family:var(--display);font-size:5rem;text-align:center;line-height:1;padding:18px 0 4px}
-.calendario .fecha small{display:block;font-family:var(--serif);font-style:italic;font-size:1.5rem;text-transform:none;letter-spacing:0}
+.eventos{grid-template-columns:minmax(0,8fr) minmax(0,4fr);align-items:start}
+.fechas{list-style:none;margin:0;padding:clamp(8px,1.6vw,20px) clamp(18px,2.6vw,36px);background:var(--negro);color:var(--crema);box-shadow:6px 6px 0 var(--tomate)}
+.fecha-fila{display:grid;grid-template-columns:clamp(84px,9vw,128px) minmax(0,1fr) auto;gap:clamp(14px,2.4vw,36px);align-items:start;padding:clamp(18px,2.4vw,28px) 0;border-top:1px solid rgba(237,229,208,.22)}
+.fecha-fila:first-child{border-top:0}
+.fecha-dia{font-family:var(--display);text-transform:uppercase;line-height:.9;margin:0}
+.fecha-dia b{display:block;font-weight:400;font-size:clamp(3.4rem,6vw,5.2rem);color:var(--tomate)}
+.fecha-dia span{display:block;font-size:clamp(1.5rem,2.4vw,2.1rem);margin-top:.15em}
+.eventos .fecha-info h3{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(1.9rem,3.2vw,2.9rem);line-height:1;margin-bottom:.35rem;color:var(--crema)}
+.fecha-sub{font-family:var(--serif);font-style:italic;font-size:clamp(1.2rem,1.8vw,1.6rem);line-height:1.2;margin-bottom:.55rem}
+.fecha-lugar{font-family:var(--mono);font-size:.8125rem;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.fecha-acciones{margin-top:1rem}
+.fecha-acciones .btn:hover{background:var(--crema);border-color:var(--crema);color:var(--tinta)}
+.fecha-cartel{display:block;width:clamp(96px,11vw,150px);border:1.5px solid var(--crema);transform:rotate(2.5deg);transition:transform .35s}
+.fecha-cartel:hover{transform:rotate(0) scale(1.04)}
 .eventos h3{font-family:var(--serif);font-size:clamp(1.6rem,2.6vw,2.4rem);line-height:1.05;margin-bottom:.9rem}
 .eventos .llamada{border:1.5px solid var(--tinta);padding:clamp(22px,3vw,36px);background:var(--crema-2)}
 .eventos .llamada h3{font-style:italic;color:var(--tomate)}
@@ -311,7 +319,7 @@ dialog p{margin-bottom:1.4rem;max-width:48ch}
 @media (max-width:1024px){
   .receta{grid-template-columns:1fr}
   .receta-lateral{border-left:0;border-top:1.5px solid var(--tinta);padding:24px 0 0}
-  .eventos{grid-template-columns:minmax(200px,1fr) 1.4fr}
+  .eventos{grid-template-columns:1fr}
   .eventos .llamada{grid-column:1/-1}
   .nosotros{grid-template-columns:1fr}
 }
@@ -357,8 +365,8 @@ dialog p{margin-bottom:1.4rem;max-width:48ch}
   .contacto-grid{grid-template-columns:1fr}
 }
 @media (max-width:560px){
-  .eventos{grid-template-columns:1fr}
-  .calendario{max-width:280px;margin:12px auto 24px}
+  .fecha-fila{grid-template-columns:72px minmax(0,1fr)}
+  .fecha-cartel{grid-column:2;width:140px;transform:none}
   .producto{grid-template-columns:1fr}
   .producto figure img{aspect-ratio:4/3}
   .disco-linea{flex-wrap:wrap}
@@ -386,7 +394,7 @@ html{overflow-x:clip}
   .motion-on .portada-poster img{transform:scale(1.16)}
   .motion-on .gazpacho-arte{isolation:isolate}
   .motion-on .gazpacho-arte .sello{z-index:3;transform-origin:75% 15%}
-  .motion-on .producto figure,.motion-on .calendario,.motion-on .eventos .llamada{transform-origin:50% 60%}
+  .motion-on .producto figure,.motion-on .eventos .llamada{transform-origin:50% 60%}
   .motion-on .nosotros figure img{transform:scale(1.13)}
   .motion-on .tarjeta-video img{transform:scale(1.12);transition:transform .8s cubic-bezier(.16,1,.3,1)}
   .motion-on .tarjeta-video:hover img{transform:scale(1.17)}
@@ -637,18 +645,31 @@ html:not(.motion-on) .cinta-pista,html:not(.motion-on) .damero,html:not(.motion-
     <p class="plato-cab"><span class="num">02</span><span>/</span><span>Eventos</span></p>
     <h2 class="script" id="t-eventos" data-anim="corta">Próximas sobremesas</h2>
     <div class="eventos">
-      <div class="calendario" aria-hidden="true" data-anim="gira">
-        <span class="agujero a"></span><span class="agujero b"></span>
-        <div class="cabeza display">ALTILLO</div>
-        <div class="fecha display">20<small>SEP · Bailandera</small></div>
-      </div>
-      <div>
-        <h3>Cervecería Bailandera</h3>
-        <p>Domingo 20 de septiembre.<br>Plaza de la Constitución, 9, 28720 Bustarviejo, España.</p>
-        <div class="acciones">
-          <a class="btn" href="https://cervezabailandera.es/" target="_blank" rel="noopener noreferrer">¿Estás curiosona? Pincha aquí</a>
-        </div>
-      </div>
+      <ol class="fechas" data-anim="sube">
+        <li class="fecha-fila">
+          <p class="fecha-dia"><b>21</b><span>NOV</span></p>
+          <div class="fecha-info">
+            <h3>“REC CYCLED”</h3>
+            <p class="fecha-sub">Cena inmersiva en 5 actos · en colaboración con La Tartana</p>
+            <p class="fecha-lugar">Can Massanet · Girona · 21:00 h</p>
+            <div class="fecha-acciones">
+              <a class="btn" href="https://latartanacanmassanet.com/21Noviembre26/" target="_blank" rel="noopener noreferrer">Reservar mesa</a>
+            </div>
+          </div>
+        </li>
+        <li class="fecha-fila">
+          <p class="fecha-dia"><b>03</b><span>DIC</span></p>
+          <div class="fecha-info">
+            <h3>Altillo, Delirio Navideño</h3>
+            <p class="fecha-sub">Ya que no te va a tocar la lotería de Navidad, juega la rifa de Altillo</p>
+            <p class="fecha-lugar">Café La Palma · C/ La Palma, 62 · Madrid · 21:00 h · 12 €</p>
+            <div class="fecha-acciones">
+              <a class="btn" href="https://entradas.cafelapalma.com/altillo-03-dic-madrid-entradas" target="_blank" rel="noopener noreferrer">Comprar entradas</a>
+            </div>
+          </div>
+          <a class="fecha-cartel" href="assets/img/cartel-delirio-navideno.webp" target="_blank" rel="noopener"><img src="assets/img/cartel-delirio-navideno.webp" alt="Cartel de «Altillo, Delirio Navideño»: 3 de diciembre de 2026, Café La Palma, 21:00 h, 12 euros" width="800" height="1131" loading="lazy" decoding="async"></a>
+        </li>
+      </ol>
       <div class="llamada"><span class="fragmento fragmento-mono" aria-hidden="true"><img src="assets/img/figura-mono.webp" alt="" width="822" height="1200" decoding="async" loading="lazy"></span>
         <h3 class="script">¿Nos llevas<br>a tu escenario?</h3>
         <p>Si crees que ALTILLO encaja en tu programación, ¡hablemos!</p>
@@ -984,7 +1005,6 @@ window.ALTILLO = {
     register('.gazpacho h2 span:first-child','.gazpacho',0,-14);
     register('.gazpacho h2 span:last-child','.gazpacho',0,14);
     register('.receta-lateral .grito','.receta',-26,4,-2);
-    register('.calendario','.eventos',-34,10,5);
     register('.eventos .llamada','.eventos',20,-5,-1.5);
     register('.tarjeta-video img','.tarjeta-video',24,5);
     register('.tarjeta-video .titulo','.tarjeta-video',-13,-4);
