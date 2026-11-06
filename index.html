@@ -209,7 +209,9 @@ h1,h2,h3,p,ul,ol,dl{margin:0}
 .eventos .fecha-info h3{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(1.9rem,3.2vw,2.9rem);line-height:1;margin-bottom:.35rem;color:var(--crema)}
 .fecha-sub{font-family:var(--serif);font-style:italic;font-size:clamp(1.2rem,1.8vw,1.6rem);line-height:1.2;margin-bottom:.55rem}
 .fecha-lugar{font-family:var(--mono);font-size:.8125rem;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
-.fecha-acciones{margin-top:1rem}
+.fecha-acciones{margin-top:1rem;display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1.2rem}
+.fecha-tel{font-family:var(--mono);font-size:.8125rem;letter-spacing:.06em;text-decoration:underline;text-underline-offset:3px}
+.fecha-tel:hover{color:var(--tomate)}
 .fecha-acciones .btn:hover{background:var(--crema);border-color:var(--crema);color:var(--tinta)}
 .fecha-cartel{display:block;width:clamp(96px,11vw,150px);border:1.5px solid var(--crema);transform:rotate(2.5deg);transition:transform .35s}
 .fecha-cartel:hover{transform:rotate(0) scale(1.04)}
@@ -654,8 +656,10 @@ html:not(.motion-on) .cinta-pista,html:not(.motion-on) .damero,html:not(.motion-
             <p class="fecha-lugar">Can Massanet · Girona · 21:00 h</p>
             <div class="fecha-acciones">
               <a class="btn" href="https://latartanacanmassanet.com/21Noviembre26/" target="_blank" rel="noopener noreferrer">Reservar mesa</a>
+              <a class="fecha-tel" href="tel:+34648909223">o llama al 648 909 223</a>
             </div>
           </div>
+          <a class="fecha-cartel" href="assets/img/cartel-rec-cycled.webp" target="_blank" rel="noopener"><img src="assets/img/cartel-rec-cycled.webp" alt="Cartel de «REC CYCLED», Tartana × Altillo: cena inmersiva en cinco actos, 21 de noviembre, 21:00 h. Reservas: 648 909 223" width="800" height="1130" loading="lazy" decoding="async"></a>
         </li>
         <li class="fecha-fila">
           <p class="fecha-dia"><b>03</b><span>DIC</span></p>
