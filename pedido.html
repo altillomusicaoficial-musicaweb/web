@@ -114,10 +114,9 @@ h1,h2,h3,p{margin:0}
   <header class="cabecera">
     <p class="eyebrow">Mercadillo · para llevar</p>
     <h1 class="display">Hacemos el pedido a mano</h1>
-    <p>Elige lo que te llevas y déjanos tus datos. Primero nos envías el pedido
-      por correo y después puedes pagarlo aquí mismo con tarjeta, Apple Pay o
-      Google Pay a través de Revolut. Si prefieres Bizum o transferencia,
-      también vale.</p>
+    <p>Elige lo que te llevas, déjanos tus datos y pulsa «Comprar»:
+      irás directo al pago seguro de Revolut. En cuanto pagues, lo tienes
+      reservado y nos ponemos en contacto contigo.</p>
   </header>
 
   <form id="form-pedido">
@@ -128,10 +127,6 @@ h1,h2,h3,p{margin:0}
           <span class="marca"><input type="checkbox" id="chk-marco" name="marco" value="1" data-precio="8"> Marcos NFC</span>
           <span class="precio">8,00 €</span>
         </div>
-        <div class="cantidad">
-          Cantidad
-          <input type="number" id="cant-marco" min="1" max="20" value="1" disabled aria-label="Cantidad de Marcos NFC">
-        </div>
       </label>
       <label class="prod" for="chk-cassette">
         <img src="assets/img/cassette-cara-a.webp" alt="Cassette de ALTILLO, Cualquier cosa combina">
@@ -139,14 +134,10 @@ h1,h2,h3,p{margin:0}
           <span class="marca"><input type="checkbox" id="chk-cassette" name="cassette" value="1" data-precio="15"> Cassette</span>
           <span class="precio">15,00 €</span>
         </div>
-        <div class="cantidad">
-          Cantidad
-          <input type="number" id="cant-cassette" min="1" max="20" value="1" disabled aria-label="Cantidad de cassettes">
-        </div>
       </label>
     </div>
 
-    <div class="total"><span>Total estimado</span><span id="total-precio">0,00 €</span></div>
+    <div class="total"><span>Total</span><span id="total-precio">0,00 €</span></div>
 
     <div class="formulario">
       <div class="fila2">
@@ -155,8 +146,8 @@ h1,h2,h3,p{margin:0}
           <input id="f-nombre" name="nombre" autocomplete="name" required maxlength="100">
         </div>
         <div>
-          <label for="f-contacto">Email o teléfono</label>
-          <input id="f-contacto" name="contacto" required maxlength="120" placeholder="Para contactarte con el pago">
+          <label for="f-contacto">Teléfono (WhatsApp)</label>
+          <input id="f-contacto" name="contacto" type="tel" autocomplete="tel" required maxlength="120" placeholder="Para escribirte en cuanto pagues">
         </div>
       </div>
       <div>
@@ -170,32 +161,24 @@ h1,h2,h3,p{margin:0}
     </div>
 
     <button class="btn" type="submit" id="btn-enviar" disabled>
-      Enviar pedido
+      Comprar
       <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3 2h11v11h-2V5.4L3.7 13.7 2.3 12.3 10.6 4H3z"/></svg>
     </button>
   </form>
 
-  <div class="confirmacion" id="confirmacion">
-    <h2>Se abrirá tu correo</h2>
-    <p>Hemos preparado un email a altillomusica.oficial@gmail.com con tu
-      pedido. <strong>Pulsa «Enviar» en tu correo para que nos llegue.</strong>
-      Si tu ordenador o móvil no abre la app de correo automáticamente,
-      escríbenos directamente a esa dirección con los mismos datos.</p>
-    <p>Para pagar ahora, importe de tu pedido:
-      <strong id="pago-importe">0,00 €</strong></p>
-    <a class="btn" id="btn-pagar" href="#" target="_blank" rel="noopener">
-      Pagar con Revolut
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3 2h11v11h-2V5.4L3.7 13.7 2.3 12.3 10.6 4H3z"/></svg>
-    </a>
-    <p class="nota-pago">Si Revolut te pide el importe, escribe el de arriba.
-      Si prefieres Bizum o transferencia, dínoslo en el correo y te
-      contestamos.</p>
+  <div class="confirmacion" id="confirmacion" role="status">
+    <h2>¡Gracias!</h2>
+    <p>Hemos recibido tu pedido. Se ha abierto el pago de Revolut en otra
+      pestaña: <strong>en cuanto pagues, queda reservado</strong>. Nos pondremos
+      en contacto contigo por WhatsApp o por teléfono.</p>
+    <p class="nota-pago">¿No se ha abierto el pago?
+      <a id="btn-pagar" href="#" target="_blank" rel="noopener"><strong>Pulsa aquí</strong></a>.</p>
   </div>
 
   <div class="pasos">
-    <p><strong>1.</strong> Eliges lo que quieres llevarte y nos envías el pedido por correo.</p>
-    <p><strong>2.</strong> Pagas con el botón de Revolut (o por Bizum / transferencia si lo prefieres). Te confirmamos el total final, con gastos de envío si los hay.</p>
-    <p><strong>3.</strong> En cuanto vemos el pago, te lo enviamos o quedamos para dártelo en mano.</p>
+    <p><strong>1.</strong> Eliges lo que quieres y pones tus datos.</p>
+    <p><strong>2.</strong> Pagas con Revolut (tarjeta, Apple Pay o Google Pay).</p>
+    <p><strong>3.</strong> Te escribimos por WhatsApp o te llamamos para acordar el envío o la entrega en mano.</p>
   </div>
 </main>
 
@@ -205,75 +188,97 @@ h1,h2,h3,p{margin:0}
 "use strict";
 const $ = s => document.querySelector(s);
 
-// Enlace de pago de Revolut: para cambiarlo, edita solo esta línea
-const ENLACE_PAGO = 'https://revolut.me/r/3pso9Xx9it';
+/* ---------- CONFIGURACIÓN (edita solo esta parte) ----------
+   ENLACES: un enlace de Revolut por cada pack. La clave es la lista de
+   productos en orden alfabético, unidos con «+». Ejemplos:
+   'cassette', 'marco', 'cassette+marco'. Si un pack no tiene enlace
+   (cadena vacía), la web no deja comprarlo online. */
+const ENLACES = {
+  'cassette': '',
+  'marco': '',
+  'cassette+marco': ''
+};
+/* Clave gratuita de web3forms.com para que los pedidos lleguen a
+   altillomusica.oficial@gmail.com. Si está vacía, se usa el correo. */
+const CLAVE_PEDIDOS = '';
+const CORREO = 'altillomusica.oficial@gmail.com';
+/* ------------------------------------------------------------ */
 
 const productos = [
-  { chk: '#chk-marco', cant: '#cant-marco', nombre: 'Marco NFC', precio: 8 },
-  { chk: '#chk-cassette', cant: '#cant-cassette', nombre: 'Cassette', precio: 15 }
+  { id: 'marco', chk: '#chk-marco', nombre: 'Marco NFC', precio: 8 },
+  { id: 'cassette', chk: '#chk-cassette', nombre: 'Cassette', precio: 15 }
 ];
+const euros = n => n.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + ' €';
 
 // Preselecciona el producto según ?producto=marco / ?producto=cassette
-const params = new URLSearchParams(location.search);
-const preseleccion = params.get('producto');
-if (preseleccion === 'marco') $('#chk-marco').checked = true;
-if (preseleccion === 'cassette') $('#chk-cassette').checked = true;
+const preseleccion = new URLSearchParams(location.search).get('producto');
+productos.forEach(p => { if (preseleccion === p.id) $(p.chk).checked = true; });
+
+const elegidos = () => productos.filter(p => $(p.chk).checked);
+const claveDe = lista => lista.map(p => p.id).sort().join('+');
 
 function actualizar() {
-  let total = 0;
-  productos.forEach(p => {
-    const chk = $(p.chk), cant = $(p.cant);
-    cant.disabled = !chk.checked;
-    if (chk.checked) total += p.precio * (parseInt(cant.value, 10) || 1);
-  });
-  $('#total-precio').textContent = total.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + ' €';
-  $('#btn-enviar').disabled = total === 0;
+  const lista = elegidos();
+  const total = lista.reduce((t, p) => t + p.precio, 0);
+  $('#total-precio').textContent = euros(total);
+  $('#btn-enviar').disabled = lista.length === 0;
 }
-
-productos.forEach(p => {
-  $(p.chk).addEventListener('change', actualizar);
-  $(p.cant).addEventListener('input', actualizar);
-});
+productos.forEach(p => $(p.chk).addEventListener('change', actualizar));
 actualizar();
 
-$('#form-pedido').addEventListener('submit', e => {
+$('#form-pedido').addEventListener('submit', async e => {
   e.preventDefault();
   const f = e.currentTarget;
   if (!f.reportValidity()) return;
 
-  const lineas = [];
-  let total = 0;
-  productos.forEach(p => {
-    const chk = $(p.chk), cant = $(p.cant);
-    if (chk.checked) {
-      const n = parseInt(cant.value, 10) || 1;
-      lineas.push(`- ${p.nombre} x${n} (${(p.precio * n).toLocaleString('es-ES', {minimumFractionDigits:2})} €)`);
-      total += p.precio * n;
-    }
-  });
+  const lista = elegidos();
+  const enlace = ENLACES[claveDe(lista)];
+  if (!enlace) {
+    alert('Este pack todavía no se puede pagar online. Escríbenos a ' + CORREO + ' y lo arreglamos.');
+    return;
+  }
 
-  const nombre = $('#f-nombre').value;
-  const contacto = $('#f-contacto').value;
-  const direccion = $('#f-direccion').value || '(no indicada)';
-  const comentarios = $('#f-comentarios').value || '(ninguno)';
+  // Abrimos la pestaña de pago ya, dentro del clic, para que no la bloquee el navegador
+  const pestana = window.open('', '_blank');
+  const total = lista.reduce((t, p) => t + p.precio, 0);
+  const datos = {
+    pedido: lista.map(p => p.nombre).join(' + '),
+    total: euros(total),
+    nombre: $('#f-nombre').value,
+    telefono: $('#f-contacto').value,
+    direccion: $('#f-direccion').value || '(no indicada)',
+    comentarios: $('#f-comentarios').value || '(ninguno)'
+  };
 
-  const asunto = `Pedido mercadillo ALTILLO — ${nombre}`;
-  const cuerpo = [
-    'Pedido:',
-    ...lineas,
-    `Total estimado: ${total.toLocaleString('es-ES', {minimumFractionDigits:2})} €`,
-    '',
-    `Nombre: ${nombre}`,
-    `Contacto: ${contacto}`,
-    `Dirección de envío: ${direccion}`,
-    `Comentarios: ${comentarios}`
-  ].join('\n');
+  const btn = $('#btn-enviar');
+  btn.disabled = true;
+  let enviado = false;
+  if (CLAVE_PEDIDOS) {
+    try {
+      const r = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          access_key: CLAVE_PEDIDOS,
+          subject: `Pedido ALTILLO — ${datos.nombre} — ${datos.pedido}`,
+          from_name: 'Web ALTILLO',
+          ...datos
+        })
+      });
+      enviado = r.ok;
+    } catch (_) { /* seguimos: el pago es lo importante */ }
+  }
 
-  $('#pago-importe').textContent = total.toLocaleString('es-ES', {minimumFractionDigits:2}) + ' €';
-  $('#btn-pagar').href = ENLACE_PAGO;
-  location.href = `mailto:altillomusica.oficial@gmail.com?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+  if (pestana) pestana.location.href = enlace;
+  $('#btn-pagar').href = enlace;
   $('#confirmacion').classList.add('visible');
   $('#confirmacion').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  if (!enviado) {
+    // Plan B: correo preparado con el pedido
+    const cuerpo = Object.entries(datos).map(([k, v]) => `${k}: ${v}`).join('\n');
+    setTimeout(() => { location.href = `mailto:${CORREO}?subject=${encodeURIComponent('Pedido ALTILLO — ' + datos.nombre)}&body=${encodeURIComponent(cuerpo)}`; }, 600);
+  }
 });
 </script>
 </body>
