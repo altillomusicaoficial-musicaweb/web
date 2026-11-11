@@ -64,6 +64,11 @@ h1,h2,h3,p{margin:0}
 .prod img{width:100%;aspect-ratio:4/3;object-fit:cover;border:1px solid var(--tinta)}
 .prod .fila{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .prod h3{font-family:var(--serif);font-style:italic;font-size:1.4rem;line-height:1}
+.sin-foto{width:100%;aspect-ratio:4/3;border:1px solid var(--tinta);display:grid;place-items:center;font-family:var(--serif);font-style:italic;font-size:2rem;color:var(--tomate);background:var(--crema)}
+.aviso-pack{border:1.5px dashed var(--tomate);padding:14px 16px;margin-bottom:20px;font-size:.92rem}
+.cantidad label{margin:0}
+.productos{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.prod{cursor:default}
 .nota-pago{font-size:.9rem;opacity:.8;margin-top:12px}
 .prod .precio{font-family:var(--display);font-size:1.3rem;color:var(--tomate)}
 .prod .marca{display:flex;align-items:center;gap:8px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
@@ -121,21 +126,29 @@ h1,h2,h3,p{margin:0}
 
   <form id="form-pedido">
     <div class="productos">
-      <label class="prod" for="chk-marco">
+      <div class="prod">
         <img src="assets/img/marco-nfc.webp" alt="Marco dorado NFC de ALTILLO">
-        <div class="fila">
-          <span class="marca"><input type="checkbox" id="chk-marco" name="marco" value="1" data-precio="8"> Marcos NFC</span>
-          <span class="precio">8,00 €</span>
-        </div>
-      </label>
-      <label class="prod" for="chk-cassette">
+        <div class="fila"><h3>Marco NFC (imán)</h3><span class="precio">8,00 €</span></div>
+        <div class="cantidad"><label for="cant-marco">Cantidad</label>
+          <input type="number" id="cant-marco" min="0" max="1" value="0"></div>
+      </div>
+      <div class="prod">
         <img src="assets/img/cassette-cara-a.webp" alt="Cassette de ALTILLO, Cualquier cosa combina">
-        <div class="fila">
-          <span class="marca"><input type="checkbox" id="chk-cassette" name="cassette" value="1" data-precio="15"> Cassette</span>
-          <span class="precio">15,00 €</span>
-        </div>
-      </label>
+        <div class="fila"><h3>Cassette</h3><span class="precio">15,00 €</span></div>
+        <div class="cantidad"><label for="cant-cassette">Cantidad</label>
+          <input type="number" id="cant-cassette" min="0" max="2" value="0"></div>
+      </div>
+      <div class="prod">
+        <div class="sin-foto" aria-hidden="true">Sudadera</div>
+        <div class="fila"><h3>Sudadera</h3><span class="precio">25,00 €</span></div>
+        <div class="cantidad"><label for="cant-sudadera">Cantidad</label>
+          <input type="number" id="cant-sudadera" min="0" max="2" value="0"></div>
+      </div>
     </div>
+
+    <p class="aviso-pack" id="aviso-pack" hidden>Ese pack no lo tenemos preparado.
+      Escríbenos a <a href="mailto:altillomusica.oficial@gmail.com">altillomusica.oficial@gmail.com</a>
+      y te mandamos un enlace de compra personalizado con un pequeño descuentillo.</p>
 
     <div class="total"><span>Total</span><span id="total-precio">0,00 €</span></div>
 
@@ -167,16 +180,27 @@ h1,h2,h3,p{margin:0}
   </form>
 
   <div class="confirmacion" id="confirmacion" role="status">
-    <h2>¡Gracias!</h2>
-    <p>Hemos recibido tu pedido. Se ha abierto el pago de Revolut en otra
-      pestaña: <strong>en cuanto pagues, queda reservado</strong>. Nos pondremos
-      en contacto contigo por WhatsApp o por teléfono.</p>
-    <p class="nota-pago">¿No se ha abierto el pago?
-      <a id="btn-pagar" href="#" target="_blank" rel="noopener"><strong>Pulsa aquí</strong></a>.</p>
+    <h2>Gracias por comprar en nuestro mercadillo 🎠</h2>
+    <p>Hola <span id="gracias-nombre"></span> :)<br>
+      Hemos recibido tu pedido, nos ponemos con ello para que te llegue cuanto
+      antes 🎀</p>
+    <p>Como sabes, somos un proyecto autogestionado y los procesos de merchan se
+      realizan a mano (y con mucho cariño). Pa lo bueno y pa lo malo no somos la
+      Fnac y nuestros tiempos tampoco lo son. No obstante hacemos lo posible para
+      que recibas pronto tu paquete.</p>
+    <p>Cualquier cosa combina. Digo… cualquier duda, escríbenos un email a
+      <a href="mailto:altillomusica.oficial@gmail.com">altillomusica.oficial@gmail.com</a>
+      y te respondemos a la mayor brevedad.</p>
+    <p>Un besito y gracias de nuevo por comprar en
+      <a href="https://www.altillomusica.com">www.altillomusica.com</a><br>
+      Salud y gazpacho 🦜<br>Altillo &lt;3</p>
+    <p class="nota-pago">Si el pago de Revolut no se ha abierto,
+      <a id="btn-pagar" href="#" target="_blank" rel="noopener"><strong>pulsa aquí</strong></a>.
+      En cuanto pagues, tu pedido queda reservado.</p>
   </div>
 
   <div class="pasos">
-    <p><strong>1.</strong> Eliges lo que quieres y pones tus datos.</p>
+    <p><strong>1.</strong> Eliges lo que quieres y pones tus datos. ¿Quieres más cantidad o un pack distinto? Escríbenos y te mandamos un enlace personalizado con un pequeño descuentillo.</p>
     <p><strong>2.</strong> Pagas con Revolut (tarjeta, Apple Pay o Google Pay).</p>
     <p><strong>3.</strong> Te escribimos por WhatsApp o te llamamos para acordar el envío o la entrega en mano.</p>
   </div>
@@ -189,14 +213,18 @@ h1,h2,h3,p{margin:0}
 const $ = s => document.querySelector(s);
 
 /* ---------- CONFIGURACIÓN (edita solo esta parte) ----------
-   ENLACES: un enlace de Revolut por cada pack. La clave es la lista de
-   productos en orden alfabético, unidos con «+». Ejemplos:
-   'cassette', 'marco', 'cassette+marco'. Si un pack no tiene enlace
-   (cadena vacía), la web no deja comprarlo online. */
-const ENLACES = {
-  'cassette': '',
-  'marco': '',
-  'cassette+marco': ''
+   PACKS: precio y enlace de Revolut de cada pack permitido. La clave son
+   los productos con su cantidad, en orden alfabético: 'cassette:1+marco:1'.
+   Si el enlace está vacío, ese pack todavía no se puede pagar online. */
+const PACKS = {
+  'marco:1':                { precio: 8,  enlace: '' },
+  'cassette:1':             { precio: 15, enlace: '' },
+  'sudadera:1':             { precio: 25, enlace: '' },
+  'cassette:1+marco:1':     { precio: 22, enlace: '' },
+  'cassette:2':             { precio: 28, enlace: '' },
+  'sudadera:2':             { precio: 49, enlace: '' },
+  'cassette:1+sudadera:1':  { precio: 39, enlace: '' },
+  'marco:1+sudadera:1':     { precio: 30, enlace: '' }   // SUPERPACK
 };
 /* Clave gratuita de web3forms.com para que los pedidos lleguen a
    altillomusica.oficial@gmail.com. Si está vacía, se usa el correo. */
@@ -205,25 +233,29 @@ const CORREO = 'altillomusica.oficial@gmail.com';
 /* ------------------------------------------------------------ */
 
 const productos = [
-  { id: 'marco', chk: '#chk-marco', nombre: 'Marco NFC', precio: 8 },
-  { id: 'cassette', chk: '#chk-cassette', nombre: 'Cassette', precio: 15 }
+  { id: 'marco', nombre: 'Marco NFC (imán)' },
+  { id: 'cassette', nombre: 'Cassette' },
+  { id: 'sudadera', nombre: 'Sudadera' }
 ];
 const euros = n => n.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + ' €';
+const cant = p => Math.max(0, Math.min(2, parseInt($('#cant-' + p.id).value, 10) || 0));
 
 // Preselecciona el producto según ?producto=marco / ?producto=cassette
 const preseleccion = new URLSearchParams(location.search).get('producto');
-productos.forEach(p => { if (preseleccion === p.id) $(p.chk).checked = true; });
+productos.forEach(p => { if (preseleccion === p.id) $('#cant-' + p.id).value = 1; });
 
-const elegidos = () => productos.filter(p => $(p.chk).checked);
-const claveDe = lista => lista.map(p => p.id).sort().join('+');
+const elegidos = () => productos.filter(p => cant(p) > 0);
+const claveDe = () => elegidos().map(p => `${p.id}:${cant(p)}`).sort().join('+');
+const packActual = () => PACKS[claveDe()] || null;
 
 function actualizar() {
-  const lista = elegidos();
-  const total = lista.reduce((t, p) => t + p.precio, 0);
-  $('#total-precio').textContent = euros(total);
-  $('#btn-enviar').disabled = lista.length === 0;
+  const hay = elegidos().length > 0;
+  const pack = packActual();
+  $('#total-precio').textContent = euros(pack ? pack.precio : 0);
+  $('#aviso-pack').hidden = !(hay && !pack);
+  $('#btn-enviar').disabled = !pack;
 }
-productos.forEach(p => $(p.chk).addEventListener('change', actualizar));
+productos.forEach(p => $('#cant-' + p.id).addEventListener('input', actualizar));
 actualizar();
 
 $('#form-pedido').addEventListener('submit', async e => {
@@ -231,8 +263,8 @@ $('#form-pedido').addEventListener('submit', async e => {
   const f = e.currentTarget;
   if (!f.reportValidity()) return;
 
-  const lista = elegidos();
-  const enlace = ENLACES[claveDe(lista)];
+  const pack = packActual();
+  const enlace = pack && pack.enlace;
   if (!enlace) {
     alert('Este pack todavía no se puede pagar online. Escríbenos a ' + CORREO + ' y lo arreglamos.');
     return;
@@ -240,10 +272,9 @@ $('#form-pedido').addEventListener('submit', async e => {
 
   // Abrimos la pestaña de pago ya, dentro del clic, para que no la bloquee el navegador
   const pestana = window.open('', '_blank');
-  const total = lista.reduce((t, p) => t + p.precio, 0);
   const datos = {
-    pedido: lista.map(p => p.nombre).join(' + '),
-    total: euros(total),
+    pedido: elegidos().map(p => `${cant(p)} × ${p.nombre}`).join(' + '),
+    total: euros(pack.precio),
     nombre: $('#f-nombre').value,
     telefono: $('#f-contacto').value,
     direccion: $('#f-direccion').value || '(no indicada)',
@@ -271,6 +302,7 @@ $('#form-pedido').addEventListener('submit', async e => {
 
   if (pestana) pestana.location.href = enlace;
   $('#btn-pagar').href = enlace;
+  $('#gracias-nombre').textContent = datos.nombre;
   $('#confirmacion').classList.add('visible');
   $('#confirmacion').scrollIntoView({ behavior: 'smooth', block: 'center' });
 
