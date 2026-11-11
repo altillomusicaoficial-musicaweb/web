@@ -64,6 +64,7 @@ h1,h2,h3,p{margin:0}
 .prod img{width:100%;aspect-ratio:4/3;object-fit:cover;border:1px solid var(--tinta)}
 .prod .fila{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .prod h3{font-family:var(--serif);font-style:italic;font-size:1.4rem;line-height:1}
+.nota-pago{font-size:.9rem;opacity:.8;margin-top:12px}
 .prod .precio{font-family:var(--display);font-size:1.3rem;color:var(--tomate)}
 .prod .marca{display:flex;align-items:center;gap:8px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
 .prod input[type=checkbox]{width:18px;height:18px;accent-color:var(--tomate)}
@@ -113,9 +114,10 @@ h1,h2,h3,p{margin:0}
   <header class="cabecera">
     <p class="eyebrow">Mercadillo · para llevar</p>
     <h1 class="display">Hacemos el pedido a mano</h1>
-    <p>Elige lo que te llevas y déjanos tus datos. Te contestamos por correo
-      con el importe final y cómo pagarlo — Bizum o transferencia, lo que te
-      venga mejor.</p>
+    <p>Elige lo que te llevas y déjanos tus datos. Primero nos envías el pedido
+      por correo y después puedes pagarlo aquí mismo con tarjeta, Apple Pay o
+      Google Pay a través de Revolut. Si prefieres Bizum o transferencia,
+      también vale.</p>
   </header>
 
   <form id="form-pedido">
@@ -176,13 +178,23 @@ h1,h2,h3,p{margin:0}
   <div class="confirmacion" id="confirmacion">
     <h2>Se abrirá tu correo</h2>
     <p>Hemos preparado un email a altillomusica.oficial@gmail.com con tu
-      pedido. Si tu ordenador o móvil no abre la app de correo automáticamente,
+      pedido. <strong>Pulsa «Enviar» en tu correo para que nos llegue.</strong>
+      Si tu ordenador o móvil no abre la app de correo automáticamente,
       escríbenos directamente a esa dirección con los mismos datos.</p>
+    <p>Para pagar ahora, importe de tu pedido:
+      <strong id="pago-importe">0,00 €</strong></p>
+    <a class="btn" id="btn-pagar" href="#" target="_blank" rel="noopener">
+      Pagar con Revolut
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3 2h11v11h-2V5.4L3.7 13.7 2.3 12.3 10.6 4H3z"/></svg>
+    </a>
+    <p class="nota-pago">Si Revolut te pide el importe, escribe el de arriba.
+      Si prefieres Bizum o transferencia, dínoslo en el correo y te
+      contestamos.</p>
   </div>
 
   <div class="pasos">
-    <p><strong>1.</strong> Nos escribes con lo que quieres llevarte.</p>
-    <p><strong>2.</strong> Te confirmamos el total (incluidos gastos de envío si los hay) y te decimos cómo pagar: Bizum o transferencia.</p>
+    <p><strong>1.</strong> Eliges lo que quieres llevarte y nos envías el pedido por correo.</p>
+    <p><strong>2.</strong> Pagas con el botón de Revolut (o por Bizum / transferencia si lo prefieres). Te confirmamos el total final, con gastos de envío si los hay.</p>
     <p><strong>3.</strong> En cuanto vemos el pago, te lo enviamos o quedamos para dártelo en mano.</p>
   </div>
 </main>
@@ -192,6 +204,9 @@ h1,h2,h3,p{margin:0}
 <script>
 "use strict";
 const $ = s => document.querySelector(s);
+
+// Enlace de pago de Revolut: para cambiarlo, edita solo esta línea
+const ENLACE_PAGO = 'https://revolut.me/r/3pso9Xx9it';
 
 const productos = [
   { chk: '#chk-marco', cant: '#cant-marco', nombre: 'Marco NFC', precio: 8 },
@@ -254,6 +269,8 @@ $('#form-pedido').addEventListener('submit', e => {
     `Comentarios: ${comentarios}`
   ].join('\n');
 
+  $('#pago-importe').textContent = total.toLocaleString('es-ES', {minimumFractionDigits:2}) + ' €';
+  $('#btn-pagar').href = ENLACE_PAGO;
   location.href = `mailto:altillomusica.oficial@gmail.com?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
   $('#confirmacion').classList.add('visible');
   $('#confirmacion').scrollIntoView({ behavior: 'smooth', block: 'center' });
