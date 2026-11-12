@@ -194,6 +194,31 @@ ul,ol{padding:0;list-style:none}
 .pie{background:var(--tinta);color:var(--crema);padding-block:22px;font-size:.8rem}
 .pie .wrap{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between}
 .pie a{text-decoration:none;border-bottom:1px solid currentColor}
+
+/* --- cassette que suena (portada) ----------------------------- */
+.portada-top{display:grid;gap:8px;align-items:center}
+@media (min-width:860px){.portada-top{grid-template-columns:1fr minmax(360px,440px);gap:24px}}
+.casete-zona{position:relative;width:min(100%,440px);margin-inline:auto}
+.casete-cuadro{position:relative}
+.casete-cuadro>svg{display:block;width:100%;height:auto;overflow:visible}
+.anillo{transform-box:view-box;transform-origin:220px 220px;animation:gira 90s linear infinite}
+.anillo.r2{animation-duration:120s;animation-direction:reverse}
+.anillo.r3{animation-duration:150s}
+.anillo.r4{animation-duration:190s;animation-direction:reverse}
+.anillo text{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;fill:var(--tinta)}
+.anillo.r1 text{fill:var(--tomate);font-weight:700;font-size:13.5px}
+.anillo.r2{opacity:.72}
+.anillo.r3{opacity:.42;filter:blur(.3px)}
+.anillo.r4{opacity:.18;filter:blur(.8px)}
+.casete{position:absolute;left:50%;top:50%;width:44%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:var(--crema-2);border:1.5px solid var(--tinta);display:grid;place-items:center;cursor:pointer;transition:transform .2s}
+.casete:hover{transform:translate(-50%,-50%) scale(1.04)}
+.casete svg{width:78%}
+.rueda{transform-box:fill-box;transform-origin:center;animation:gira 2.6s linear infinite}
+.casete.sonando .rueda{animation-duration:1.3s}
+.casete .estado{position:absolute;bottom:13%;left:0;right:0;text-align:center;font-family:var(--mono);font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tomate)}
+.sonando-ahora{min-height:1.4em;text-align:center;font-size:.78rem;letter-spacing:.04em;margin-top:2px}
+@keyframes gira{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.anillo,.rueda{animation:none}}
 </style>
 </head>
 <body>
@@ -203,8 +228,32 @@ ul,ol{padding:0;list-style:none}
     <span>Dossier digital · Menú degustación</span>
     <a href="https://altillomusica.com/" aria-label="Ir a la web de ALTILLO">altillomusica.com</a>
   </div>
-  <h1 class="display">ALTILLO</h1>
-  <p class="sub script">Folklore transgénico</p>
+  <div class="portada-top">
+    <div>
+      <h1 class="display">ALTILLO</h1>
+      <p class="sub script">Folklore transgénico</p>
+    </div>
+    <div class="casete-zona">
+      <div class="casete-cuadro"><svg viewBox="0 0 440 440" aria-hidden="true"><defs><path id="aro0" d="M220,112 a108,108 0 1,1 -0.01,0"/><path id="aro1" d="M220,80 a140,140 0 1,1 -0.01,0"/><path id="aro2" d="M220,46 a174,174 0 1,1 -0.01,0"/><path id="aro3" d="M220,12 a208,208 0 1,1 -0.01,0"/></defs><g class="anillo r1"><text><textPath href="#aro0" textLength="670" lengthAdjust="spacing">Aquí está verdaderamente lo importante: la música ✳ </textPath></text></g><g class="anillo r2"><text><textPath href="#aro1" textLength="871" lengthAdjust="spacing">Porque esto es lo que realmente nos gusta: hacer música ✳ </textPath></text></g><g class="anillo r3"><text><textPath href="#aro2" textLength="1085" lengthAdjust="spacing">Escúchalo y no te pierdas entre tantas imágenes. La música es importante ✳ </textPath></text></g><g class="anillo r4"><text><textPath href="#aro3" textLength="1298" lengthAdjust="spacing">Lo importante son las canciones, ¿no? ✳ Lo importante son las canciones, ¿no? ✳ </textPath></text></g></svg>
+      <button class="casete" type="button" id="casete" aria-label="Escuchar el disco Cualquier cosa combina">
+        <svg viewBox="0 0 160 104" aria-hidden="true">
+          <rect x="1" y="1" width="158" height="102" rx="7" fill="#17140f"/>
+          <rect x="11" y="9" width="138" height="58" rx="3" fill="#ede5d0"/>
+          <rect x="11" y="9" width="138" height="13" fill="#d4261a"/>
+          <text x="80" y="19.5" text-anchor="middle" font-family="Anton,Impact,sans-serif" font-size="10" fill="#fff4e4" letter-spacing=".5">ALTILLO</text>
+          <rect x="40" y="29" width="80" height="30" rx="15" fill="#17140f"/>
+          <path d="M52,44 h56" stroke="#5b3a22" stroke-width="7"/>
+          <g class="rueda"><circle cx="55" cy="44" r="10" fill="#ede5d0"/><circle cx="55" cy="44" r="3.5" fill="#17140f"/><path d="M55,35 v5 M55,48 v5 M46,44 h5 M59,44 h5" stroke="#17140f" stroke-width="2.2"/></g>
+          <g class="rueda"><circle cx="105" cy="44" r="10" fill="#ede5d0"/><circle cx="105" cy="44" r="3.5" fill="#17140f"/><path d="M105,35 v5 M105,48 v5 M96,44 h5 M109,44 h5" stroke="#17140f" stroke-width="2.2"/></g>
+          <text x="80" y="64" text-anchor="middle" font-family="Courier Prime,monospace" font-size="5.2" fill="#17140f" letter-spacing=".4">CARA A · CUALQUIER COSA COMBINA</text>
+          <path d="M30,103 l8,-22 h84 l8,22" fill="#2a2520"/>
+          <circle cx="56" cy="94" r="3" fill="#17140f"/><circle cx="104" cy="94" r="3" fill="#17140f"/>
+        </svg>
+        <span class="estado" id="casete-estado">▶ Dale al play</span>
+      </button></div>
+      <p class="sonando-ahora" id="sonando" aria-live="polite"></p>
+    </div>
+  </div>
   <p class="gancho">Concierto performativo de raíz ibérica y latina, electrónica y letras ácidas. <strong>Se canta, se cuenta, se baila</strong> y, de paso, se piensa. Un dúo de Madrid que convierte la crítica en fiesta.</p>
 
   <button class="video" type="button" data-youtube="qTfbxBdEPdw" aria-label="Ver ALTILLO en directo en la Sala Villanos">
@@ -449,6 +498,30 @@ ul,ol{padding:0;list-style:none}
       b.replaceWith(d);
     }, { once: true });
   });
+
+  /* Cassette: reproduce el disco en orden; pulsar = play / pausa */
+  var DISCO = [
+    ["01-receta.mp3","Receta"],["02-cualquier-cosa-combina.mp3","Cualquier cosa combina"],["03-intro.mp3","Intro"],
+    ["04-mande.mp3","Mande"],["05-poema-de-pena-y-manta.mp3","Poema de Pena y manta"],["06-pena-y-manta.mp3","Pena y manta"],
+    ["07-ruina-y-cobre.mp3","Ruina y cobre"],["08-empecinadas.mp3","Empecinadas"],["09-yoga-y-panceta.mp3","Yoga y panceta"],["10-la-marea.mp3","La marea"]
+  ];
+  var casete = document.getElementById("casete"), estado = document.getElementById("casete-estado"), sonando = document.getElementById("sonando");
+  var audio = new Audio(), pista = 0;
+  audio.preload = "none";
+  function carga(i){ pista = (i + DISCO.length) % DISCO.length; audio.src = "audio/" + DISCO[pista][0]; }
+  function pinta(){
+    var on = !audio.paused;
+    casete.classList.toggle("sonando", on);
+    estado.textContent = on ? "❚❚ Pausa" : "▶ Dale al play";
+    sonando.textContent = audio.src ? (on ? "Sonando: " : "En pausa: ") + (pista + 1) + ". " + DISCO[pista][1] : "";
+  }
+  casete.addEventListener("click", function(){
+    if (!audio.src) carga(0);
+    if (audio.paused) audio.play().catch(function(){}); else audio.pause();
+  });
+  audio.addEventListener("play", pinta);
+  audio.addEventListener("pause", pinta);
+  audio.addEventListener("ended", function(){ carga(pista + 1); audio.play().catch(function(){}); });
 })();
 </script>
 </body>
