@@ -15,10 +15,22 @@
    ===================================================================== */
 window.ALTILLO_LAB = {
   bloques: {
-    arraigo: { nombre: 'Arraigo',          color: '#E8694F', tinta: '#17140f', figura: 'figura-burro.webp' },
-    deseo:   { nombre: 'Deseo',            color: '#F5B700', tinta: '#17140f', figura: 'figura-cerdita.webp' },
-    contra:  { nombre: 'Contradicción',    color: '#d4261a', tinta: '#ede5d0', figura: 'figura-mono.webp' },
-    cierre:  { nombre: 'Ensayo y muestra', color: '#17140f', tinta: '#ede5d0', figura: 'figura-sillon.webp' }
+    arraigo: { nombre: 'Arraigo',          color: '#E8694F', tinta: '#17140f', figura: 'figura-burro.webp',
+               gancho: 'Tu abuela también hacía producción musical. Sin saberlo.',
+               desc: 'Palos, ritmos, cantes y coplas de aquí y de allá como cantera, para que suenes a ti y a tu sitio.',
+               tellevas: 'un tema con tradición', tocamos: 'ritmo, compás, sampleo y voz' },
+    deseo:   { nombre: 'Deseo',            color: '#F5B700', tinta: '#17140f', figura: 'figura-cerdita.webp',
+               gancho: 'Aquí se viene a querer cosas en voz alta.',
+               desc: 'Escuchamos canciones que desean fuerte, desmontamos cómo lo hacen y escribes la tuya desde ahí.',
+               tellevas: 'una primera maqueta', tocamos: 'melodía, motivo y forma' },
+    contra:  { nombre: 'Contradicción',    color: '#d4261a', tinta: '#ede5d0', figura: 'figura-mono.webp',
+               gancho: 'Si no te contradices, no estás escribiendo.',
+               desc: 'Lo que chirría también se compone. Jugamos con el contraste entre lo que dices y cómo suena.',
+               tellevas: 'producción cerrada', tocamos: 'arreglo, tensión y mezcla' },
+    cierre:  { nombre: 'Ensayo y muestra', color: '#17140f', tinta: '#ede5d0', figura: 'figura-sillon.webp',
+               gancho: 'Del altillo al escenario.',
+               desc: 'Un ensayo general y una noche para enseñar todo lo que ha salido del laboratorio, con público y sin red.',
+               tellevas: '', tocamos: '' }
   },
   sesiones: [
     { n: 1, bloque: 'arraigo', fecha: '2027-01-13', titulo: 'Palos y compases',
@@ -98,6 +110,29 @@ window.ALTILLO_LAB = {
       pdfs:   [{ t: 'Fotos de la muestra (carpeta)', url: '', pags: null }],
       textos: [],
       fisico: [] }
+  ],
+  /* TEMARIO COMPLETO (temario.html) ----------------------------------------
+     Lo que de verdad vamos a ver en cada sesión. Mientras un campo esté vacío,
+     la página lo enseña como «pendiente». Cuando una sesión esté cerrada, pon listo: true.
+       titulo       -> nombre de la sesión
+       trabajamos   -> lista de contenidos: ['Compás de amalgama', 'Copla como letra', ...]
+       juego        -> el juego o resorte creativo de la sesión
+       escucha      -> canciones o referencias: ['Artista · Tema', ...]
+       herramientas -> apps o programas que se usan: ['Coetus', 'Ableton', ...]
+       tellevas     -> lo que sale de la sesión
+     ------------------------------------------------------------------------ */
+  temario: [
+    { n: 1, listo: false, titulo: '', trabajamos: [], juego: '', escucha: [], herramientas: [], tellevas: '' },
+    { n: 2, listo: false, titulo: '', trabajamos: [], juego: '', escucha: [], herramientas: [], tellevas: '' },
+    { n: 3, listo: false, titulo: '', trabajamos: [], juego: '', escucha: [], herramientas: [], tellevas: '' },
+    { n: 4, listo: false, titulo: '', trabajamos: [], juego: '', escucha: [], herramientas: [], tellevas: '' },
+    { n: 5, listo: false, titulo: '', trabajamos: [], juego: '', escucha: [], herramientas: [], tellevas: '' },
+    { n: 6, listo: false, titulo: '', trabajamos: [], juego: '', escucha: [], herramientas: [], tellevas: '' },
+    { n: 7, listo: false, titulo: '', trabajamos: [], juego: '', escucha: [], herramientas: [], tellevas: '' },
+    { n: 8, listo: false, titulo: '', trabajamos: [], juego: '', escucha: [], herramientas: [], tellevas: '' },
+    { n: 9, listo: false, titulo: '', trabajamos: [], juego: '', escucha: [], herramientas: [], tellevas: '' },
+    { n: 10, listo: false, titulo: '', trabajamos: [], juego: '', escucha: [], herramientas: [], tellevas: '' },
+    { n: 11, listo: false, titulo: '', trabajamos: [], juego: '', escucha: [], herramientas: [], tellevas: '' }
   ],
   herramientas: [
     { t: 'Coetus', url: 'apps/coetus/index.html', para: 'Todo el curso',
