@@ -739,19 +739,11 @@ a.herr:hover{transform:translate(-3px,-3px) rotate(-1.5deg);box-shadow:6px 6px 0
         <span class="script nota">Plazas limitadas. El altillo es grande, pero no tanto.</span>
         <span class="trasto" data-par="40" aria-hidden="true"><img src="../assets/img/collage-ariana-v3.webp" alt="" width="700" height="487" style="--g:-5deg"></span>
       </div>
-      <form class="form" id="f-contacto" novalidate>
-        <div class="row">
-          <label for="c-nombre">Nombre<input id="c-nombre" autocomplete="name"></label>
-          <label for="c-mail">Email<input id="c-mail" type="email" autocomplete="email"></label>
-        </div>
-        <label for="c-toco">¿Qué tocas o cantas?<input id="c-toco" placeholder="Guitarra, voz, ukelele, lo que sea"></label>
-        <label for="c-modo">Me interesa
-          <select id="c-modo"><option>Presencial en Madrid</option><option>Online</option><option>Solo quiero info</option></select>
-        </label>
-        <label for="c-cancion">Cuéntanos tu canción a medias<textarea id="c-cancion" rows="3"></textarea></label>
-        <button class="btn" type="submit" style="background:var(--tinta);border-color:var(--tinta)">Mandar</button>
-        <p class="msg" id="c-msg" role="status"></p>
-      </form>
+      <div class="form" id="inscribete">
+        <p style="font-size:1.05rem;line-height:1.5">La ficha se rellena en cinco minutos. Al enviarla te llega el resguardo por correo y te sale el enlace para pagar la reserva de tu plaza.</p>
+        <a class="btn" href="inscripcion/" style="background:var(--tinta);border-color:var(--tinta);justify-self:start">Inscríbete</a>
+        <p class="msg">¿Dudas antes de apuntarte? Ariana, <a href="tel:+34629788980">629 788 980</a> · David, <a href="tel:+34638527425">638 527 425</a>.</p>
+      </div>
     </div>
   </section>
 </main>
@@ -935,9 +927,6 @@ a.herr:hover{transform:translate(-3px,-3px) rotate(-1.5deg);box-shadow:6px 6px 0
       pinta(); }
   }catch(e){}
 
-  document.getElementById('f-contacto').addEventListener('submit', function(ev){
-    ev.preventDefault(); document.getElementById('c-msg').textContent = 'Prototipo: este formulario todavía no envía nada.';
-  });
 })();
 </script>
 </body>
