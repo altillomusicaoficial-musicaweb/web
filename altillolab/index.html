@@ -159,6 +159,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 /* temario */
 .temario h2{font-size:clamp(4.4rem,15vw,14rem);color:var(--tomate)}
 .temario .lema-t{font-size:clamp(1.4rem,2.6vw,2.4rem);margin-top:.3rem}
+.temario .ver-temario{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:22px}
+.temario-fin{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;margin-top:clamp(40px,6vw,80px)}
+.temario-fin .script{font-size:clamp(1.6rem,3vw,2.6rem)}
+.temario-fin .btn{font-size:1rem;padding:1em 1.6em;box-shadow:6px 6px 0 var(--tinta)}
 .concepto{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,5vw,80px);align-items:center;padding-block:clamp(48px,7vw,96px);border-top:1.5px solid var(--tinta)}
 .concepto:first-of-type{margin-top:clamp(36px,5vw,64px)}
 .concepto.inv .txt{order:2}
@@ -493,6 +497,7 @@ a.herr:hover{transform:translate(-3px,-3px) rotate(-1.5deg);box-shadow:6px 6px 0
       <div class="cab label"><span class="num">02</span><span>Temario · tres conceptos, tres sesiones cada uno</span></div>
       <h2 class="display rv">Temario</h2>
       <p class="script lema-t">Cómo nos lo montamos, la verdad.</p>
+      <p class="ver-temario"><a class="btn" href="temario.html">Ver el temario completo →</a> <span class="provisional">En obras</span></p>
 
       <article class="concepto">
         <div class="txt">
@@ -536,6 +541,11 @@ a.herr:hover{transform:translate(-3px,-3px) rotate(-1.5deg);box-shadow:6px 6px 0
         </div>
         <div class="escena rv" data-par="-50" style="--rg:2deg"><div class="fondo f-muestra"><span>¡Ya!</span></div><div class="pieza"><img src="../assets/img/figura-sillon.webp" alt="" width="520" height="570"></div><span class="sello">Se sirve<br>en directo</span></div>
       </article>
+
+      <div class="temario-fin rv">
+        <p class="script">¿Quieres verlo sesión a sesión?</p>
+        <a class="btn" href="temario.html">Abrir el temario completo</a>
+      </div>
     </div>
   </section>
 
